@@ -111,9 +111,14 @@
   font-size: 2rem;
   font-weight: 500;
   cursor: pointer;
-  margin-top: 20px;
 }
 
+.back-btn {
+  margin: 20px;
+  background-color: inherit;
+  border: none;
+  cursor: pointer;
+}
 /* 반응형 (작은 화면) */
 @media screen and (max-width: 500px) {
   .signup-container {

@@ -3,7 +3,7 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 80px;
+  height: 105px;
   background-color: #ffffff;
   border-top: 1px solid #ddd;
   display: flex;
@@ -14,8 +14,8 @@
 
 /* 버튼 기본 */
 .nav-button {
-  width: 60px;
-  height: 60px;
+  width: 100px;
+  height: 80px;
   background: none;
   border: none;
   display: flex;
@@ -23,13 +23,13 @@
   align-items: center;
   justify-content: center;
   color: #444;
-  font-size: 13px;
+  font-size: 16px;
   cursor: pointer;
   background-repeat: no-repeat;
   background-position: center 8px;
-  background-size: 24px 24px;
+  background-size: 48px 48px;
   transition: color 0.2s ease;
-  padding-top: 36px; /* 아이콘과 텍스트 간격 확보 */
+  padding-top: 56px; /* 아이콘과 텍스트 간격 확보 */
 }
 
 /* 활성화 시 색상 강조 */
