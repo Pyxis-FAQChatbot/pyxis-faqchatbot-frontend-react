@@ -1,0 +1,23 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+/* 전체 배경 */
+body {
+  background-color: #aaaaaa; /* #aaa 단색배경 */
+  font-family: "Noto Sans KR", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 중앙정렬 */
+.page-wrapper {
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#root {
+  margin: auto;
+}

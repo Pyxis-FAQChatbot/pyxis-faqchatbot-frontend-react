@@ -1,0 +1,160 @@
+
+/* 내부 카드영역 */
+.signup-container {
+  width: 700px;
+  min-height: 840px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+.signup-title {
+  color: #2b6cb0;
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+}
+
+.signup-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* 각 행 */
+.form-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5em;
+}
+
+.form-row label {
+  flex: 0 0 150px;
+  font-size: 1.5rem;
+  color: #222;
+  white-space: nowrap;
+}
+
+/* 입력 필드 */
+.form-row input,
+.form-row select {
+  flex: 1;
+  height: 2rem;
+  border: none;
+  background-color: #f1f6fb;
+  border-radius: 4px;
+  padding: 0 12px;
+  font-size: 1rem;
+}
+
+/* 아이디/닉네임 입력 + 버튼 */
+.input-with-btn {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.input-with-btn input {
+  flex: 1;
+}
+
+.input-with-btn button {
+  background-color: #2b6cb0;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  padding: 0 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* 성별 */
+.gender-group {
+  display: flex;
+  gap: 20px;
+}
+
+.gender-group input[type="radio"] {
+  width: 30px;
+  margin: 0;
+  margin-right: 5px;
+}
+
+/* 생년월일 */
+.birth-group {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+}
+
+.birth-group select {
+  flex: 1;
+}
+
+/* 회원가입 버튼 */
+.submit-btn {
+  width: 100%;
+  height: 60px;
+  background-color: #2b6cb0;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 2rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+/* 반응형 (작은 화면) */
+@media screen and (max-width: 500px) {
+  .signup-container {
+    width: 100%;
+    padding: 20px;
+  }
+  .signup-form {
+    gap: 1.5em;
+  }
+  .form-row:not(.remain) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .form-row label {
+    flex: none;
+    font-size: 16px;
+  }
+  .form-row>input {
+    width: 100%;
+    margin-right: 20px;
+    box-sizing: border-box;
+  }
+  .input-with-btn {
+    width: 100%;
+    
+  }
+
+  .input-with-btn button {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .input-with-btn>input {
+    min-width: 0
+  }
+  .birth-group {
+    width: 100%;
+    flex-direction: row;
+  }
+
+  .submit-btn {
+    font-size: 1.5rem;
+  }
+}

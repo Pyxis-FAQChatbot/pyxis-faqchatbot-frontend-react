@@ -1,0 +1,72 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background-color: #ffffff;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+}
+
+/* 버튼 기본 */
+.nav-button {
+  width: 60px;
+  height: 60px;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+  font-size: 13px;
+  cursor: pointer;
+  background-repeat: no-repeat;
+  background-position: center 8px;
+  background-size: 24px 24px;
+  transition: color 0.2s ease;
+  padding-top: 36px; /* 아이콘과 텍스트 간격 확보 */
+}
+
+/* 활성화 시 색상 강조 */
+.nav-button.active {
+  color: #2a64d6;
+}
+
+/* 각 버튼에 배경 이미지 적용 */
+.nav-button.home {
+  background-image: url("../assets/icons/home.png");
+}
+.nav-button.chat {
+  background-image: url("../assets/icons/message.png");
+}
+.nav-button.community {
+  background-image: url("../assets/icons/group.png");
+}
+.nav-button.trade {
+  background-image: url("../assets/icons/handshake.png");
+}
+.nav-button.mypage {
+  background-image: url("../assets/icons/account.png");
+}
+
+/* 활성화된 버튼의 이미지 교체 (색상 버전 등) */
+.nav-button.home.active {
+  background-image: url("../assets/icons/home_active.png");
+}
+.nav-button.chat.active {
+  background-image: url("../assets/icons/message_active.png");
+}
+.nav-button.community.active {
+  background-image: url("../assets/icons/community_active.png");
+}
+.nav-button.trade.active {
+  background-image: url("/icons/trade_active.png");
+}
+.nav-button.mypage.active {
+  background-image: url("/icons/mypage_active.png");
+}
