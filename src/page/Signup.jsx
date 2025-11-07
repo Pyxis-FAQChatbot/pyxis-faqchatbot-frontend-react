@@ -21,7 +21,9 @@ const Signup = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
-
+  const [idChecked, setIdChecked] = useState(false);
+  const [nicknameChecked, setNicknameChecked] = useState(false);
+  
   // 입력값 변경 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,11 +79,49 @@ const Signup = () => {
 
   // 아이디/닉네임 중복확인 (예시)
   const handleIdCheck = async () => {
-    alert(`아이디 "${formData.userId}" 중복확인 API 호출`);
+    if (!formData.userId.trim()) {
+      alert("아이디를 입력해주세요.");
+      return;
+    }
+
+    try {
+      const res = await axios.get(
+        `http://localhost:8080/api/v1/check-id?loginId=${formData.userId}`
+      );
+      if (res.data.available) {
+        alert("사용 가능한 아이디입니다!");
+        setIdChecked(true);
+      } else {
+        alert("이미 사용 중인 아이디입니다.");
+        setIdChecked(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("아이디 중복확인 중 오류가 발생했습니다.");
+    }
   };
 
   const handleNicknameCheck = async () => {
-    alert(`닉네임 "${formData.nickname}" 중복확인 API 호출`);
+    if (!formData.nickname.trim()) {
+      alert("닉네임을 입력해주세요.");
+      return;
+    }
+  
+    try {
+      const res = await axios.get(
+        `http://localhost:8080/api/v1/check-nickname?nickname=${formData.nickname}`
+      );
+      if (res.data.available) {
+        alert("사용 가능한 닉네임입니다!");
+        setNicknameChecked(true);
+      } else {
+        alert("이미 사용 중인 닉네임입니다.");
+        setNicknameChecked(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("닉네임 중복확인 중 오류가 발생했습니다.");
+    }
   };
 
   // 회원가입 처리
@@ -99,20 +139,35 @@ const Signup = () => {
         gender: formData.gender,
         birth: `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`,
       };
-
-      const response = await axios.post(
-        "http://localhost:8080/api/v1/users",
+    // 1. 가입요청
+      const signupRes = await axios.post(
+        "http://localhost:8080/api/v1/signup",
         requestData
       );
 
       console.log("회원가입 성공:", response.data);
-      alert("회원가입이 완료되었습니다!");
+      // 2. 자동 로그인 처리
+      const loginRes = await axios.post("http://localhost:8080/api/v1/login", {
+        loginId: formData.userId,
+        password: formData.password,
+      });
 
-      navigate("/"); // 로그인 페이지로 이동
+    // 3. 토큰 저장
+      const token = loginRes.data.token;
+      if (token) {
+        localStorage.setItem("accessToken", token);
+      }
+
+    // 4. 1회성 팝업 플래그 저장 (메인에서 확인 예정)
+      sessionStorage.setItem("showSignupPopup", "true");
+      
+      // 5. 메인 페이지로 이동
+      navigate("/main", { replace: true });
     } catch (error) {
-      console.error("회원가입 실패:", error);
+      console.error("회원가입 또는 자동 로그인 실패:", error);
       const message =
-        error.response?.data || "회원가입에 실패했습니다. 다시 시도해주세요.";
+        error.response?.data?.message ||
+        "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.";
       setErrors({ general: message });
     } finally {
       setIsLoading(false);
