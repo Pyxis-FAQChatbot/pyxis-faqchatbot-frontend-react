@@ -17,7 +17,7 @@ export default function BottomNav() {
       </button>
 
       <button
-        className={`nav-button chat ${currentPath === "/chat" ? "active" : ""}`}
+        className={`nav-button chat ${currentPath === "/chatbot" ? "active" : ""}`}
         onClick={() => navigate("/chatbot")}
       >
         <span>채팅</span>

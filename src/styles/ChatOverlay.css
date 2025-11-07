@@ -1,0 +1,125 @@
+/* 반투명 배경 */
+.overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 90;
+}
+
+.overlay-backdrop.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 사이드 패널 */
+.chat-overlay {
+  position: fixed;
+  top: 0;
+  left: -80%;
+  width: 50%;
+  height: 100%;
+  background-color: #fff;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  transition: left 0.3s ease;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-overlay.open {
+  left: 0;
+}
+
+.overlay-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.overlay-logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* 사각형과 글자 간 간격 */
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.overlay-placeholder {
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: #ccc;
+  background-image: url('../assets/pyxis_logo.png');
+  background-size : 80%;
+  background-repeat : no-repeat ;
+  background-position : center center;
+  border-radius: 1rem;
+  color: transparent;
+}
+
+.overlay-title {
+  color: #000; /* 글자 색 (원하는 색으로 변경 가능) */
+}
+
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #444;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  transform: translateX(-2px);
+}
+
+.overlay-content {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  color: #333;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: 0.2s;
+}
+
+.new-chat-btn:hover {
+  background-color: #f5f7fa;
+  border-radius: 8px;
+}
+
+.chat-room-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-room-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.chat-room-item:hover {
+  background-color: #f1f4f8;
+}
