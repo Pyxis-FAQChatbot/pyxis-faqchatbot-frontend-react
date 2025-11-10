@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginPath } from "../api/loginApi";
 import axios from "axios";
 import logo from "../assets/pyxis_logo.png";
 import "../styles/Login.css";
@@ -44,9 +45,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/v1/login",
-        formData,
+      const response = await loginPath( formData,
         { withCredentials: true }
       );
 

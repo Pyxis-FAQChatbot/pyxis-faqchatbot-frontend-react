@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "../styles/ChatOverlay.css";
+import {botRoomPath} from "../api/chatApi"
 
 export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat }) {
   const [rooms, setRooms] = useState([]);
 
   // ✅ 채팅방 목록 불러오기
   useEffect(() => {
-    if (isOpen) {
-      axios
-        .get("http://localhost:8080/api/v1/chatbot/rooms?page=0&size=10")
-        .then((res) => {
-          const sorted = res.data.rooms.sort(
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-          );
-          setRooms(sorted);
-        })
-        .catch((err) => console.error("채팅방 목록 로드 실패:", err));
+    if (isOpen) { botRoomPath(page, size)
+      .then((res) => {
+        const sorted = res.data.rooms.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setRooms(sorted);
+      })
+      .catch((err) => console.error("채팅방 목록 로드 실패:", err));
     }
   }, [isOpen]);
 

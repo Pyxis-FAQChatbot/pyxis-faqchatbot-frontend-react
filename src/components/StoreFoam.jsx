@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
-import "./StoreFoam.css";
+import { storePath } from "../api/storeApi";
+import "../styles/StoreFoam.css";
 
 const StoreFoam = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -18,7 +18,7 @@ const StoreFoam = ({ onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8080/api/v1/company", formData);
+      await storePath(formData);
       alert("등록이 완료되었습니다.");
       onClose(); // 오버레이 닫기
     } catch (error) {

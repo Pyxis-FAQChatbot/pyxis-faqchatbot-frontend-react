@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { chatApi } from "../api/chatApi"
 import Header from "../components/Header";
 import ChatOverlay from "../components/ChatOverlay";
 import ChatInput from "../components/ChatInput";
 import BottomNav from "../components/BottomNav";
 import "../styles/ChatPage.css";
-import axios from "axios";
 
 
 export default function ChatPage() {
@@ -18,6 +18,7 @@ export default function ChatPage() {
   const [totalPages, setTotalPages] = useState(1);
   const chatContainerRef = useRef(null);
   const PAGE_SIZE = 20;
+  const DEFAULT_CHAT = "새로운 봇";
 
   // ✅ 메시지 불러오기 (페이지 단위)
   const fetchMessages = async (id, pageNum = 0) => {
@@ -25,9 +26,10 @@ export default function ChatPage() {
 
     try {
       setIsLoading(true);
-      const res = await axios.get(
-        `http://localhost:8080/api/v1/chatbot/${id}/message?page=${pageNum}&size=${PAGE_SIZE}`
-      );
+      // const res = await axios.get(
+      //   `http://localhost:8080/api/v1/chatbot/${id}/message?page=${pageNum}&size=${PAGE_SIZE}`
+      // );
+      const res = await chatApi.botMsgLog(id, pageNum, PAGE_SIZE);
 
       const data = res.data;
       const fetched = data.messages || [];
@@ -82,9 +84,7 @@ export default function ChatPage() {
 
       // ✅ chatId 없으면 새 방 생성
       if (!chatId) {
-        const createRes = await axios.post(
-          "http://localhost:8080/api/v1/chatbot"
-        );
+        const createRes = await chatApi.botCreatePath(DEFAULT_CHAT);
 
         const newChatId = createRes.data.botChatId;
         navigate(`/chatbot/${newChatId}`, { replace: true });
@@ -92,8 +92,7 @@ export default function ChatPage() {
       }
 
       // ✅ 기존 방에 메시지 전송
-      const response = await axios.post(
-        `http://localhost:8080/api/v1/chatbot/${chatId}/message`,
+      const response = await chatApi.botMsgPath(chatId,
         { userQuery: userInput }
       );
 
@@ -174,7 +173,7 @@ export default function ChatPage() {
         }}
         onNewChat={async () => {
           try {
-            const res = await axios.post("http://localhost:8080/api/v1/chatbot");
+            const res = await chatApi.botCreatePath(DEFAULT_CHAT);
             const newChatId = res.data.botChatId;
             setIsOverlayOpen(false);
             navigate(`/chat/${newChatId}`);

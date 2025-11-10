@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { checkIdPath, checkNickPath, registerPath } from "../api/authApi";
+import { loginPath } from "../api/loginApi";
 import "../styles/Signup.css";
 
 const Signup = () => {
@@ -10,9 +11,9 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     userId: "",
     password: "",
-    confirmPassword: "",
+    checkPassword: "",
     nickname: "",
-    region: "",
+    addressMain: "",
     gender: "",
     birthYear: "",
     birthMonth: "",
@@ -51,8 +52,8 @@ const Signup = () => {
       newErrors.password = "비밀번호를 입력해주세요.";
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
+    if (formData.password !== formData.checkPassword) {
+      newErrors.checkPassword = "비밀번호가 일치하지 않습니다.";
     }
 
     if (!formData.nickname.trim()) {
@@ -65,8 +66,8 @@ const Signup = () => {
       newErrors.birth = "생년월일을 모두 선택해주세요.";
     }
 
-    if (!formData.region) {
-      newErrors.region = "지역을 선택해주세요.";
+    if (!formData.addressMain) {
+      newErrors.addressMain = "지역을 선택해주세요.";
     }
 
     if (!formData.gender) {
@@ -85,9 +86,7 @@ const Signup = () => {
     }
 
     try {
-      const res = await axios.get(
-        `http://localhost:8080/api/v1/check-id?loginId=${formData.userId}`
-      );
+      const res = await checkIdPath(formData.userId);
       if (res.data.available) {
         alert("사용 가능한 아이디입니다!");
         setIdChecked(true);
@@ -108,9 +107,7 @@ const Signup = () => {
     }
   
     try {
-      const res = await axios.get(
-        `http://localhost:8080/api/v1/check-nickname?nickname=${formData.nickname}`
-      );
+      const res = await checkNickPath(formData.nickname);
       if (res.data.available) {
         alert("사용 가능한 닉네임입니다!");
         setNicknameChecked(true);
@@ -132,25 +129,23 @@ const Signup = () => {
 
     try {
       const requestData = {
-        username: formData.userId,
-        pw: formData.password,
-        nick: formData.nickname,
-        region: formData.region,
+        loginId: formData.userId,
+        password: formData.password,
+        checkPassword: formData.checkPassword,
+        nickname: formData.nickname,
+        addressMain: formData.addressMain,
         gender: formData.gender,
-        birth: `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`,
+        birthday: `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`,
       };
     // 1. 가입요청
-      const signupRes = await axios.post(
-        "http://localhost:8080/api/v1/signup",
-        requestData
-      );
+      const signupRes = await registerPath(requestData);
 
       console.log("회원가입 성공:", response.data);
       // 2. 자동 로그인 처리
-      const loginRes = await axios.post("http://localhost:8080/api/v1/login", {
+      const loginRes = await loginPath ({
         loginId: formData.userId,
         password: formData.password,
-      });
+      },{ withCredentials: true });
 
     // 3. 토큰 저장
       const token = loginRes.data.token;
@@ -233,16 +228,16 @@ const Signup = () => {
             <label>비밀번호 확인</label>
             <input
               type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
+              name="checkPassword"
+              value={formData.checkPassword}
               onChange={handleChange}
               placeholder="비밀번호 재입력"
               required
               disabled={isLoading}
-              className={errors.confirmPassword ? "error" : ""}
+              className={errors.checkPassword ? "error" : ""}
             />
-            {errors.confirmPassword && (
-              <div className="error-text">{errors.confirmPassword}</div>
+            {errors.checkPassword && (
+              <div className="error-text">{errors.checkPassword}</div>
             )}
           </div>
 
@@ -327,12 +322,12 @@ const Signup = () => {
           <div className="form-row remain">
             <label>지역</label>
             <select
-              name="region"
-              value={formData.region}
+              name="addressMain"
+              value={formData.addressMain}
               onChange={handleChange}
               required
               disabled={isLoading}
-              className={errors.region ? "error" : ""}
+              className={errors.addressMain ? "error" : ""}
             >
               <option value="">선택</option>
               {[
@@ -359,8 +354,8 @@ const Signup = () => {
                 </option>
               ))}
             </select>
-            {errors.region && (
-              <div className="error-text">{errors.region}</div>
+            {errors.addressMain && (
+              <div className="error-text">{errors.addressMain}</div>
             )}
           </div>
 
