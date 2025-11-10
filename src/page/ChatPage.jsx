@@ -18,7 +18,6 @@ export default function ChatPage() {
   const [totalPages, setTotalPages] = useState(1);
   const chatContainerRef = useRef(null);
   const PAGE_SIZE = 20;
-  const DEFAULT_CHAT = "새로운 봇";
 
   // ✅ 메시지 불러오기 (페이지 단위)
   const fetchMessages = async (id, pageNum = 0) => {
@@ -84,9 +83,9 @@ export default function ChatPage() {
 
       // ✅ chatId 없으면 새 방 생성
       if (!chatId) {
-        const createRes = await chatApi.botCreatePath(DEFAULT_CHAT);
+        const createRes = await chatApi.botCreatePath();
 
-        const newChatId = createRes.data.botChatId;
+        const newChatId = createRes.botChatId;
         navigate(`/chatbot/${newChatId}`, { replace: true });
         return;
       }
@@ -96,7 +95,7 @@ export default function ChatPage() {
         { userQuery: userInput }
       );
 
-      const botReply = response.data.botResponse;
+      const botReply = response.botResponse;
 
       // 봇 응답 표시
       setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
@@ -173,8 +172,8 @@ export default function ChatPage() {
         }}
         onNewChat={async () => {
           try {
-            const res = await chatApi.botCreatePath(DEFAULT_CHAT);
-            const newChatId = res.data.botChatId;
+            const res = await chatApi.botCreatePath();
+            const newChatId = res.botChatId;
             setIsOverlayOpen(false);
             navigate(`/chat/${newChatId}`);
           } catch (err) {

@@ -111,6 +111,10 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow-y: auto;
+}
+.chat-room-list::-webkit-scrollbar{
+  display:none;
 }
 
 .chat-room-item {

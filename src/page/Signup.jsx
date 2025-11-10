@@ -78,7 +78,7 @@ const Signup = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // 아이디/닉네임 중복확인 (예시)
+  // 아이디/닉네임 중복확인
   const handleIdCheck = async () => {
     if (!formData.userId.trim()) {
       alert("아이디를 입력해주세요.");
@@ -87,7 +87,7 @@ const Signup = () => {
 
     try {
       const res = await checkIdPath(formData.userId);
-      if (res.data.available) {
+      if (res.available) {
         alert("사용 가능한 아이디입니다!");
         setIdChecked(true);
       } else {
@@ -108,7 +108,7 @@ const Signup = () => {
   
     try {
       const res = await checkNickPath(formData.nickname);
-      if (res.data.available) {
+      if (res.available) {
         alert("사용 가능한 닉네임입니다!");
         setNicknameChecked(true);
       } else {
@@ -140,7 +140,7 @@ const Signup = () => {
     // 1. 가입요청
       const signupRes = await registerPath(requestData);
 
-      console.log("회원가입 성공:", response.data);
+      console.log("회원가입 성공:", response);
       // 2. 자동 로그인 처리
       const loginRes = await loginPath ({
         loginId: formData.userId,
@@ -148,7 +148,7 @@ const Signup = () => {
       },{ withCredentials: true });
 
     // 3. 토큰 저장
-      const token = loginRes.data.token;
+      const token = loginRes.token;
       if (token) {
         localStorage.setItem("accessToken", token);
       }
@@ -161,7 +161,7 @@ const Signup = () => {
     } catch (error) {
       console.error("회원가입 또는 자동 로그인 실패:", error);
       const message =
-        error.response?.data?.message ||
+        error.response?.message ||
         "회원가입 중 문제가 발생했습니다. 다시 시도해주세요.";
       setErrors({ general: message });
     } finally {

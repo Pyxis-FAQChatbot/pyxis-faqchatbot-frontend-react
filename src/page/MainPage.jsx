@@ -7,10 +7,10 @@ import '../styles/MainPage.css';
 export default function MainPage() {
   const [showStoreForm, setShowStoreForm] = useState(false);
   useEffect(() => {
-    const justSignedUp = localStorage.getItem("justSignedUp");
+    const justSignedUp = sessionStorage.getItem("showSignupPopup");
     if (justSignedUp === "true") {
-      setShowModal(true);
-      localStorage.removeItem("justSignedUp"); // ✅ 1회성
+      setShowStoreForm(true);
+      sessionStorage.removeItem("showSignupPopup"); // ✅ 1회성
     }
   }, []);
   return (

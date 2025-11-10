@@ -49,8 +49,8 @@ const Login = () => {
         { withCredentials: true }
       );
 
-      console.log("로그인 성공:", response.data);
-      localStorage.setItem("userInfo", JSON.stringify(response.data));
+      console.log("로그인 성공:", response);
+      localStorage.setItem("userInfo", JSON.stringify(response));
       localStorage.setItem("isLoggedIn", "true");
 
       navigate("/main");
