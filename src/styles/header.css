@@ -1,0 +1,14 @@
+.logout-button {
+  width: 80px;
+  height: 36px;
+  background-color: #ccc;
+  border: 1px solid #999;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: auto; /* 오른쪽 정렬 */
+  font-weight: bold;
+}
+
+.logout-button:hover {
+  background-color: #bbb;
+}

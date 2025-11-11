@@ -2,6 +2,7 @@ const endpoints = {
   auth: {
     signup: "/api/v1/signup",
     login: "/api/v1/login",
+    logout: "/api/v1/logout",
     chackid: "/api/v1/check-id",
     chacknick: "/api/v1/check-nickname",
     me: "/api/v1/me"

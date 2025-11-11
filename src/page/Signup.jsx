@@ -87,7 +87,7 @@ const Signup = () => {
 
     try {
       const res = await checkIdPath(formData.userId);
-      if (res.available) {
+      if (res.status === 200) {
         alert("사용 가능한 아이디입니다!");
         setIdChecked(true);
       } else {
@@ -108,7 +108,7 @@ const Signup = () => {
   
     try {
       const res = await checkNickPath(formData.nickname);
-      if (res.available) {
+      if (res.status === 200) {
         alert("사용 가능한 닉네임입니다!");
         setNicknameChecked(true);
       } else {
@@ -128,6 +128,9 @@ const Signup = () => {
     setIsLoading(true);
 
     try {
+      const birthMonth = formData.birthMonth.padStart(2, "0");
+      const birthDay = formData.birthDay.padStart(2, "0");
+
       const requestData = {
         loginId: formData.userId,
         password: formData.password,
@@ -135,12 +138,12 @@ const Signup = () => {
         nickname: formData.nickname,
         addressMain: formData.addressMain,
         gender: formData.gender,
-        birthday: `${formData.birthYear}-${formData.birthMonth}-${formData.birthDay}`,
+        birthday: `${formData.birthYear}-${birthMonth}-${birthDay}`,
       };
     // 1. 가입요청
       const signupRes = await registerPath(requestData);
 
-      console.log("회원가입 성공:", response);
+      console.log("회원가입 성공:", signupRes);
       // 2. 자동 로그인 처리
       const loginRes = await loginPath ({
         loginId: formData.userId,
@@ -367,8 +370,8 @@ const Signup = () => {
                 <input
                   type="radio"
                   name="gender"
-                  value="남"
-                  checked={formData.gender === "남"}
+                  value="MALE"
+                  checked={formData.gender === "MALE"}
                   onChange={handleChange}
                   disabled={isLoading}
                 />
@@ -378,8 +381,8 @@ const Signup = () => {
                 <input
                   type="radio"
                   name="gender"
-                  value="여"
-                  checked={formData.gender === "여"}
+                  value="FEMALE"
+                  checked={formData.gender === "FEMALE"}
                   onChange={handleChange}
                   disabled={isLoading}
                 />

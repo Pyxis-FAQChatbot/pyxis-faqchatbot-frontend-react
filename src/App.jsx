@@ -14,6 +14,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/chatbot" element={<Chatbot />} />
+        <Route path="/chatbot/:chatId" element={<Chatbot />} />
         <Route path="/main" element={<Main />} />
       </Routes>
     </Router>

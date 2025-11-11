@@ -45,9 +45,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await loginPath( formData,
-        { withCredentials: true }
-      );
+      const response = await loginPath( formData );
 
       console.log("로그인 성공:", response);
       localStorage.setItem("userInfo", JSON.stringify(response));

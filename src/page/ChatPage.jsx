@@ -168,14 +168,15 @@ export default function ChatPage() {
         onClose={() => setIsOverlayOpen(false)}
         onSelectRoom={(id) => {
           setIsOverlayOpen(false);
-          navigate(`/chat/${id}`);
+          navigate(`/chatbot/${id}`);
         }}
         onNewChat={async () => {
           try {
-            const res = await chatApi.botCreatePath();
+            const defaultTitle = "새로운 챗봇"
+            const res = await chatApi.botCreatePath({title: defaultTitle});
             const newChatId = res.botChatId;
             setIsOverlayOpen(false);
-            navigate(`/chat/${newChatId}`);
+            navigate(`/chatbot/${newChatId}`);
           } catch (err) {
             console.error("새 채팅 생성 실패:", err);
           }
