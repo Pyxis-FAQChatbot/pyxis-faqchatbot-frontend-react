@@ -21,7 +21,7 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat }
       }
 
       const sorted = newRooms.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        (a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt)
       );
 
       // 기존 목록 + 새로 불러온 목록
@@ -88,18 +88,17 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat }
             className="chat-room-list"
             ref={listRef}
             onScroll={handleScroll}
-            style={{ maxHeight: "400px" }} // 스크롤 영역
+            style={{ maxHeight: "470px" }} // 스크롤 영역
           >
             {rooms.map((room) => (
               <div
-                key={room.botChatId}
+                key={room.botchatId}
                 className="chat-room-item"
-                onClick={() => onSelectRoom(room.botChatId)}
+                onClick={() => onSelectRoom(room.botchatId)}
               >
                 {room.title}
               </div>
             ))}
-            
           </div>
         </div>
       </div>

@@ -26,7 +26,6 @@ const botMsgLog = async (id, pageNum, sizeNum) => {
   const response = await axiosInstance.get(endpoints.bot.msg(id), {
     params: { page: pageNum, size: sizeNum },
   });
-  console.log("botMsgLog response:", response.data);
   return response.data; 
 };
 export const chatApi = {

@@ -15,13 +15,15 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const chatContainerRef = useRef(null);
   const PAGE_SIZE = 20;
 
   // ✅ 메시지 불러오기 (페이지 단위)
   const fetchMessages = async (id, pageNum = 0) => {
-    if (isLoading || pageNum >= totalPages) return;
+    console.log("pageNum", pageNum);
+    console.log("totlaPages", totalPages);
+    if (isLoading || pageNum > totalPages) return;
 
     try {
       setIsLoading(true);
@@ -29,12 +31,21 @@ export default function ChatPage() {
       //   `http://localhost:8080/api/v1/chatbot/${id}/message?page=${pageNum}&size=${PAGE_SIZE}`
       // );
       const res = await chatApi.botMsgLog(id, pageNum, PAGE_SIZE);
+      console.log(id)
+      const data = res.data ? res.data : res;
+      const fetched = data.content;
 
-      const data = res.data;
-      const fetched = data.messages || [];
+      // UI가 요구하는 형태로 변환
+      const converted = fetched.flatMap((m) => {
+        const arr = [{ sender: "user", text: m.userQuery }];
+        if (m.botResponse) {
+          arr.push({ sender: "bot", text: m.botResponse, sources: m.sourceData || [] });
+        }
+        return arr;
+      });
 
       // 오래된 → 최신 순으로 변환 (최신이 아래로)
-      const ordered = fetched.reverse();
+      const ordered = converted.reverse();
 
       // 이전 메시지 위로 추가
       setMessages((prev) => [...ordered, ...prev]);
@@ -84,9 +95,9 @@ export default function ChatPage() {
       // ✅ chatId 없으면 새 방 생성
       if (!chatId) {
         const createRes = await chatApi.botCreatePath();
-
+        console.log('새로운쳇 객체확인 : ',createRes.botChatId)
         const newChatId = createRes.botChatId;
-        navigate(`/chatbot/${newChatId}`, { replace: true });
+        navigate(`/chatbot/${newChatId}`);
         return;
       }
 
@@ -96,9 +107,10 @@ export default function ChatPage() {
       );
 
       const botReply = response.botResponse;
+      const botsources = response.sourceData;
 
       // 봇 응답 표시
-      setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
+      setMessages((prev) => [...prev, { sender: "bot", text: botReply , sources:botsources }]);
 
       // 새 메시지 전송 후 스크롤 맨 아래로 이동
       setTimeout(() => {
@@ -155,7 +167,27 @@ export default function ChatPage() {
                 msg.sender === "bot" || msg.role === "assistant" ? "bot" : "user"
               }`}
             >
-              {msg.text || msg.content}
+              <div>{msg.text || msg.content}</div>
+
+              {msg.sender === "bot" && msg.sources?.length > 0 && (
+                <div className="message-sources">
+                  {msg.sources.map((src, i) => (
+                    <div className="source-item" key={i}>
+                      
+                      {/* 제목 */}
+                      <div className="source-title">{src.title}</div>
+                      
+                      {/* URL - 클릭 가능 링크 */}
+                      <a className="source-url" href={src.url} target="_blank" rel="noopener noreferrer">
+                        {src.url}
+                      </a>
+
+                      {/* snippet */}
+                      <div className="source-snippet">{src.snippet}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))
         )}
@@ -167,8 +199,8 @@ export default function ChatPage() {
         isOpen={isOverlayOpen}
         onClose={() => setIsOverlayOpen(false)}
         onSelectRoom={(id) => {
-          setIsOverlayOpen(false);
           navigate(`/chatbot/${id}`);
+          setIsOverlayOpen(false);
         }}
         onNewChat={async () => {
           try {
