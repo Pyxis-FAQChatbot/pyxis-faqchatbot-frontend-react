@@ -14,6 +14,7 @@ const endpoints = {
     create: "/api/v1/chatbot",
     rooms: "/api/v1/chatbot/rooms",
     msg: (id) => `/api/v1/chatbot/${id}/message`,
+    delete: (id) => `/api/v1/chatbot/${id}`,
   }
 };
 

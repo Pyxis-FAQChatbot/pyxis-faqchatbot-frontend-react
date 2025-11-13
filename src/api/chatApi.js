@@ -28,8 +28,14 @@ const botMsgLog = async (id, pageNum, sizeNum) => {
   });
   return response.data; 
 };
+const botDeletePath = async (id) => {
+  const response = await axiosInstance.delete(endpoints.bot.delete(id));
+  return response.data;
+};
+
 export const chatApi = {
     botCreatePath,
     botMsgPath,
-    botMsgLog
+    botMsgLog,
+    botDeletePath
 };

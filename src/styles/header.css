@@ -1,8 +1,9 @@
 .logout-button {
   width: 80px;
   height: 36px;
-  background-color: #ccc;
-  border: 1px solid #999;
+  background-color: #fff;
+  color: #2d3748;
+  border: 1px solid #ccc;
   border-radius: 4px;
   cursor: pointer;
   margin-left: auto; /* 오른쪽 정렬 */
@@ -10,5 +11,6 @@
 }
 
 .logout-button:hover {
-  background-color: #bbb;
+  background-color: #2b6cb0;
+  color: #fff;
 }

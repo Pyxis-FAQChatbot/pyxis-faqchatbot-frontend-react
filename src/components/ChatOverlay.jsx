@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "../styles/ChatOverlay.css";
 import { botRoomPath } from "../api/chatApi";
 
-export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat }) {
+export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, onDeleteRoom }) {
   const PAGE_SIZE = 10; // ✅ 한 번에 불러올 개수 상수 지정
   const [rooms, setRooms] = useState([]);
   const [page, setPage] = useState(0); // ✅ 현재 페이지
@@ -94,9 +94,23 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat }
               <div
                 key={room.botchatId}
                 className="chat-room-item"
-                onClick={() => onSelectRoom(room.botchatId)}
               >
-                {room.title}
+                <div
+                  className="room-title"
+                  onClick={() => onSelectRoom(room.botchatId)}
+                >
+                  {room.title?.trim() ? room.title : "새로운 챗봇"}
+                </div>
+
+                <button
+                  className="delete-btn"
+                  onClick={(e) => {
+                    e.stopPropagation(); // 방 클릭 처리 막기
+                    onDeleteRoom(room.botchatId);
+                  }}
+                >
+                  ✖
+                </button>
               </div>
             ))}
           </div>

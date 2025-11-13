@@ -17,11 +17,11 @@ export default function ChatInput({ onSendMessage }) {
   return (
     <div className="chat-input-container">
       <div className="recommendation-area">
-        <button className="recommend-btn" onClick={() => onSendMessage("추천 질문 1")}>
-          추천 질문 1
+        <button className="recommend-btn" onClick={() => onSendMessage("오늘의 정책을 추천해줘.")}>
+          오늘 정책 추천
         </button>
-        <button className="recommend-btn" onClick={() => onSendMessage("추천 질문 2")}>
-          추천 질문 2
+        <button className="recommend-btn" onClick={() => onSendMessage("가장 최근에 나온 정책을 보여줘. ")}>
+          최신 정책 추천
         </button>
       </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { chatApi } from "../api/chatApi"
+import { chatApi, botRoomPath } from "../api/chatApi"
 import Header from "../components/Header";
 import ChatOverlay from "../components/ChatOverlay";
 import ChatInput from "../components/ChatInput";
@@ -17,12 +17,12 @@ export default function ChatPage() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const chatContainerRef = useRef(null);
+  const [chatTitle, setChatTitle] = useState("챗봇");
   const PAGE_SIZE = 20;
+  const firstMessage = new URLSearchParams(window.location.search).get("firstMessage");
 
   // ✅ 메시지 불러오기 (페이지 단위)
   const fetchMessages = async (id, pageNum = 0) => {
-    console.log("pageNum", pageNum);
-    console.log("totlaPages", totalPages);
     if (isLoading || pageNum > totalPages) return;
 
     try {
@@ -31,24 +31,32 @@ export default function ChatPage() {
       //   `http://localhost:8080/api/v1/chatbot/${id}/message?page=${pageNum}&size=${PAGE_SIZE}`
       // );
       const res = await chatApi.botMsgLog(id, pageNum, PAGE_SIZE);
-      console.log(id)
       const data = res.data ? res.data : res;
       const fetched = data.content;
 
       // UI가 요구하는 형태로 변환
       const converted = fetched.flatMap((m) => {
-        const arr = [{ sender: "user", text: m.userQuery }];
+        const arr = [{ 
+          sender: "user", 
+          text: m.userQuery, 
+          createdAt: m.createdAt }];
         if (m.botResponse) {
-          arr.push({ sender: "bot", text: m.botResponse, sources: m.sourceData || [] });
+          arr.push({ 
+            sender: "bot", 
+            text: m.botResponse,
+            createdAt: m.createdAt, 
+            sources: m.sourceData || [] });
         }
         return arr;
       });
 
       // 오래된 → 최신 순으로 변환 (최신이 아래로)
-      const ordered = converted.reverse();
+      const convertedSorted = converted.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
 
       // 이전 메시지 위로 추가
-      setMessages((prev) => [...ordered, ...prev]);
+      setMessages((prev) => [...prev, ...convertedSorted]);
       setTotalPages(data.totalPages);
       setPage(pageNum + 1);
 
@@ -97,7 +105,7 @@ export default function ChatPage() {
         const createRes = await chatApi.botCreatePath();
         console.log('새로운쳇 객체확인 : ',createRes.botChatId)
         const newChatId = createRes.botChatId;
-        navigate(`/chatbot/${newChatId}`);
+        navigate(`/chatbot/${newChatId}?firstMessage=${encodeURIComponent(userInput)}`);
         return;
       }
 
@@ -128,16 +136,67 @@ export default function ChatPage() {
     }
   };
 
-  // ✅ 채팅방 입장 시 초기 메시지 로드
+  // 체팅페이지 삭제 핸들러
+  const handleDeleteRoom = async (roomId) => {
+    const confirmed = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    try {
+      await chatApi.botDeletePath(roomId);
+
+      // 현재 페이지가 삭제한 방이라면 /chatbot 으로 이동
+      if (String(roomId) === String(chatId)) {
+        navigate("/chatbot");
+      }
+
+      // 오버레이 목록 갱신을 위해 닫았다가 다시 열기
+      setIsOverlayOpen(false);
+      setTimeout(() => setIsOverlayOpen(true), 50);
+    } catch (err) {
+      console.error("채팅방 삭제 실패:", err);
+      alert(err.response?.data?.message || "삭제 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 채팅방 입장 시 초기 메시지 로드
   useEffect(() => {
     if (chatId) {
       setMessages([]);
       setPage(0);
       fetchMessages(chatId, 0);
+      // firstMessage가 있을 경우 자동 전송
+    if (firstMessage) {
+      handleSendMessage(firstMessage);
+      // URL에서 firstMessage를 제거해서 새로고침 시 중복 전송 방지
+      window.history.replaceState({}, "", `/chatbot/${chatId}`);
+    }
     }
   }, [chatId]);
 
-  // ✅ 스크롤 이벤트 등록
+  // 채팅방 제목 로드
+  useEffect(() => {
+    async function loadRoomTitle() {
+      if (!chatId) {
+        setChatTitle("새로운 챗봇");
+        return;
+      }
+
+      try {
+        const res = await botRoomPath(0, 100);
+        const rooms = res.rooms || res.content || [];
+        const room = rooms.find(r => String(r.botchatId) === String(chatId));
+
+        if (room) setChatTitle(room.title);
+        else setChatTitle("새로운 챗봇");
+      } catch (e) {
+        console.error("방 제목 로드 실패:", e);
+        setChatTitle("새로운 챗봇");
+      }
+    }
+    loadRoomTitle();
+  }, [chatId]);
+
+  // 스크롤 이벤트 등록
   useEffect(() => {
     const container = chatContainerRef.current;
     if (!container) return;
@@ -149,47 +208,55 @@ export default function ChatPage() {
     <div className="chat-page">
       <Header
         type="chat"
-        title="봇 채팅창 제목"
+        title={chatTitle}
         onMenuClick={() => setIsOverlayOpen(true)}
       />
 
       <main className="chat-content" ref={chatContainerRef}>
-        {messages.length === 0 ? (
+        
+        {!chatId ? (
           <div className="welcome-screen">
             <div className="logo-placeholder">로고</div>
             <p className="welcome-text">무엇이 궁금하신가요?</p>
           </div>
         ) : (
-          messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`chat-bubble ${
-                msg.sender === "bot" || msg.role === "assistant" ? "bot" : "user"
-              }`}
-            >
-              <div>{msg.text || msg.content}</div>
-
-              {msg.sender === "bot" && msg.sources?.length > 0 && (
-                <div className="message-sources">
-                  {msg.sources.map((src, i) => (
-                    <div className="source-item" key={i}>
-                      
-                      {/* 제목 */}
-                      <div className="source-title">{src.title}</div>
-                      
-                      {/* URL - 클릭 가능 링크 */}
-                      <a className="source-url" href={src.url} target="_blank" rel="noopener noreferrer">
-                        {src.url}
-                      </a>
-
-                      {/* snippet */}
-                      <div className="source-snippet">{src.snippet}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+          messages.length === 0 ? (
+            <div className="welcome-screen">
+              <div className="logo-placeholder">로고</div>
+              <p className="welcome-text">무엇이 궁금하신가요?</p>
             </div>
-          ))
+          ) : (
+            messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`chat-bubble ${
+                  msg.sender === "bot" || msg.role === "assistant" ? "bot" : "user"
+                }`}
+              >
+                <div>{msg.text || msg.content}</div>
+
+                {msg.sender === "bot" && msg.sources?.length > 0 && (
+                  <div className="message-sources">
+                    {msg.sources.map((src, i) => (
+                      <div className="source-item" key={i}>
+                        
+                        {/* 제목 */}
+                        <div className="source-title">{src.title}</div>
+                        
+                        {/* URL - 클릭 가능 링크 */}
+                        <a className="source-url" href={src.url} target="_blank" rel="noopener noreferrer">
+                          {src.url}
+                        </a>
+
+                        {/* snippet */}
+                        <div className="source-snippet">{src.snippet}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))
+          )
         )}
       </main>
 
@@ -204,8 +271,7 @@ export default function ChatPage() {
         }}
         onNewChat={async () => {
           try {
-            const defaultTitle = "새로운 챗봇"
-            const res = await chatApi.botCreatePath({title: defaultTitle});
+            const res = await chatApi.botCreatePath();
             const newChatId = res.botChatId;
             setIsOverlayOpen(false);
             navigate(`/chatbot/${newChatId}`);
@@ -213,6 +279,7 @@ export default function ChatPage() {
             console.error("새 채팅 생성 실패:", err);
           }
         }}
+        onDeleteRoom={handleDeleteRoom}
       />
     </div>
   );
