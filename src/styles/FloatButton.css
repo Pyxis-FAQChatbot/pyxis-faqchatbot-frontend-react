@@ -1,0 +1,27 @@
+.fab-button {
+  position: fixed;
+  bottom: 130px; /* 네비게이션 위 */
+  right: 20px;
+
+  border-radius: 50%;
+  border: none;
+
+  background-color: #3d6bd6;
+  color: white;
+  font-weight: bold;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  z-index: 999;
+  transition: 0.25s;
+}
+
+.fab-button:hover {
+  background-color: #325ac0;
+  transform: translateY(-3px);
+}

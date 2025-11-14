@@ -5,6 +5,7 @@ import Login from "./page/Login.jsx";
 import Signup from './page/Signup.jsx';
 import Chatbot from './page/ChatPage.jsx';
 import Main from './page/MainPage.jsx';
+import Community from './page/CommPage.jsx';
 import "./App.css";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/chatbot/:chatId" element={<Chatbot />} />
+        <Route path="/community" element={<Community />} />
         <Route path="/main" element={<Main />} />
       </Routes>
     </Router>

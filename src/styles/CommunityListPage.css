@@ -1,0 +1,61 @@
+.community-page {
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 80px; /* 하단 네비 여백 */
+}
+
+.community-content {
+  margin-top: 20px;
+}
+
+/* 게시글 카드 */
+.community-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* 풍선형 Hover */
+.community-card:hover {
+  background: #eef3f9;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+/* 텍스트 */
+.card-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1a2b47;
+}
+
+.card-info {
+  display: flex;
+  gap: 10px;
+  color: #555;
+}
+
+/* 더보기 버튼 */
+.load-more-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0 40px;
+}
+
+.load-more-btn {
+  background: #e0e8f5;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.25s;
+}
+
+.load-more-btn:hover {
+  background: #d4def0;
+}

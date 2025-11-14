@@ -15,6 +15,15 @@ const endpoints = {
     rooms: "/api/v1/chatbot/rooms",
     msg: (id) => `/api/v1/chatbot/${id}/message`,
     delete: (id) => `/api/v1/chatbot/${id}`,
+  },
+  comm: {
+    create: "/api/v1/community",
+    handle: (id) => `/api/v1/community/${id}`,
+    list: "/api/v1/community/posts",    
+  },
+  comment: {
+    create: (id) => `/api/v1/community/${id}/comment`,
+    handle: (id,commentId) => `/api/v1/community/${id}/comment/${commentId}`,
   }
 };
 

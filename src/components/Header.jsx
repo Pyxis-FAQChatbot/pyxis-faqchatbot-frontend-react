@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { logoutPath } from "../api/loginApi";
 import "../styles/header.css";
 
@@ -35,7 +35,11 @@ export default function Header({ type = "chat", title = "", onMenuClick }) {
       ) : (
         <>
           <button className="menu-button"onClick={onMenuClick}>
-            <Menu size={24} />
+            {type === "chat" ? (
+              <Menu size={24} />
+            ) : (
+              <Search size={24} />
+            )}
           </button>
           <h1 className="header-title">{title}</h1>
         </>
