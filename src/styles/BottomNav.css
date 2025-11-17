@@ -62,10 +62,10 @@
   background-image: url("../assets/icons/message_active.png");
 }
 .nav-button.community.active {
-  background-image: url("../assets/icons/community_active.png");
+  background-image: url("../assets/icons/group_active.png");
 }
 .nav-button.trade.active {
-  background-image: url("/icons/trade_active.png");
+  background-image: url("/icons/handshake.png");
 }
 .nav-button.mypage.active {
   background-image: url("/icons/mypage_active.png");

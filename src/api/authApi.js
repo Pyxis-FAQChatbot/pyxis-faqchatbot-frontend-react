@@ -23,3 +23,10 @@ export const registerPath = async (data) => {
   const response = await axiosInstance.post(endpoints.auth.signup, data);
   return response.data;
 };
+
+// 회원정보 불러오기
+
+export const myInfoPath = async () => {
+  const response = await axiosInstance.get(endpoints.auth.me);
+  return response.data;
+}

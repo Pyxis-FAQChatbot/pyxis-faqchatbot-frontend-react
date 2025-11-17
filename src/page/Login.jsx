@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginPath } from "../api/loginApi";
+import { myInfoPath } from "../api/authApi";
 import axios from "axios";
 import logo from "../assets/pyxis_logo.png";
 import "../styles/Login.css";
@@ -45,18 +46,37 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await loginPath( formData );
+      //로그인 요청
+      await loginPath( formData );
+      const profile = await myInfoPath();
 
-      console.log("로그인 성공:", response);
-      localStorage.setItem("userInfo", JSON.stringify(response));
-      localStorage.setItem("isLoggedIn", "true");
+      // 프론트세션에 저장
+      sessionStorage.setItem(
+        "userInfo",
+        JSON.stringify({
+          userId: profile.Id,
+          loginId: profile.loginId,
+          nickname: profile.nickname,
+          role: profile.role,
+        })
+);      
 
       navigate("/main");
-    } catch (error) {
-      console.error("로그인 실패:", error);
-      setErrors({
-        general: "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.",
-      });
+    } catch (err) {
+      if (err.error === "USER_NOT_FOUND") {
+        setErrors({
+          general: "존재하지 않는 아이디입니다."
+        });
+      } else if (err.error === "PASSWORD_NOT_MATCH"){
+        setErrors({
+          general: "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.",
+        });
+      } else {
+        console.log('에러 : ', err)
+        setErrors({
+          general: "알 수 없는 오류가 발생했습니다.",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

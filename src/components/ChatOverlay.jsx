@@ -13,7 +13,7 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, 
   const fetchRooms = async (pageNum) => {
     try {
       const res = await botRoomPath(pageNum, PAGE_SIZE);
-      const newRooms = res.content;
+      const newRooms = res.items;
 
       if (newRooms.length === 0) {
         setHasMore(false); // 더 이상 데이터 없음

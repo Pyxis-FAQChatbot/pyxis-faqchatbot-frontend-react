@@ -32,7 +32,7 @@ export default function ChatPage() {
       // );
       const res = await chatApi.botMsgLog(id, pageNum, PAGE_SIZE);
       const data = res.data ? res.data : res;
-      const fetched = data.content;
+      const fetched = data.items;
 
       // UI가 요구하는 형태로 변환
       const converted = fetched.flatMap((m) => {
@@ -183,7 +183,7 @@ export default function ChatPage() {
 
       try {
         const res = await botRoomPath(0, 100);
-        const rooms = res.rooms || res.content || [];
+        const rooms = res.rooms || res.items || [];
         const room = rooms.find(r => String(r.botchatId) === String(chatId));
 
         if (room) setChatTitle(room.title);
@@ -233,7 +233,7 @@ export default function ChatPage() {
                   msg.sender === "bot" || msg.role === "assistant" ? "bot" : "user"
                 }`}
               >
-                <div>{msg.text || msg.content}</div>
+                <div>{msg.text || msg.items}</div>
 
                 {msg.sender === "bot" && msg.sources?.length > 0 && (
                   <div className="message-sources">

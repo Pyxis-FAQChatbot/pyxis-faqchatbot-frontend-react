@@ -34,8 +34,8 @@ const postEditPath = async (id) => {
 };
 
 // 댓글 생성
-const cmtCreatePath = async (data) => {
-  const response = await axiosInstance.post(endpoints.comment.create, data);
+const cmtCreatePath = async (id, data) => {
+  const response = await axiosInstance.post(endpoints.comment.create(id), data);
   return response.data;
 }; 
 
@@ -52,8 +52,10 @@ const cmtDeletePath = async (id, commentId) => {
 };
 
 // 댓글 조회
-const cmtViewPath = async (id, commentId) => {
-  const response = await axiosInstance.get(endpoints.comment.handle(id, commentId));
+const cmtViewPath = async (id, pageNum, sizeNum) => {
+  const response = await axiosInstance.get(endpoints.create(id),{
+    params: { page: pageNum, size: sizeNum },
+  });
   return response.data;
 };
 
@@ -62,12 +64,9 @@ export const communityApi = {
     postDeletePath,
     postViewPath,
     postListPath,
-    postEditPath
-};
-
-export const commentApi = {
+    postEditPath,
     cmtCreatePath,
     cmtEditPath,
     cmtDeletePath,
-    cmtViewPath,
+    cmtViewPath
 };

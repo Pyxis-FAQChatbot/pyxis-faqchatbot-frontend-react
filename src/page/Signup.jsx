@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { checkIdPath, checkNickPath, registerPath } from "../api/authApi";
+import { checkIdPath, checkNickPath, registerPath, myInfoPath } from "../api/authApi";
 import { loginPath } from "../api/loginApi";
 import "../styles/Signup.css";
 
@@ -150,11 +150,18 @@ const Signup = () => {
         password: formData.password,
       },{ withCredentials: true });
 
-    // 3. 토큰 저장
-      const token = loginRes.token;
-      if (token) {
-        localStorage.setItem("accessToken", token);
-      }
+      const profile = await myInfoPath();
+
+  // 3. 프론트 세션에 사용자 정보 저장
+      sessionStorage.setItem(
+        "userInfo",
+        JSON.stringify({
+          userId: profile.id,
+          loginId: profile.loginId,
+          nickname: profile.nickname,
+          role: profile.role,
+        })
+      );
 
     // 4. 1회성 팝업 플래그 저장 (메인에서 확인 예정)
       sessionStorage.setItem("showSignupPopup", "true");

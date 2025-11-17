@@ -13,8 +13,17 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("API 오류 발생:", error.response || error.message);
-    return Promise.reject(error);
+    // 서버에서 응답 객체가 내려온 경우
+    if (error.response && error.response.data) {
+      return Promise.reject(error.response.data); 
+      // <-- 여기에서 data만 던지면 catch에서 바로 사용 가능
+    }
+
+    // 서버 응답이 아예 없거나 CORS 등 네트워크 오류
+    return Promise.reject({
+      error: "NETWORK_ERROR",
+      message: "서버와 연결할 수 없습니다.",
+    });
   }
 );
 
