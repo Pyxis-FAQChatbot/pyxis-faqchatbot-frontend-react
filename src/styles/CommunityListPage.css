@@ -1,11 +1,12 @@
 .community-page {
   width: 100%;
   box-sizing: border-box;
-  padding-bottom: 80px; /* 하단 네비 여백 */
+  padding-top: 88px; /* 상단 헤더 여백 */
+  padding-bottom: 105px; /* 하단 네비 여백 */
 }
 
 .community-content {
-  margin-top: 20px;
+  padding-top: 16px;
 }
 
 /* 게시글 카드 */
@@ -14,7 +15,7 @@
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 16px;
-  box-shadow: 0 0 0 rgba(0,0,0,0);
+  box-shadow: 0 0 0 rgba(68, 56, 56, 0);
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -60,12 +61,6 @@
   background: #d4def0;
 }
 
-.empty-view {
-  padding: 40px;
-  text-align: center;
-  color: #666;
-}
-
 /*
  * 게시글 상세(PostDetailView) CSS
  */
@@ -74,7 +69,7 @@
 .community-post-view {
   width: 100%;
   box-sizing: border-box;
-  padding-top: 20px;
+  padding-top: 16px;
 }
 
 /* 게시글 카드 */
@@ -210,7 +205,7 @@
 
 .comment-time {
   color: #777;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .comment-delete {
@@ -221,20 +216,18 @@
 
 /* 댓글 내용 */
 .comment-content {
-  margin: 6px 0 10px 0;
+  margin: 6px 0;
   color: #333;
   line-height: 1.4;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 /* 답글 영역 */
 .comment-reply-row {
   display: flex;
+  gap: 24px;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 6px;
-  padding-top: 8px;
-  border-top: 1px solid #eee;
+  justify-content: left;
 }
 
 .reply-count {
@@ -243,6 +236,7 @@
   gap: 4px;
   color: #555;
   font-size: 14px;
+  cursor: pointer;
 }
 
 .reply-btn {
@@ -290,4 +284,57 @@
 
 .comment-submit:hover {
   background: #345cc0;
+}
+
+.community-write-page {
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 80px; /* 하단 네비 여백 고려 */
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 입력 박스 */
+.community-write-box {
+  width: 100%;
+  max-width: 1000px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+/* 제목 입력 */
+.community-write-title {
+  width: calc(100% - 16px);
+  border: none;
+  border-bottom: 1px solid #ddd;
+  border-radius: 0;
+  padding: 12px 8px;
+  font-size: 18px;
+  margin-bottom: 20px;
+  outline: none;
+}
+
+.community-write-title:focus {
+  border-bottom-color: #3d6bd6;
+}
+
+/* 내용 입력 */
+.community-write-content {
+  width: calc(100% - 16px);
+  height: calc(100vh - 360px);
+  border: none;
+  resize: none;
+  outline: none;
+  padding: 12px 8px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* 내용 포커스 시 스타일 */
+.community-write-content:focus {
+  background: #eef3f9;
 }

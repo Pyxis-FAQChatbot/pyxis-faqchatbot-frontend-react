@@ -207,7 +207,7 @@ export default function ChatPage() {
   return (
     <div className="chat-page">
       <Header
-        type="chat"
+        type="menu"
         title={chatTitle}
         onMenuClick={() => setIsOverlayOpen(true)}
       />

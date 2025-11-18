@@ -53,8 +53,15 @@ const cmtDeletePath = async (id, commentId) => {
 
 // 댓글 조회
 const cmtViewPath = async (id, pageNum, sizeNum) => {
-  const response = await axiosInstance.get(endpoints.create(id),{
+  const response = await axiosInstance.get(endpoints.comment.create(id),{
     params: { page: pageNum, size: sizeNum },
+  });
+  return response.data;
+};
+// 대댓글 조회
+const replyViewPath = async (id, parent,pageNum, sizeNum) => {
+  const response = await axiosInstance.get(endpoints.comment.create(id),{
+    params: { parentId: parent, page: pageNum, size: sizeNum },
   });
   return response.data;
 };
@@ -68,5 +75,6 @@ export const communityApi = {
     cmtCreatePath,
     cmtEditPath,
     cmtDeletePath,
-    cmtViewPath
+    cmtViewPath,
+    replyViewPath
 };

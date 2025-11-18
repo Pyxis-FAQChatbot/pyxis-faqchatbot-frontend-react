@@ -9,6 +9,7 @@ import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import FloatButton from "../components/FloatButton";
 import CommDetail from "../components/CommDetail"
+import CommWrite from "../components/CommWrite";
 
 import "../styles/CommunityListPage.css";
 
@@ -38,7 +39,10 @@ export default function CommunityPage() {
   const [sidePadding, setSidePadding] = useState("20px");
   const [titleSize, setTitleSize] = useState(16);
   const [textSize, setTextSize] = useState(14);
-
+  // 뒤로가기
+  const goBack = () => {
+    navigate(-1);
+  };
   // url에 따른 viewMode
   useEffect(() => {
     if (postId) {
@@ -145,20 +149,29 @@ export default function CommunityPage() {
   );
 
   // -------------------------------------------
-  // 📌 VIEW MODE: WRITE (아직 구현되지 않음 → 자리만 확보)
+  // VIEW MODE: WRITE
   // -------------------------------------------
   const renderWriteMode = () => (
-    <main className="community-content empty-view">
-      <div>📄 게시글 생성 화면이 여기에 들어갈 예정입니다.</div>
+    <main 
+      className="community-content"
+      style={{ paddingLeft: sidePadding, paddingRight: sidePadding }}
+      >
+      <CommWrite
+        api={communityApi}
+        mode="write"
+        onBack={() => navigate("/community")}
+      />
     </main>
   );
 
   // -------------------------------------------
-  // 📌 VIEW MODE: DETAIL (아직 구현되지 않음 → 자리만 확보)
+  // IEW MODE: DETAIL 
   // -------------------------------------------
   const renderDetailMode = () => (
-    <main className="community-content">
-      <div>📌 선택한 게시글 ID: {selectedPostId}</div>
+    <main 
+      className="community-content"
+      style={{ paddingLeft: sidePadding, paddingRight: sidePadding }}
+    >
       <CommDetail
         postId={selectedPostId}
         api={communityApi}
@@ -178,16 +191,21 @@ export default function CommunityPage() {
 
   return (
     <div className="community-page">
-      <Header type="comm" title="커뮤니티 게시판" />
-
+      <Header 
+        type = {viewMode === "list" ? "search":"back"}
+        title="커뮤니티 게시판"
+        onMenuClick={viewMode === "list" ? undefined : goBack}
+      />
       {renderContent()}
 
       {/* 작성 버튼: WRITE 모드로 전환 */}
-      <FloatButton
-        onClick={() => navigate("/community/write")}
-        icon="+"
-        size={60}
-      />
+      {viewMode === "list" && (
+        <FloatButton
+          onClick={() => navigate("/community/write")}
+          icon="+"
+          size={60}
+        />
+      )}
 
       <BottomNav active="community" />
     </div>

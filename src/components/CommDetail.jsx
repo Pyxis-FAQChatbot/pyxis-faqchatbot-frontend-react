@@ -49,10 +49,11 @@ export default function PostDetailView({
     try {
       const res = await api.cmtViewPath(postId, page, size);
       const data = res.data || res;
-      const items = data.items || [];
-      const mapped = items.map((c) => ({
+      const mapped = data.items.map((c) => ({
         ...c,
         isMine: c.writerId === currentUserId,
+        isReplyOpen: false,
+        replies: [],
       }));
 
       setComments(mapped);
@@ -72,7 +73,10 @@ export default function PostDetailView({
     if (!commentText.trim()) return;
 
     try {
-      await api.writeComment(postId, commentText);
+      await api.cmtCreatePath(postId, {
+        parentId: null,
+        content: commentText
+      });
 
       setCommentText("");
       loadComments(0,PAGE_SIZE); // 새 댓글 반영
@@ -104,10 +108,65 @@ export default function PostDetailView({
     if (!ok) return;
 
     try {
-      await api.deletePost(postId);
+      await api.postDeletePath(postId);
       if (onBack) onBack(); // 목록으로 돌아가기
     } catch (e) {
       console.error("게시글 삭제 실패:", e);
+    }
+  };
+  // 6. 대댓글 조회
+  const loadReplies = async (parentId, page, size) => {
+  try {
+    const res = await api.replyViewPath(postId, parentId, page, size);
+    const data = res.data || res;
+
+    const replyItems = data.items.map((r) => ({
+      ...r,
+      isMine: r.writerId === currentUserId
+    }));
+
+    setComments((prev) =>
+      prev.map((c) =>
+        c.commentId === parentId
+          ? { ...c, replies: replyItems }
+          : c
+      )
+    );
+
+  } catch (e) {
+    console.error("대댓글 조회 실패:", e);
+  }
+};
+  // 7. 대댓글 작성
+  const submitReply = async (parentCommentId, text) => {
+    if (!text.trim()) return;
+
+    try {
+      await api.cmtCreatePath(postId, {
+        content: text,
+        parentId: parentCommentId
+      });
+
+      loadReplies(parentCommentId, 0, PAGE_SIZE); // 등록 후 곧바로 대댓글 갱신
+
+    } catch (e) {
+      console.error("대댓글 작성 실패:", e);
+    }
+  };
+  // 8. 대댓글 트리거
+  const toggleReplySection = (commentId) => {
+    setComments((prev) =>
+      prev.map((c) =>
+        c.commentId === commentId
+          ? { ...c, isReplyOpen: !c.isReplyOpen }
+          : c
+      )
+    );
+
+    // 열릴 때만 조회
+    const target = comments.find(c => c.commentId === commentId);
+    if (!target?.isReplyOpen) {
+      loadReplies(commentId, 0, PAGE_SIZE);
     }
   };
 
@@ -118,20 +177,20 @@ export default function PostDetailView({
 
       {/* 게시글 본문 */}
       <div className="community-post-card">
-        <h2 className="community-post-title">{post.title}</h2>
+        <h2 className="community-post-title">{post.community.title}</h2>
 
         <div className="community-post-meta">
           <span className="meta-nickname">{post.nickname}</span>
-          <span className="meta-time">{timeAgo(post.createdAt)}</span>
+          <span className="meta-time">{timeAgo(post.community.createdAt)}</span>
         </div>
 
-        <div className="community-post-content">{post.content}</div>
+        <div className="community-post-content">{post.community.content}</div>
 
         <div className="community-post-footer">
           <div className="post-stats">
             <div className="stat-item">
               <MessageSquare size={18} />
-              <span>{viewCount}</span>
+              <span>{post.community.viewCount}</span>
             </div>
           </div>
 
@@ -172,7 +231,7 @@ export default function PostDetailView({
               <span className="comment-nickname">{c.nickname}</span>
               <span className="comment-time">{timeAgo(c.createdAt)}</span>
 
-              {c.isMine && c.status !== 'DELETED' &&
+              {c.isMine && c.status === 'ACTIVE' &&
                 <span
                   className="comment-delete"
                   onClick={() => deleteComment(c.commentId)}
@@ -189,14 +248,59 @@ export default function PostDetailView({
                 <CornerDownRight size={14} />
                 <span>{c.childCommentCount ?? 0}</span>
               </div>
-
-              <button
-                className="reply-btn"
-                onClick={() => console.log("답글 작성 기능 준비됨")}
-              >
-                답글 작성
-              </button>
+              {c.status === 'ACTIVE' &&
+                <button
+                  className="reply-btn"
+                  onClick={() => toggleReplySection(c.commentId)}
+                >
+                  {c.isReplyOpen ? "닫기" : "답글 작성"}
+                </button>
+              }
             </div>
+            {/* 대댓글 목록 */}
+            {c.isReplyOpen && (
+              <div className="reply-wrapper">
+                
+                {c.replies.map((r) => (
+                  <div key={r.commentId} className="reply-item">
+                    <div className="reply-meta">
+                      <span>{r.nickname}</span>
+                      <span>{timeAgo(r.createdAt)}</span>
+
+                      {r.isMine && r.status !== "DELETED" && (
+                        <span className="reply-delete" onClick={() => deleteComment(r.commentId)}>삭제</span>
+                      )}
+                    </div>
+
+                    <div className="reply-content">{r.content}</div>
+                  </div>
+                ))}
+
+                <div className="reply-input-row">
+                  <input
+                    className="reply-input"
+                    placeholder="답글을 입력하세요"
+                    value={c.replyInput || ""}
+                    onChange={(e) =>
+                      setComments((prev) =>
+                        prev.map((c2) =>
+                          c2.commentId === c.commentId
+                            ? { ...c2, replyInput: e.target.value }
+                            : c2
+                        )
+                      )
+                    }
+                  />
+                  <button
+                    className="reply-submit"
+                    onClick={() => submitReply(c.commentId, c.replyInput)}
+                  >
+                    등록
+                  </button>
+                </div>
+
+              </div>
+            )}
           </div>
         ))}
 

@@ -16,9 +16,9 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/chatbot/:chatId" element={<Chatbot />} />
-        <Route path="/community" element={<CommunityPage />} />
-        <Route path="/community/:postId" element={<CommunityPage />} />
-        <Route path="/community/write" element={<CommunityPage />} />
+        <Route path="/community" element={<Community />} />
+        <Route path="/community/:postId" element={<Community />} />
+        <Route path="/community/write" element={<Community />} />
         <Route path="/main" element={<Main />} />
       </Routes>
     </Router>
