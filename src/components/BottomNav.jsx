@@ -35,13 +35,6 @@ export default function BottomNav() {
       </button>
 
       <button
-        className={`nav-button trade ${currentPath === "/trade" ? "active" : ""}`}
-        onClick={() => navigate("/trade")}
-      >
-        <span>거래</span>
-      </button>
-
-      <button
         className={`nav-button mypage ${
           currentPath === "/mypage" ? "active" : ""
         }`}

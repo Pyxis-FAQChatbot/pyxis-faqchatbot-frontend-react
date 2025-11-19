@@ -21,6 +21,7 @@ import { timeAgo } from "../utils/timeAgo";
 */
 
 export default function CommunityPage() {
+
   const navigate = useNavigate();
   const { postId } = useParams();
   const location = useLocation();
@@ -39,27 +40,45 @@ export default function CommunityPage() {
   const [sidePadding, setSidePadding] = useState("20px");
   const [titleSize, setTitleSize] = useState(16);
   const [textSize, setTextSize] = useState(14);
+  const [filterType, setFilterType] = useState(null);
+  const [currentPost, setCurrentPost] = useState(null);
+
   // 뒤로가기
   const goBack = () => {
     navigate(-1);
   };
   // url에 따른 viewMode
   useEffect(() => {
-    if (postId) {
-      // /community/:postId 형태면 DETAIL 모드
+    const path = location.pathname;
+
+    // 1) EDIT 모드: /community/:postId/edit
+    if (path.endsWith("/edit")) {
+      if (!postId) return;   // postId가 null이면 실행 금지!
+      setViewMode("edit");
+      setSelectedPostId(Number(postId));
+      return;
+    }
+
+    // 2) DETAIL 모드: /community/:postId
+    if (postId != null) {  
       setViewMode("detail");
       setSelectedPostId(Number(postId));
-    
-    } else if (location.pathname === "/community/write") {
-      // 작성 URL이면 WRITE 모드
-      setViewMode("write");
-    
-    } else {
-      // 기본적으로 LIST 모드
-      setViewMode("list");
+      return;
     }
+
+    // 3) WRITE 모드: /community/write
+    if (path === "/community/write") {
+      setViewMode("write");
+      return;
+    }
+
+    // 4) LIST 모드
+    setViewMode("list");
   }, [postId, location.pathname]);
 
+
+  
+  // 너비에 따른 좌우 여백 과 폰트사이즈 변경
   const handleResize = () => {
     const w = window.innerWidth;
 
@@ -89,7 +108,7 @@ export default function CommunityPage() {
     if (isLast) return;
 
     try {
-      const res = await communityApi.postListPath(page, PAGE_SIZE);
+      const res = await communityApi.postListPath(page, PAGE_SIZE, filterType);
       const data = res.data ? res.data : res;
 
       const newPosts = data.items || [];
@@ -106,10 +125,14 @@ export default function CommunityPage() {
   };
 
   useEffect(() => {
-    if (!postId && location.pathname === "/community") {
-      fetchPosts();
-    }
-  }, [postId, location.pathname]);
+    if (viewMode !== "list") return;
+
+    setPosts([]);
+    setPage(0);
+    setIsLast(false);
+
+    fetchPosts();
+  }, [filterType]);
   // -------------------------------------------
   // 📌 VIEW MODE: LIST
   // -------------------------------------------
@@ -118,6 +141,17 @@ export default function CommunityPage() {
       className="community-content"
       style={{ paddingLeft: sidePadding, paddingRight: sidePadding }}
     >
+      {/* 상단 탭 */}
+      <div className="community-tab" style={{ fontSize: `${textSize}px` }}>
+        <button onClick={() => setFilterType(null)}
+          className={filterType === null ? "active" : ""}>전체</button>
+
+        <button onClick={() => setFilterType("DEFAULT")}
+          className={filterType === "DEFAULT" ? "active" : ""}>일반</button>
+
+        <button onClick={() => setFilterType("ANONYMOUS")}
+          className={filterType === "ANONYMOUS" ? "active" : ""}>익명</button>
+      </div>
       {posts.map((post) => (
         <div
           key={post.communityId}
@@ -131,7 +165,9 @@ export default function CommunityPage() {
           </div>
 
           <div className="card-info" style={{ fontSize: `${textSize}px` }}>
-            <span>{post.nickname}</span>
+            <span>
+              {post.postType === "DEFAULT" ? post.nickname : "익명"}
+            </span>
             <span>조회수 : {post.viewCount}</span>
             <span>{timeAgo(post.createdAt)}</span>
           </div>
@@ -158,8 +194,10 @@ export default function CommunityPage() {
       >
       <CommWrite
         api={communityApi}
-        mode="write"
-        onBack={() => navigate("/community")}
+        mode={location.pathname.includes("/edit") ? "edit" : "write"}
+        postId={selectedPostId}
+        initialData={currentPost?.community}
+        onBack={() => navigate(`/community/${selectedPostId}`)}
       />
     </main>
   );
@@ -176,6 +214,7 @@ export default function CommunityPage() {
         postId={selectedPostId}
         api={communityApi}
         onBack={() => navigate("/community")}
+        onPostLoaded={(post) => setCurrentPost(post)}
       />
     </main>
   );
@@ -193,7 +232,7 @@ export default function CommunityPage() {
     <div className="community-page">
       <Header 
         type = {viewMode === "list" ? "search":"back"}
-        title="커뮤니티 게시판"
+        title = "커뮤니티 게시판"
         onMenuClick={viewMode === "list" ? undefined : goBack}
       />
       {renderContent()}
@@ -207,7 +246,7 @@ export default function CommunityPage() {
         />
       )}
 
-      <BottomNav active="community" />
+      <BottomNav active={"community"} />
     </div>
   );
 }

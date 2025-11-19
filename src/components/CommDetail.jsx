@@ -5,12 +5,15 @@ import {
   MoreVertical,
   CornerDownRight,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom"
 
 export default function PostDetailView({
-  postId,    // 게시글 번호
-  onBack,    // 뒤로가기 필요 시
-  api,       // API 객체 (post, comment) - 상위에서 전달
+  postId,             // 게시글 번호
+  api,                // API 객체 (post, comment) - 상위에서 전달
+  onBack= () => {},   // 뒤로가기 필요 시
+  onPostLoaded = () => {}
 }) {
+  const navigate = useNavigate();
   const PAGE_SIZE = 5
   // 게시글
   const [post, setPost] = useState(null);
@@ -23,7 +26,12 @@ export default function PostDetailView({
   // 사용자 정보 불러오기
   const userInfo = JSON.parse(sessionStorage.getItem("userInfo") || "{}");
   const currentUserId = userInfo.userId;
-
+  // 닉네임 익명설정
+  const displayNick = (nick) => {
+    if (!post) return nick;
+    if (post.community.postType === "ANONYMOUS") return "익명";
+    return nick;
+  };
 
   // 1) 게시글 상세 조회
  
@@ -63,9 +71,14 @@ export default function PostDetailView({
   };
 
   useEffect(() => {
+    if (!postId) return
     loadPost();
     loadComments(0,PAGE_SIZE);
   }, [postId]);
+
+  useEffect(() => {
+    if (post) onPostLoaded(post);
+  }, [post]);  
 
   // 3) 댓글 등록
 
@@ -100,7 +113,7 @@ export default function PostDetailView({
 
   const editPost = () => {
     // 수정 모드로 전환 (상위 페이지로 알림)
-    if (api.onEditPost) api.onEditPost(postId);
+    navigate(`/community/${postId}/edit`);
   };
 
   const deletePost = async () => {
@@ -109,7 +122,7 @@ export default function PostDetailView({
 
     try {
       await api.postDeletePath(postId);
-      if (onBack) onBack(); // 목록으로 돌아가기
+      onBack(); // 목록으로 돌아가기
     } catch (e) {
       console.error("게시글 삭제 실패:", e);
     }
@@ -149,25 +162,34 @@ export default function PostDetailView({
 
       loadReplies(parentCommentId, 0, PAGE_SIZE); // 등록 후 곧바로 대댓글 갱신
 
+      setComments(prev =>   // 초기화
+        prev.map(c =>
+          c.commentId === parentCommentId
+            ? { ...c, replyInput: "" }
+            : c
+        )
+      );
     } catch (e) {
       console.error("대댓글 작성 실패:", e);
     }
   };
   // 8. 대댓글 트리거
   const toggleReplySection = (commentId) => {
-    setComments((prev) =>
-      prev.map((c) =>
+    setComments((prev) => {
+      const updated = prev.map((c) =>
         c.commentId === commentId
           ? { ...c, isReplyOpen: !c.isReplyOpen }
           : c
-      )
-    );
+      );
 
-    // 열릴 때만 조회
-    const target = comments.find(c => c.commentId === commentId);
-    if (!target?.isReplyOpen) {
-      loadReplies(commentId, 0, PAGE_SIZE);
-    }
+      const target = updated.find((c) => c.commentId === commentId);
+
+      if (target.isReplyOpen) {
+        loadReplies(commentId, 0, PAGE_SIZE);
+      }
+
+      return updated;
+    });
   };
 
   if (!post) return <div>로딩중...</div>;
@@ -180,7 +202,9 @@ export default function PostDetailView({
         <h2 className="community-post-title">{post.community.title}</h2>
 
         <div className="community-post-meta">
-          <span className="meta-nickname">{post.nickname}</span>
+          <span className="meta-nickname">{
+          displayNick(post.nickname)
+          }</span>
           <span className="meta-time">{timeAgo(post.community.createdAt)}</span>
         </div>
 
@@ -228,7 +252,7 @@ export default function PostDetailView({
           <div key={c.commentId} className="community-comment-item">
 
             <div className="comment-meta-row">
-              <span className="comment-nickname">{c.nickname}</span>
+              <span className="comment-nickname">{displayNick(c.nickname)}</span>
               <span className="comment-time">{timeAgo(c.createdAt)}</span>
 
               {c.isMine && c.status === 'ACTIVE' &&
@@ -243,19 +267,19 @@ export default function PostDetailView({
 
             <div className="comment-content">{c.content}</div>
 
-            <div className="comment-reply-row">
+            <div 
+              className="comment-reply-row"
+            >
               <div className="reply-count">
                 <CornerDownRight size={14} />
                 <span>{c.childCommentCount ?? 0}</span>
               </div>
-              {c.status === 'ACTIVE' &&
-                <button
-                  className="reply-btn"
-                  onClick={() => toggleReplySection(c.commentId)}
-                >
-                  {c.isReplyOpen ? "닫기" : "답글 작성"}
-                </button>
-              }
+              <button
+                className="reply-btn"
+                onClick={() => toggleReplySection(c.commentId)}
+              >
+                {c.isReplyOpen ? "닫기" : (c.childCommentCount ? "답글 보기" : "답글 작성")}
+              </button>
             </div>
             {/* 대댓글 목록 */}
             {c.isReplyOpen && (
@@ -264,10 +288,12 @@ export default function PostDetailView({
                 {c.replies.map((r) => (
                   <div key={r.commentId} className="reply-item">
                     <div className="reply-meta">
-                      <span>{r.nickname}</span>
-                      <span>{timeAgo(r.createdAt)}</span>
+                      <span>
+                        <span>{displayNick(r.nickname)}</span>
+                        <span>{timeAgo(r.createdAt)}</span>
+                      </span>
 
-                      {r.isMine && r.status !== "DELETED" && (
+                      {r.isMine && r.status === 'ACTIVE' && (
                         <span className="reply-delete" onClick={() => deleteComment(r.commentId)}>삭제</span>
                       )}
                     </div>
@@ -275,29 +301,30 @@ export default function PostDetailView({
                     <div className="reply-content">{r.content}</div>
                   </div>
                 ))}
-
-                <div className="reply-input-row">
-                  <input
-                    className="reply-input"
-                    placeholder="답글을 입력하세요"
-                    value={c.replyInput || ""}
-                    onChange={(e) =>
-                      setComments((prev) =>
-                        prev.map((c2) =>
-                          c2.commentId === c.commentId
-                            ? { ...c2, replyInput: e.target.value }
-                            : c2
+                {c.status === 'ACTIVE' &&
+                  <div className="reply-input-row">
+                    <input
+                      className="reply-input"
+                      placeholder="답글을 입력하세요"
+                      value={c.replyInput || ""}
+                      onChange={(e) =>
+                        setComments((prev) =>
+                          prev.map((c2) =>
+                            c2.commentId === c.commentId
+                              ? { ...c2, replyInput: e.target.value }
+                              : c2
+                          )
                         )
-                      )
-                    }
-                  />
-                  <button
-                    className="reply-submit"
-                    onClick={() => submitReply(c.commentId, c.replyInput)}
-                  >
-                    등록
-                  </button>
-                </div>
+                      }
+                    />
+                    <button
+                      className="reply-submit"
+                      onClick={() => submitReply(c.commentId, c.replyInput)}
+                    >
+                      등록
+                    </button>
+                  </div>
+                }
 
               </div>
             )}

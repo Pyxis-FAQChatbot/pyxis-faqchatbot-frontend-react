@@ -47,9 +47,6 @@
 .nav-button.community {
   background-image: url("../assets/icons/group.png");
 }
-.nav-button.trade {
-  background-image: url("../assets/icons/handshake.png");
-}
 .nav-button.mypage {
   background-image: url("../assets/icons/account.png");
 }
@@ -64,9 +61,6 @@
 .nav-button.community.active {
   background-image: url("../assets/icons/group_active.png");
 }
-.nav-button.trade.active {
-  background-image: url("/icons/handshake.png");
-}
 .nav-button.mypage.active {
-  background-image: url("/icons/mypage_active.png");
+  background-image: url("../assets/icons/account.png");
 }

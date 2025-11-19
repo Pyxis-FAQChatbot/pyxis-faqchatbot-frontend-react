@@ -169,6 +169,7 @@
   outline: none;
   background: transparent;
   padding: 4px 6px;
+  margin-top: 0;
   line-height: 1.5rem;
   font-size: 1em;
 }
@@ -178,7 +179,7 @@
   background: none;
   color: #3b82f6;
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   cursor: pointer;
 }
 

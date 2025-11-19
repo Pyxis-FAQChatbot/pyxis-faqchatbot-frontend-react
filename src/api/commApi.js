@@ -20,9 +20,9 @@ const postViewPath = async (id) => {
 };
 
 // 게시글 페이지 조회
-const postListPath = async (pageNum, sizeNum) => {
+const postListPath = async (pageNum, sizeNum, boardtype) => {
   const response = await axiosInstance.get(endpoints.comm.list, {
-    params: { page: pageNum, size: sizeNum },
+    params: { page: pageNum, size: sizeNum, type: boardtype},
   });
   return response.data;
 };

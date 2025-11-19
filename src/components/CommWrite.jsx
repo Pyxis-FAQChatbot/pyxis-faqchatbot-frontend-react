@@ -15,12 +15,14 @@ export default function CommunityWrite({
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [postType, setPostType] = useState("DEFAULT");
+  const [isAnonymous, setIsAnonymous] = useState(false);
+
   // 수정모드일 경우 initialData로 input 초기화
   useEffect(() => {
     if (mode === "edit" && initialData) {
       setTitle(initialData.title || "");
       setContent(initialData.content || "");
+      setIsAnonymous(initialData.community.postType === "ANONYMOUS");
     }
   }, [mode, initialData]);
 
@@ -42,7 +44,7 @@ export default function CommunityWrite({
         const res = await api.postCreatePath({
           title,
           content,
-          postType,
+          postType: isAnonymous ? "ANONYMOUS" : "DEFAULT"
         });
 
         const createdId = res.commPostyId;
@@ -55,7 +57,7 @@ export default function CommunityWrite({
         await api.postEditPath(postId, {
           title,
           content,
-          postType,
+          postType: isAnonymous ? "ANONYMOUS" : "DEFAULT"
         });
 
         alert("게시글이 수정되었습니다.");
@@ -89,7 +91,20 @@ export default function CommunityWrite({
           onChange={(e) => setContent(e.target.value)}
         />
       </div>
-
+      <div className="write-type-select">
+        <button 
+          className={isAnonymous ? "" : "active"}
+          onClick={() => setIsAnonymous(false)}
+        >
+          일반
+        </button>
+        <button
+          className={isAnonymous ? "active" : ""}
+          onClick={() => setIsAnonymous(true)}
+        >
+          익명
+        </button>
+      </div>
       {/* 작성/수정 버튼 */}
       <FloatButton
         icon={mode === "edit" ? "✔" : "+"}

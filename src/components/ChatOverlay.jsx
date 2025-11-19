@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../styles/ChatOverlay.css";
 import { botRoomPath } from "../api/chatApi";
+import { ArrowRight, X } from "lucide-react";
 
 export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, onDeleteRoom }) {
   const PAGE_SIZE = 10; // ✅ 한 번에 불러올 개수 상수 지정
@@ -75,7 +76,7 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, 
             <span className="overlay-title">Pyxis</span>
           </div>
           <button className="close-btn" onClick={onClose}>
-            &lt;
+            <ArrowRight size={28}/>
           </button>
         </div>
 
@@ -109,7 +110,7 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, 
                     onDeleteRoom(room.botchatId);
                   }}
                 >
-                  ✖
+                  <X size={16}/>
                 </button>
               </div>
             ))}

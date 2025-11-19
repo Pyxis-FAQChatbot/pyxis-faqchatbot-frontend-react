@@ -7,8 +7,39 @@
 
 .community-content {
   padding-top: 16px;
+  padding-bottom: 16px;
 }
 
+/* 상부 커뮤니티 필터 버튼 */
+.community-tab {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 0 4px;
+}
+
+.community-tab button {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #eef2f7;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.community-tab button:hover {
+  background: #e1e7f0;
+}
+
+.community-tab button.active {
+  background: #d1ddf0;
+  color: #1a2b47;
+  font-weight: 700;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
 /* 게시글 카드 */
 .community-card {
   background: #ffffff;
@@ -69,7 +100,6 @@
 .community-post-view {
   width: 100%;
   box-sizing: border-box;
-  padding-top: 16px;
 }
 
 /* 게시글 카드 */
@@ -285,12 +315,99 @@
 .comment-submit:hover {
   background: #345cc0;
 }
+/* 대댓글(reply) 전체 영역 */
+.reply-wrapper {
+  margin-top: 8px;
+  margin-left: 20px;          /* 댓글보다 오른쪽으로 들여쓰기 */
+  padding-left: 12px;
+  border-left: 2px solid #ddd; /* 스레드 시각화 */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
+/* 대댓글 아이템
+   ============================ */
+.reply-item {
+  background: #f9f9f9;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ececec;
+}
+
+/* 작성자 / 시간 / 삭제 버튼 라인 */
+.reply-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.reply-meta > span:first-child > span{
+  margin-right: 12px;
+}
+.reply-meta > span:first-child > span:first-child{
+  font-weight: 600;
+}
+
+.reply-delete {
+  color: #d9534f;
+  cursor: pointer;
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.reply-delete:hover {
+  text-decoration: underline;
+}
+
+/* 대댓글 내용 */
+.reply-content {
+  font-size: 14px;
+  line-height: 1.4;
+  padding-left: 2px;
+}
+
+/* 대댓글 입력 영역 */
+.reply-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.reply-input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.reply-input:focus {
+  outline: none;
+  border-color: #888;
+}
+
+.reply-submit {
+  padding: 6px 14px;
+  background-color: #4c80f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.reply-submit:hover {
+  background-color: #3a6bdc;
+}
+
+/* 게시글 작성칸 */
 .community-write-page {
   width: 100%;
   box-sizing: border-box;
   padding-bottom: 80px; /* 하단 네비 여백 고려 */
-  margin-top: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -325,7 +442,7 @@
 /* 내용 입력 */
 .community-write-content {
   width: calc(100% - 16px);
-  height: calc(100vh - 360px);
+  height: calc(100vh - 418px);
   border: none;
   resize: none;
   outline: none;
@@ -337,4 +454,30 @@
 /* 내용 포커스 시 스타일 */
 .community-write-content:focus {
   background: #eef3f9;
+}
+
+/* 익명여부 토글버튼 */
+.write-type-select {
+  width:100%;
+  max-width: 1000px;
+  display: flex;
+  justify-content: flex-start;
+  
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+.write-type-select button {
+  padding: 8px;
+  background: #e8edf5;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.write-type-select button.active {
+  background: #4a5cff;
+  color: white;
 }
