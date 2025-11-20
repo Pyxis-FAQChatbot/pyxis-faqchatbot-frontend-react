@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { storePath } from "../api/storeApi";
+import IndustrySearch from "../components/IndustrySearch";
 import "../styles/StoreFoam.css";
 
 const StoreFoam = ({ onClose }) => {
   const [formData, setFormData] = useState({
-    companyName: "",
+    storeName: "",
     industryCode: "",
-    businessType: "",
     address: "",
   });
 
@@ -44,25 +44,10 @@ const StoreFoam = ({ onClose }) => {
           />
 
           <label>표준산업분류코드</label>
-          <select
-            name="industryCode"
-            value={formData.industryCode}
-            onChange={handleChange}
-            required
-          >
-            <option value="">선택하세요</option>
-            <option value="A01">A01 - 농업</option>
-            <option value="C10">C10 - 식품 제조업</option>
-            <option value="G45">G45 - 자동차 판매업</option>
-          </select>
-
-          <label>업종명</label>
-          <input
-            type="text"
-            name="businessType"
-            value={formData.businessType}
-            onChange={handleChange}
-            required
+          <IndustrySearch
+            onSelect={(code) =>
+              setFormData((prev) => ({ ...prev, industryCode: code }))
+            }
           />
 
           <label>주소</label>

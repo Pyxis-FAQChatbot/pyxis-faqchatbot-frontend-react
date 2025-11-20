@@ -6,6 +6,7 @@ import Signup from './page/Signup.jsx';
 import Chatbot from './page/ChatPage.jsx';
 import Main from './page/MainPage.jsx';
 import Community from './page/CommPage.jsx';
+import MyPage from './page/MyPage.jsx'
 import "./App.css";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path="/community/:postId" element={<Community />} />
         <Route path="/community/write" element={<Community />} />
         <Route path="/main" element={<Main />} />
+        <Route path="/mypage" element={<MyPage />} />
       </Routes>
     </Router>
   );

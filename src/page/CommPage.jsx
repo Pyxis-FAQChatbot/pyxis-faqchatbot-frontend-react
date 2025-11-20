@@ -40,7 +40,7 @@ export default function CommunityPage() {
   const [sidePadding, setSidePadding] = useState("20px");
   const [titleSize, setTitleSize] = useState(16);
   const [textSize, setTextSize] = useState(14);
-  const [filterType, setFilterType] = useState(null);
+  const [filterType, setFilterType] = useState("");
   const [currentPost, setCurrentPost] = useState(null);
 
   // 뒤로가기
@@ -108,7 +108,7 @@ export default function CommunityPage() {
     if (isLast) return;
 
     try {
-      const res = await communityApi.postListPath(page, PAGE_SIZE, filterType);
+      const res = await communityApi.postListPath(page, PAGE_SIZE, filterType || undefined);
       const data = res.data ? res.data : res;
 
       const newPosts = data.items || [];
@@ -126,13 +126,17 @@ export default function CommunityPage() {
 
   useEffect(() => {
     if (viewMode !== "list") return;
-
     setPosts([]);
     setPage(0);
     setIsLast(false);
+  }, [filterType]);
+
+  useEffect(() => {
+    if (viewMode !== "list") return;
+    if (page === 0 && posts.length !== 0) return; // 초기화 직후 첫 로딩을 허용하기 위한 조건
 
     fetchPosts();
-  }, [filterType]);
+  }, [page]);
   // -------------------------------------------
   // 📌 VIEW MODE: LIST
   // -------------------------------------------
@@ -143,8 +147,8 @@ export default function CommunityPage() {
     >
       {/* 상단 탭 */}
       <div className="community-tab" style={{ fontSize: `${textSize}px` }}>
-        <button onClick={() => setFilterType(null)}
-          className={filterType === null ? "active" : ""}>전체</button>
+        <button onClick={() => setFilterType("")}
+          className={filterType === "" ? "active" : ""}>전체</button>
 
         <button onClick={() => setFilterType("DEFAULT")}
           className={filterType === "DEFAULT" ? "active" : ""}>일반</button>

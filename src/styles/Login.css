@@ -25,10 +25,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 12px;
+  border-radius: 24px;
 }
 .logo-box>img {
-  width : 70%;
+  width : 80%;
 }
 
 /* 타이틀 Pyxis */
