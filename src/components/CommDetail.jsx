@@ -42,7 +42,7 @@ export default function PostDetailView({
 
       const extended = {
         ...data,
-        isOwner: data.writerId === currentUserId
+        isOwner: data.userId === currentUserId
       };
 
       setPost(extended); 
@@ -59,7 +59,7 @@ export default function PostDetailView({
       const data = res.data || res;
       const mapped = data.items.map((c) => ({
         ...c,
-        isMine: c.writerId === currentUserId,
+        isMine: c.userId === currentUserId,
         isReplyOpen: false,
         replies: [],
       }));
@@ -71,6 +71,7 @@ export default function PostDetailView({
   };
 
   useEffect(() => {
+  
     if (!postId) return
     loadPost();
     loadComments(0,PAGE_SIZE);
@@ -135,7 +136,7 @@ export default function PostDetailView({
 
     const replyItems = data.items.map((r) => ({
       ...r,
-      isMine: r.writerId === currentUserId
+      isMine: r.userId === currentUserId
     }));
 
     setComments((prev) =>

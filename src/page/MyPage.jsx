@@ -9,6 +9,7 @@ import "../styles/MyPage.css";
 export default function MyPage() {
   const navigate = useNavigate();
   const [recentChat, setRecentChat] = useState(null);
+  const [myInfo, setMyInfo] = useState([]);
 
   const fetchRecentChat = async () =>{
     try {
@@ -22,6 +23,9 @@ export default function MyPage() {
       console.error('채팅내역 로드 실패:', err);
     }
   };
+  const fetchMyInfo = async () => {
+
+  }
   useEffect(()=> {
     fetchRecentChat();
   }, []);
