@@ -11,12 +11,10 @@ export default defineConfig({
       }
     }),
   ],
-  // server: {
-  //   host: '0.0.0.0',
-  //   port: 3000,
-  //   https: {
-  //     key: fs.readFileSync('localhost+1-key.pem'),
-  //     cert: fs.readFileSync('localhost+1.pem')
-  //   }
-  // }
+// 개발용 백엔드포트, 배포시에는 뺄것
+  server: {
+    proxy: {
+      '/api': 'http://localhost:8081/'
+    }
+  }
 })

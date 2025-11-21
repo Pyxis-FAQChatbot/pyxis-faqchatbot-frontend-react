@@ -28,7 +28,7 @@ const StoreFoam = ({ onClose }) => {
   };
 
   return (
-    <div className="overlay">
+    <div className="store-overlay">
       <div className="company-modal">
         <h2>업체 정보 등록</h2>
         <p className="subtitle">개인화된 맞춤 서비스를 이용하세요!</p>

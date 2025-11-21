@@ -54,7 +54,7 @@ const Login = () => {
       sessionStorage.setItem(
         "userInfo",
         JSON.stringify({
-          userId: profile.Id,
+          userId: profile.id,
           loginId: profile.loginId,
           nickname: profile.nickname,
           role: profile.role,
