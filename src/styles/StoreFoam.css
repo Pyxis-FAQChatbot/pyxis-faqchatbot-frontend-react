@@ -1,5 +1,5 @@
 /* 오버레이 */
-.overlay {
+.store-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -41,9 +41,7 @@ label {
   color: #2d3748;
 }
 
-input,
-select,
-textarea {
+.store-overlay :is(input, select, textarea) {
   width: 100%;
   padding: 10px;
   margin-top: 4px;

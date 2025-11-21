@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL, // .env에서 자동 로드됨
+  baseURL: "/api", // 프록시로 로드
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

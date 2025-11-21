@@ -2,8 +2,9 @@
  * TODO: 뒤로가기했을때 scroll 위치 저장 생각할 것
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
 
 import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
@@ -16,6 +17,7 @@ import "../styles/CommunityListPage.css";
 import { communityApi } from "../api/commApi";
 import { timeAgo } from "../utils/timeAgo";
 
+
 /*  
   CommunityPage = 레이아웃 + 모드 전환 + 각 기능 컴포넌트 출력(디폴트로 목록 출력)  
 */
@@ -25,6 +27,7 @@ export default function CommunityPage() {
   const navigate = useNavigate();
   const { postId } = useParams();
   const location = useLocation();
+  const searchRef = useRef(null);
 
   // 현재 화면 모드: list / write / detail
   const [viewMode, setViewMode] = useState("list");
@@ -34,14 +37,20 @@ export default function CommunityPage() {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(0);
   const [isLast, setIsLast] = useState(false);
-  const PAGE_SIZE = 20;
+  const [filterType, setFilterType] = useState("");
+  const [currentPost, setCurrentPost] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const PAGE_SIZE = 8;
+
+  // 검색창
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // 반응형 패딩 / 폰트
   const [sidePadding, setSidePadding] = useState("20px");
   const [titleSize, setTitleSize] = useState(16);
   const [textSize, setTextSize] = useState(14);
-  const [filterType, setFilterType] = useState("");
-  const [currentPost, setCurrentPost] = useState(null);
+
 
   // 뒤로가기
   const goBack = () => {
@@ -108,9 +117,14 @@ export default function CommunityPage() {
     if (isLast) return;
 
     try {
-      const res = await communityApi.postListPath(page, PAGE_SIZE, filterType || undefined);
-      const data = res.data ? res.data : res;
+      const res = await communityApi.postListPath(
+        page,
+        PAGE_SIZE,
+        filterType || undefined,
+        searchQuery || undefined
+      );
 
+      const data = res.data ? res.data : res;
       const newPosts = data.items || [];
 
       setPosts((prev) => [...prev, ...newPosts]);
@@ -129,14 +143,47 @@ export default function CommunityPage() {
     setPosts([]);
     setPage(0);
     setIsLast(false);
+    setSearchQuery("")
   }, [filterType]);
 
   useEffect(() => {
     if (viewMode !== "list") return;
-    if (page === 0 && posts.length !== 0) return; // 초기화 직후 첫 로딩을 허용하기 위한 조건
+    if (page !== 0 && posts.length !== 0) return; // 초기화 직후 첫 로딩을 허용하기 위한 조건
 
     fetchPosts();
   }, [page]);
+  const handleSearchToggle = () => {
+    // 검색창 열기
+    if(!isSearchOpen){
+      setIsSearchOpen(true);
+  
+      // 검색창이 열릴 위치로 부드럽게 스크롤
+      setTimeout(() => {
+        if (!searchRef.current) return;
+        const headerHeight = 88; // 실제 헤더 높이(px)로 맞춰주세요
+        const elementTop =
+          searchRef.current.getBoundingClientRect().top + window.scrollY;
+  
+        window.scrollTo({
+          top: elementTop - headerHeight - 16, // 약간 더 여유를 두기 위해 -10
+          behavior: "smooth",
+        });
+      }, 50);
+    } else {
+      setIsSearchOpen(false);
+    }
+};
+
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+    setPosts([]);      // 목록 초기화
+    setPage(0);        // 첫 페이지로
+    setIsLast(false);  // 다시 페이징 가능 상태로
+    setFilterType(""); // 탭 상태 초기화 (검색 시 탭은 전체로)
+    
+    setSearchInput("");
+    // fetchPosts()는 page가 0으로 바뀌면 자동으로 트리거됨
+  };
   // -------------------------------------------
   // 📌 VIEW MODE: LIST
   // -------------------------------------------
@@ -145,6 +192,24 @@ export default function CommunityPage() {
       className="community-content"
       style={{ paddingLeft: sidePadding, paddingRight: sidePadding }}
     >
+      {viewMode === "list" && (
+        <div 
+          ref={searchRef}
+          className={`search-bar-wrapper ${isSearchOpen ? "open" : ""}`}
+        >
+          <input
+            type="text"
+            placeholder="검색어를 입력하세요"
+            className="search-input"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          />
+          <button className="search-btn" onClick={handleSearch}>
+            <Search color="#fff"/>
+          </button>
+        </div>
+      )}
       {/* 상단 탭 */}
       <div className="community-tab" style={{ fontSize: `${textSize}px` }}>
         <button onClick={() => setFilterType("")}
@@ -237,7 +302,11 @@ export default function CommunityPage() {
       <Header 
         type = {viewMode === "list" ? "search":"back"}
         title = "커뮤니티 게시판"
-        onMenuClick={viewMode === "list" ? undefined : goBack}
+        onMenuClick={
+          viewMode === "list" 
+            ? handleSearchToggle
+            : goBack
+        }
       />
       {renderContent()}
 
