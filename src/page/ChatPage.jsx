@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useNavigate, useParams } from "react-router-dom";
 import { chatApi, botRoomPath } from "../api/chatApi"
 import Header from "../components/Header";
@@ -233,7 +235,11 @@ export default function ChatPage() {
                   msg.sender === "bot" || msg.role === "assistant" ? "bot" : "user"
                 }`}
               >
-                <div>{msg.text || msg.items}</div>
+                <div className="markdown-body">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.text || msg.items}
+                  </ReactMarkdown>
+                </div>
 
                 {msg.sender === "bot" && msg.sources?.length > 0 && (
                   <div className="message-sources">

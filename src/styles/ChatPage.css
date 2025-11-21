@@ -48,7 +48,52 @@
   padding: 12px 16px;
   margin: 6px 10px;
   border-radius: 16px;
-  word-wrap: break-word;
+  line-break: anywhere;
+  white-space: normal;
+}
+
+/* Markdown 기본 스타일 */
+.markdown-body {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.markdown-body p {
+  margin: 0 0 8px 0;
+}
+
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body em {
+  font-style: italic;
+}
+
+.markdown-body code {
+  background: #f5f5f5;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.markdown-body pre code {
+  display: block;
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 20px;
+  margin: 6px 0;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid #ccc;
+  padding-left: 10px;
+  margin: 8px 0;
+  color: #666;
 }
 
 .chat-bubble.bot {
@@ -60,6 +105,8 @@
   background-color: #edf2f7;
   align-self: flex-end;
 }
+
+/* 마크다운 메시지*/
 /* 출처메시지 */
 .message-sources {
   margin-top: 8px;

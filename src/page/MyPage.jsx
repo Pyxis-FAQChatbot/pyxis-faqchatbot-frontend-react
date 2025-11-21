@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
+import StoreForm from "../components/StoreFoam";
 import { useNavigate } from "react-router-dom";
 import { botRoomPath } from "../api/chatApi";
 import { timeAgo } from "../utils/timeAgo";
+import { myInfoPath } from "../api/authApi";
 import "../styles/MyPage.css";
 
 export default function MyPage() {
   const navigate = useNavigate();
   const [recentChat, setRecentChat] = useState(null);
   const [myInfo, setMyInfo] = useState([]);
+  const [showStoreForm, setShowStoreForm] = useState(false);
 
   const fetchRecentChat = async () =>{
     try {
@@ -24,9 +27,15 @@ export default function MyPage() {
     }
   };
   const fetchMyInfo = async () => {
-
-  }
+    try {
+      const res = await myInfoPath(); // 👈 너가 만든 GET api 함수명으로 변경!
+      setMyInfo(res);
+    } catch (err) {
+      console.error("내 정보 불러오기 실패:", err);
+    }
+  };
   useEffect(()=> {
+    fetchMyInfo();
     fetchRecentChat();
   }, []);
   return (
@@ -43,19 +52,19 @@ export default function MyPage() {
               <h3>계정 정보</h3>
               <div className="profile-item">
                 <span className="label">닉네임</span>
-                <span>NICKNAME</span>
+                <span>{myInfo?.nickname || "—"}</span>
               </div>
               <div className="profile-item">
                 <span className="label">로그인 ID</span>
-                <span>loginId</span>
+                <span>{myInfo?.loginId || "—"}</span>
               </div>
               <div className="profile-item">
                 <span className="label">지역</span>
-                <span>서울</span>
+                <span>{myInfo?.addressMain || "—"}</span>
               </div>
               <div className="profile-item">
                 <span className="label">가입일</span>
-                <span>2025-11-04</span>
+                <span>{myInfo?.createdAt?.slice(0, 10) || "—"}</span>
               </div>
             </section>
 
@@ -65,9 +74,15 @@ export default function MyPage() {
               <div className="setting-item">
                 비밀번호 변경
               </div>
-              <div className="setting-item">
-                알림 설정
+              <div
+                onClick={() => setShowStoreForm(true)}
+                className="setting-item"
+              >
+                사업장 설정
               </div>
+              {showStoreForm && (
+                <StoreForm onClose={() => setShowStoreForm(false)} />
+              )}
             </section>
 
           </div>
