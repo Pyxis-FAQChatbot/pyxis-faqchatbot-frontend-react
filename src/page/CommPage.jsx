@@ -226,7 +226,7 @@ export default function CommunityPage() {
           key={post.communityId}
           className="community-card"
           onClick={() => {
-            navigate(`/community/${post.communityId}`);
+            navigate(`/community/${post.postId}`);
           }}
         >
           <div className="card-title" style={{ fontSize: `${titleSize}px` }}>
@@ -238,7 +238,8 @@ export default function CommunityPage() {
               {post.postType === "DEFAULT" ? post.nickname : "익명"}
             </span>
             <span>조회수 : {post.viewCount}</span>
-            <span>{timeAgo(post.createdAt)}</span>
+            <span>댓글 : {post.commentCount}</span>
+            <span >{timeAgo(post.createdAt)}</span>
           </div>
         </div>
       ))}

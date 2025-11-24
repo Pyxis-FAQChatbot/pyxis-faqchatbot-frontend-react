@@ -91,26 +91,28 @@ export default function CommunityWrite({
           onChange={(e) => setContent(e.target.value)}
         />
       </div>
-      <div className="write-type-select">
-        <button 
-          className={isAnonymous ? "" : "active"}
-          onClick={() => setIsAnonymous(false)}
-        >
-          일반
-        </button>
+      <div className="write-complete-bar">
+        <div className="write-type-select">
+          <button 
+            className={isAnonymous ? "" : "active"}
+            onClick={() => setIsAnonymous(false)}
+          >
+            일반
+          </button>
+          <button
+            className={isAnonymous ? "active" : ""}
+            onClick={() => setIsAnonymous(true)}
+          >
+            익명
+          </button>
+        </div>
         <button
-          className={isAnonymous ? "active" : ""}
-          onClick={() => setIsAnonymous(true)}
+          onClick={handleSubmit}
         >
-          익명
+          작성
         </button>
       </div>
       {/* 작성/수정 버튼 */}
-      <FloatButton
-        icon={mode === "edit" ? "✔" : "+"}
-        size={60}
-        onClick={handleSubmit}
-      />
     </div>
   );
 }

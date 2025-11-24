@@ -5,7 +5,11 @@ const endpoints = {
     logout: "/v1/logout",
     chackid: "/v1/check-id",
     chacknick: "/v1/check-nickname",
-    me: "/v1/me"
+  },
+  my: {
+    me: "/v1/me",
+    post: '/v1/mypage/posts',
+    comment: "/v1/mypage/comments"
   },
   store: {
     create: "/v1/stores",

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { timeAgo } from "../utils/timeAgo";
 import {
   MessageSquare,
+  ListCheck,
   MoreVertical,
   CornerDownRight,
 } from "lucide-react";
@@ -214,8 +215,12 @@ export default function PostDetailView({
         <div className="community-post-footer">
           <div className="post-stats">
             <div className="stat-item">
-              <MessageSquare size={18} />
+              <ListCheck size={18} />
               <span>{post.community.viewCount}</span>
+            </div>
+            <div className="stat-item">
+              <MessageSquare size={18} />
+              <span>{post.community.commentCount}</span>
             </div>
           </div>
 

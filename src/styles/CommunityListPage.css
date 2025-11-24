@@ -481,7 +481,7 @@
 /* 내용 입력 */
 .community-write-content {
   width: calc(100% - 16px);
-  height: calc(100vh - 394px);
+  height: calc(100vh - 406px);
   border: none;
   resize: none;
   outline: none;
@@ -495,19 +495,16 @@
   background: #eef3f9;
 }
 
-/* 익명여부 토글버튼 */
-.write-type-select {
+
+.write-complete-bar {
   width:100%;
   max-width: 1000px;
-  display: flex;
-  justify-content: flex-start;
-  
-  gap: 8px;
   margin-top: 12px;
-  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
 }
 
-.write-type-select button {
+.write-complete-bar button {
   padding: 8px;
   background: #e8edf5;
   border: none;
@@ -516,6 +513,13 @@
   cursor: pointer;
 }
 
+.write-complete-bar > button {
+  background: #4a5cff;
+  color: white;
+}
+.write-type-select button{
+  margin-right: 16px;
+}
 .write-type-select button.active {
   background: #4a5cff;
   color: white;

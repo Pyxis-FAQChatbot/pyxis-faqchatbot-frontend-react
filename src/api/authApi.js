@@ -27,6 +27,22 @@ export const registerPath = async (data) => {
 // 회원정보 불러오기
 
 export const myInfoPath = async () => {
-  const response = await axiosInstance.get(endpoints.auth.me);
+  const response = await axiosInstance.get(endpoints.my.me);
   return response.data;
-}
+};
+
+// 내 게시글 조회
+export const myPostPath = async (pageNum, sizeNum) => {
+  const response = await axiosInstance.get(endpoints.my.post, {
+    params: { page: pageNum, size: sizeNum}
+  });
+  return response.data;
+};
+// 내 댓글 조회
+export const myCommentPath = async (pageNum, sizeNum) => {
+  const response = await axiosInstance.get(endpoints.my.comment, {
+    params: { page: pageNum, size: sizeNum}
+  });
+  return response.data;
+};
+
