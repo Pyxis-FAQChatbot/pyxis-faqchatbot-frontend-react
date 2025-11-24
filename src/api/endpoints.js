@@ -9,10 +9,14 @@ const endpoints = {
   my: {
     me: "/v1/me",
     post: '/v1/mypage/posts',
-    comment: "/v1/mypage/comments"
+    comment: "/v1/mypage/comments",
+    pw: "/v1/mypage/password",
+    nick: "/v1/mypage/nickname",
+    address: "/api/v1/mypage/address"
   },
   store: {
     create: "/v1/stores",
+    edit: "/v1/mypage/stores"
   },
   bot: {
     create: "/v1/chatbot",

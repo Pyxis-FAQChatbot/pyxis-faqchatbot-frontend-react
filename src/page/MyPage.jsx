@@ -6,21 +6,35 @@ import { useNavigate } from "react-router-dom";
 import { botRoomPath } from "../api/chatApi";
 import { timeAgo } from "../utils/timeAgo";
 import { myInfoPath, myPostPath, myCommentPath } from "../api/authApi";
+import { storeApi } from "../api/storeApi";
 import "../styles/MyPage.css";
 
 export default function MyPage() {
   const navigate = useNavigate();
   const [recentChat, setRecentChat] = useState(null);
   const [myInfo, setMyInfo] = useState([]);
-  const [showStoreForm, setShowStoreForm] = useState(false);
+  const [myStore, setMyStore] = useState([]);
   const [myPosts, setMyPosts] = useState([]);
+  const [myComments, setMyComments] = useState([]);
   const [page, setPage] = useState(0);       // 현재 페이지
   const [totalPages, setTotalPages] = useState(1); // 전체 페이지
-  const [myComments, setMyComments] = useState([]);
   const [commentPage, setCommentPage] = useState(0);
   const [commentTotalPages, setCommentTotalPages] = useState(1);
+  const [showStoreForm, setShowStoreForm] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [overlayMode, setOverlayMode] = useState(null); 
+
   const size = 5;
   const cmtsize = 8;
+  const openProfileEdit = () => {
+    setOverlayMode("profile");
+    setShowOverlay(true);
+  };
+
+  const openPasswordEdit = () => {
+    setOverlayMode("password");
+    setShowOverlay(true);
+  };
 
   const fetchRecentChat = async () =>{
     try {
@@ -40,6 +54,15 @@ export default function MyPage() {
       setMyInfo(res);
     } catch (err) {
       console.error("내 정보 불러오기 실패:", err);
+    }
+  };
+    const fetchMyStore = async () => {
+    try {
+      const res = await storeApi.ViewPath(); // 👈 너가 만든 GET api 함수명으로 변경!
+      setMyStore(res);
+    } catch (err) {
+      console.log("사업장 정보 없음 또는 오류");
+      setStoreInfo(null);
     }
   };
   const fetchMyPosts = async (pageNum = page) => {
@@ -62,6 +85,7 @@ export default function MyPage() {
   };
   useEffect(()=> {
     fetchMyInfo();
+    fetchMyStore();
     fetchRecentChat();
     fetchMyPosts();
     fetchMyComments();
@@ -72,6 +96,21 @@ export default function MyPage() {
       <Header type = "main"/>
 
       <main className="mypage-content">
+        {showStoreForm && (
+          <StoreForm 
+            onClose={() => {
+              setShowStoreForm(false);
+              fetchMyStore()
+            }} 
+          />
+        )}
+        {showOverlay && (
+          <UserEditOverlay
+            mode={overlayMode}
+            onClose={() => setShowOverlay(false)}
+            onUpdated={() => {/* 수정 후 마이페이지 데이터 갱신용 */}}
+          />
+        )}
         <div>
           {/* 🔹 상단 좌우배치 영역 (750px 이상부터 적용) */}
           <div className="top-grid">
@@ -79,7 +118,7 @@ export default function MyPage() {
             {/* 핵심 계정 정보 */}
             <section className="profile-card card">
               <h3>계정 정보</h3>
-              <div className="profile-wrap">
+              <div>
                 <div>
                   <div className="profile-item">
                     <span className="label">닉네임</span>
@@ -98,27 +137,46 @@ export default function MyPage() {
                     <span>{myInfo?.createdAt?.slice(0, 10) || "—"}</span>
                   </div>
                 </div>
+                <div></div>
               </div>
             </section>
-
-            {/* 설정 섹션 */}
-            <section className="settings-card card">
-              <h3>설정</h3>
-              <div className="setting-item">
-                비밀번호 변경
+            <section className="profile-card card">
+              <h3>내 사업장</h3>
+              <div className="profile-item">
+                <span className="label">상호명</span>
+                <span>{myStore?.storeName || "—"}</span>
               </div>
-              <div
-                onClick={() => setShowStoreForm(true)}
-                className="setting-item"
-              >
-                사업장 설정
+              <div className="profile-item">
+                <span className="label">등록 코드</span>
+                <span>{myStore?.industryCode || "—"}</span>
               </div>
-              {showStoreForm && (
-                <StoreForm onClose={() => setShowStoreForm(false)} />
-              )}
+              <div className="profile-item">
+                <span className="label">주소</span>
+                <span>{myStore?.address || "—"}</span>
+              </div>
             </section>
-
           </div>
+          {/* 설정 바 */}
+          <section className="settings-bar">
+            <button
+              onClick={() => setShowStoreForm(true)}
+              className="setting-item card"
+            >
+              사업장 설정
+            </button>
+            <button
+              onClick={openProfileEdit}
+              className="setting-item card"
+            >
+              비밀번호 변경
+            </button>
+            <button
+              onClick={openPasswordEdit}
+              className="setting-item card"
+            >
+              닉네임 및 지역 변경
+            </button>
+          </section>
 
           {/* 🔹 활동 섹션 */}
           <section className="activity-section">

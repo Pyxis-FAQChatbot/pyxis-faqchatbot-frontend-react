@@ -45,4 +45,20 @@ export const myCommentPath = async (pageNum, sizeNum) => {
   });
   return response.data;
 };
-
+const pwPath = async (data) => {
+  const response = await axiosInstance.patch(endpoints.my.pw, data);
+  return response.data;
+};
+const nickPath = async (data) => {
+  const response = await axiosInstance.patch(endpoints.my.nick, data);
+  return response.data;
+};
+const addressPath = async (data) => {
+  const response = await axiosInstance.patch(endpoints.my.address, data);
+  return response.data;
+};
+export const myEditApi = {
+  pwPath,
+  nickPath,
+  addressPath
+}

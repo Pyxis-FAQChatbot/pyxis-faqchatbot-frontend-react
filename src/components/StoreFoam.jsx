@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { storePath } from "../api/storeApi";
+import React, { useState, useEffect } from "react";
+import { storeApi } from "../api/storeApi";
 import IndustrySearch from "../components/IndustrySearch";
 import "../styles/StoreFoam.css";
 
@@ -9,6 +9,25 @@ const StoreFoam = ({ onClose }) => {
     industryCode: "",
     address: "",
   });
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    const fetchStoreInfo = async () => {
+      try {
+        const res = await storeApi.ViewPath(); 
+        setFormData({
+          storeName: res.storeName || "",
+          industryCode: res.industryCode || "",
+          address: res.address || "",
+        });
+        setIsEditMode(true); // 수정 모드로 전환
+      } catch (err) {
+        console.log("신규등록모드 전환");
+      }
+    };
+
+    fetchStoreInfo();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,27 +37,32 @@ const StoreFoam = ({ onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await storePath(formData);
-      alert("등록이 완료되었습니다.");
-      onClose(); // 오버레이 닫기
+      if (isEditMode) {
+        await storeApi.EditPath(formData);
+        alert("수정이 완료되었습니다.");
+      } else {
+        await storeApi.CreatePath(formData);
+        alert("등록이 완료되었습니다.");
+      }
+      onClose();
     } catch (error) {
       console.error(error);
-      alert("등록 중 오류가 발생했습니다.");
+      alert("저장 중 오류가 발생했습니다.");
     }
   };
 
   return (
     <div className="store-overlay">
       <div className="company-modal">
-        <h2>업체 정보 등록</h2>
+        <h2>업체 정보 {isEditMode ? "수정" : "등록"}</h2>
         <p className="subtitle">개인화된 맞춤 서비스를 이용하세요!</p>
 
         <form onSubmit={handleSubmit}>
           <label>사업장명</label>
           <input
             type="text"
-            name="companyName"
-            value={formData.companyName}
+            name="storeName"
+            value={formData.storeName}
             onChange={handleChange}
             required
           />
@@ -59,7 +83,7 @@ const StoreFoam = ({ onClose }) => {
           />
 
           <button type="submit" className="submit-btn">
-            등록
+            {isEditMode ? "수정" : "등록"}
           </button>
         </form>
 
