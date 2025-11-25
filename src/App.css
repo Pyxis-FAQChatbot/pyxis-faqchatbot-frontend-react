@@ -121,3 +121,9 @@ body {
     51vw 92vh 2px white, 59vw 78vh 1px white;
   animation: twinkle 6s infinite linear reverse;
 }
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

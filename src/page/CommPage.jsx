@@ -232,6 +232,9 @@ export default function CommunityPage() {
           <div className="card-title" style={{ fontSize: `${titleSize}px` }}>
             {post.title}
           </div>
+          <div className="ellipsis">
+            {post.content}
+          </div>
 
           <div className="card-info" style={{ fontSize: `${textSize}px` }}>
             <span>

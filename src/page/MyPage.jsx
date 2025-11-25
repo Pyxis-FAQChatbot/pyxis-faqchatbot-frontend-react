@@ -63,7 +63,7 @@ export default function MyPage() {
       setMyStore(res);
     } catch (err) {
       console.log("사업장 정보 없음 또는 오류");
-      setStoreInfo(null);
+      setMyStore(null);
     }
   };
   const fetchMyPosts = async (pageNum = page) => {
@@ -221,7 +221,7 @@ export default function MyPage() {
                         onClick={() => navigate(`/community/${post.postId}`)}
                       >
                         <div className="post-title">{post.title}</div>
-                        <p>{post.content}</p>
+                        <p className="ellipsis">{post.content}</p>
                         <div className="post-date">
                           {post.createdAt.slice(0, 10)}
                         </div>
@@ -269,7 +269,7 @@ export default function MyPage() {
                         onClick={() => navigate(`/community/${cmt.postId}`)}
                       >
                         
-                        <div className="post-title">
+                        <div className="post-title ellipsis">
                           {cmt.parentId && ('\u21B3  ')}
                           {cmt.content}</div>
                         <div className="post-date">
