@@ -58,8 +58,8 @@ const Signup = () => {
 
     if (!formData.nickname.trim()) {
       newErrors.nickname = "닉네임을 입력해주세요.";
-    } else if (formData.nickname.length < 2) {
-      newErrors.nickname = "닉네임은 2자 이상이어야 합니다.";
+    } else if (formData.nickname.length < 2 && formData.nickname.length > 21) {
+      newErrors.nickname = "닉네임은 2자 이상, 20자 이하 이어야 합니다.";
     }
 
     if (!formData.birthYear || !formData.birthMonth || !formData.birthDay) {
@@ -84,19 +84,18 @@ const Signup = () => {
       alert("아이디를 입력해주세요.");
       return;
     }
-
     try {
-      const res = await checkIdPath(formData.userId);
-      if (res.status === 200) {
-        alert("사용 가능한 아이디입니다!");
-        setIdChecked(true);
-      } else {
-        alert("이미 사용 중인 아이디입니다.");
-        setIdChecked(false);
-      }
+      await checkIdPath(formData.userId);
+      alert("사용 가능한 아이디입니다!");
+      setIdChecked(true);
     } catch (err) {
-      console.error(err);
-      alert("아이디 중복확인 중 오류가 발생했습니다.");
+      if (err.response && err.response.status === 400) {
+        alert(err.response.data.message || "이미 사용 중인 아이디입니다.");
+        setIdChecked(false);
+      } else {
+        alert("아이디 중복확인 중 오류가 발생했습니다.");
+        console.error(err);
+      }
     }
   };
 
@@ -107,17 +106,17 @@ const Signup = () => {
     }
   
     try {
-      const res = await checkNickPath(formData.nickname);
-      if (res.status === 200) {
-        alert("사용 가능한 닉네임입니다!");
-        setNicknameChecked(true);
-      } else {
-        alert("이미 사용 중인 닉네임입니다.");
-        setNicknameChecked(false);
-      }
+      await checkNickPath(formData.nickname);
+      alert("사용 가능한 닉네임입니다!");
+      setNicknameChecked(true);
     } catch (err) {
-      console.error(err);
-      alert("닉네임 중복확인 중 오류가 발생했습니다.");
+      if (err.response && err.response.status === 400) {
+        alert(err.response.data.message || "이미 사용 중인 닉네임입니다.");
+        setNicknameChecked(false);
+      } else {
+        alert("닉네임 중복확인 중 오류가 발생했습니다.");
+        console.error(err);
+      }
     }
   };
 

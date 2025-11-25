@@ -1,19 +1,26 @@
 /* 오버레이 */
-.store-overlay {
+.overlay{
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(230, 230, 230, 0.85); /* 반투명 회색 */
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.store-overlay {
+  background-color: rgba(230, 230, 230, 0.85); /* 반투명 회색 */
   z-index: 1000;
 }
 
+.editer-overlay {
+  background-color: #fff;
+  z-index: 1;
+}
+
 /* 팝업 박스 */
-.company-modal {
+.popup-box {
   background-color: #edf2f7;
   border-radius: 16px;
   padding: 40px 60px;
@@ -34,14 +41,14 @@
   margin-bottom: 24px;
 }
 
-label {
+.overlay label {
   display: block;
   margin-top: 10px;
   font-weight: 600;
   color: #2d3748;
 }
 
-.store-overlay :is(input, select, textarea) {
+.overlay :is(input, select, textarea) {
   width: 100%;
   padding: 10px;
   margin-top: 4px;
@@ -52,7 +59,6 @@ label {
   background-color: white;
   resize: none;
 }
-
 .submit-btn {
   width: 100%;
   margin-top: 20px;
@@ -69,7 +75,7 @@ label {
   background-color: #1e4f83;
 }
 
-.later-btn {
+.close-btn {
   margin-top: 16px;
   background: none;
   border: none;

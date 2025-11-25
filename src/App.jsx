@@ -11,19 +11,29 @@ import "./App.css";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/chatbot" element={<Chatbot />} />
-        <Route path="/chatbot/:chatId" element={<Chatbot />} />
-        <Route path="/community" element={<Community />} />
-        <Route path="/community/:postId" element={<Community />} />
-        <Route path="/community/write" element={<Community />} />
-        <Route path="/main" element={<Main />} />
-        <Route path="/mypage" element={<MyPage />} />
-      </Routes>
-    </Router>
+    <>
+      <div id="background-layer">
+        <div className="stars"></div>
+        <div className="shooting-star"></div>
+        <div className="shooting-star"></div>
+        <div className="shooting-star"></div>
+        <div className="shooting-star"></div>
+        <div className="shooting-star"></div>
+      </div>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/chatbot/:chatId" element={<Chatbot />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/community/:postId" element={<Community />} />
+          <Route path="/community/write" element={<Community />} />
+          <Route path="/main" element={<Main />} />
+          <Route path="/mypage" element={<MyPage />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 

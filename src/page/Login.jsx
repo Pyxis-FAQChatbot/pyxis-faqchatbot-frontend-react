@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginPath } from "../api/loginApi";
 import { myInfoPath } from "../api/authApi";
-import axios from "axios";
 import logo from "../assets/pyxis_logo.png";
 import "../styles/Login.css";
 

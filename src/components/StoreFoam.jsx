@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { storeApi } from "../api/storeApi";
 import IndustrySearch from "../components/IndustrySearch";
-import "../styles/StoreFoam.css";
+import "../styles/overlay.css";
 
 const StoreFoam = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -52,8 +52,8 @@ const StoreFoam = ({ onClose }) => {
   };
 
   return (
-    <div className="store-overlay">
-      <div className="company-modal">
+    <div className="store-overlay overlay">
+      <div className="popup-box">
         <h2>업체 정보 {isEditMode ? "수정" : "등록"}</h2>
         <p className="subtitle">개인화된 맞춤 서비스를 이용하세요!</p>
 
@@ -87,7 +87,7 @@ const StoreFoam = ({ onClose }) => {
           </button>
         </form>
 
-        <button className="later-btn" onClick={onClose}>
+        <button className="close-btn" onClick={onClose}>
           나중에
         </button>
       </div>

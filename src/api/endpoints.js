@@ -12,7 +12,7 @@ const endpoints = {
     comment: "/v1/mypage/comments",
     pw: "/v1/mypage/password",
     nick: "/v1/mypage/nickname",
-    address: "/api/v1/mypage/address"
+    address: "/v1/mypage/address"
   },
   store: {
     create: "/v1/stores",

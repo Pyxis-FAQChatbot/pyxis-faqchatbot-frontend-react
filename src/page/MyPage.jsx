@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import BottomNav from "../components/BottomNav";
 import StoreForm from "../components/StoreFoam";
+import UserEditOverlay from "../components/profileEdit";
 import { useNavigate } from "react-router-dom";
 import { botRoomPath } from "../api/chatApi";
 import { timeAgo } from "../utils/timeAgo";
@@ -50,7 +51,7 @@ export default function MyPage() {
   };
   const fetchMyInfo = async () => {
     try {
-      const res = await myInfoPath(); // 👈 너가 만든 GET api 함수명으로 변경!
+      const res = await myInfoPath();
       setMyInfo(res);
     } catch (err) {
       console.error("내 정보 불러오기 실패:", err);
@@ -58,7 +59,7 @@ export default function MyPage() {
   };
     const fetchMyStore = async () => {
     try {
-      const res = await storeApi.ViewPath(); // 👈 너가 만든 GET api 함수명으로 변경!
+      const res = await storeApi.ViewPath();
       setMyStore(res);
     } catch (err) {
       console.log("사업장 정보 없음 또는 오류");
@@ -67,7 +68,7 @@ export default function MyPage() {
   };
   const fetchMyPosts = async (pageNum = page) => {
     try {
-      const res = await myPostPath(pageNum, size); // 너의 API 함수 이름
+      const res = await myPostPath(pageNum, size);
       setMyPosts(res.items);         // 게시글 목록
       setTotalPages(res.totalPages); // 전체 페이지 수
     } catch (err) {
@@ -108,7 +109,7 @@ export default function MyPage() {
           <UserEditOverlay
             mode={overlayMode}
             onClose={() => setShowOverlay(false)}
-            onUpdated={() => {/* 수정 후 마이페이지 데이터 갱신용 */}}
+            onUpdated={() => {fetchMyInfo()}}
           />
         )}
         <div>
@@ -156,7 +157,7 @@ export default function MyPage() {
               </div>
             </section>
           </div>
-          {/* 설정 바 */}
+          {/* 설정 버튼 섹션 */}
           <section className="settings-bar">
             <button
               onClick={() => setShowStoreForm(true)}
@@ -165,13 +166,13 @@ export default function MyPage() {
               사업장 설정
             </button>
             <button
-              onClick={openProfileEdit}
+              onClick={openPasswordEdit}
               className="setting-item card"
             >
               비밀번호 변경
             </button>
             <button
-              onClick={openPasswordEdit}
+              onClick={openProfileEdit}
               className="setting-item card"
             >
               닉네임 및 지역 변경
