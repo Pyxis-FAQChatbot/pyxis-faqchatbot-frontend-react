@@ -10,7 +10,10 @@
   justify-content: space-around;
   align-items: center;
   z-index: 100;
+  transition: left 0.3s ease, width 0.3s ease;
 }
+
+/* PC 버전 (1000px 이상) - 사이드바 열릴 때 너비 조정 */
 
 /* 버튼 기본 */
 .nav-button {
@@ -62,5 +65,5 @@
   background-image: url("../assets/icons/group_active.png");
 }
 .nav-button.mypage.active {
-  background-image: url("../assets/icons/account.png");
+  background-image: url("../assets/icons/account_active.png");
 }

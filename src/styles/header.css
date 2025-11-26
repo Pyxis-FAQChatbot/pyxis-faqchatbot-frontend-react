@@ -10,7 +10,16 @@
   background-color: #ffffff;
   border-bottom: 1px solid #e0e0e0;
   box-sizing: border-box;
-  z-index: 10;
+  z-index: 50;
+  transition: left 0.3s ease, width 0.3s ease;
+}
+
+/* PC 버전 (1000px 이상) - 사이드바 열릴 때 헤더 위치 조정 */
+@media screen and (min-width: 1000px) {
+  body.sidebar-open .header {
+    left: 25%;
+    width: 75%;
+  }
 }
 /* 메뉴 버튼 (채팅화면용) */
 .menu-button {
@@ -19,6 +28,17 @@
   cursor: pointer;
   color: #2c3e50;
   margin-right: 12px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* PC 버전 (1000px 이상) - 사이드바 열릴 때 버튼 숨김 */
+@media screen and (min-width: 1000px) {
+  body.sidebar-open .menu-button {
+    opacity: 0;
+    transform: scaleX(0);
+    width: 0;
+    margin-right: 0;
+  }
 }
 
 /* Pyxis 로고 (메인화면용) */

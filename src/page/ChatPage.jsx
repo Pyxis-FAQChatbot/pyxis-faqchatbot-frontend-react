@@ -7,6 +7,7 @@ import Header from "../components/Header";
 import ChatOverlay from "../components/ChatOverlay";
 import ChatInput from "../components/ChatInput";
 import BottomNav from "../components/BottomNav";
+import LoadingSpinner from "../components/LoadingSpinner";
 import "../styles/ChatPage.css";
 
 
@@ -15,6 +16,7 @@ export default function ChatPage() {
   const { chatId } = useParams(); // URL 파라미터로 chatId 추출
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isBotResponding, setIsBotResponding] = useState(false);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -100,7 +102,7 @@ export default function ChatPage() {
     setMessages((prev) => [...prev, { sender: "user", text: userInput }]);
 
     try {
-      setIsLoading(true);
+      setIsBotResponding(true);
 
       // ✅ chatId 없으면 새 방 생성
       if (!chatId) {
@@ -134,6 +136,7 @@ export default function ChatPage() {
         { sender: "bot", text: "⚠️ 서버 통신 오류가 발생했습니다." },
       ]);
     } finally {
+      setIsBotResponding(false);
       setIsLoading(false);
     }
   };
@@ -160,7 +163,7 @@ export default function ChatPage() {
     }
   };
 
-  // 채팅방 입장 시 초기 메시지 로드
+  // 채팅페이지 입장 시 초기 메시지 로드
   useEffect(() => {
     if (chatId) {
       setMessages([]);
@@ -206,8 +209,30 @@ export default function ChatPage() {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [page, totalPages, isLoading]);
 
+  // PC 버전에서 사이드바 상태를 body에 반영
+  useEffect(() => {
+    const isPC = window.innerWidth >= 1000;
+    if (isPC && isOverlayOpen) {
+      document.body.classList.add("sidebar-open");
+    } else {
+      document.body.classList.remove("sidebar-open");
+    }
+
+    const handleResize = () => {
+      const isPC = window.innerWidth >= 1000;
+      if (isPC && isOverlayOpen) {
+        document.body.classList.add("sidebar-open");
+      } else if (!isPC) {
+        document.body.classList.remove("sidebar-open");
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isOverlayOpen]);
+
   return (
-    <div className="chat-page">
+    <div className={`chat-page ${isOverlayOpen ? "sidebar-open" : ""}`}>
       <Header
         type="menu"
         title={chatTitle}
@@ -228,45 +253,53 @@ export default function ChatPage() {
               <p className="welcome-text">무엇이 궁금하신가요?</p>
             </div>
           ) : (
-            messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`chat-bubble ${
-                  msg.sender === "bot" || msg.role === "assistant" ? "bot" : "user"
-                }`}
-              >
-                <div className="markdown-body">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {msg.text || msg.items}
-                  </ReactMarkdown>
-                </div>
-
-                {msg.sender === "bot" && msg.sources?.length > 0 && (
-                  <div className="message-sources">
-                    {msg.sources.map((src, i) => (
-                      <div className="source-item" key={i}>
-                        
-                        {/* 제목 */}
-                        <div className="source-title">{src.title}</div>
-                        
-                        {/* URL - 클릭 가능 링크 */}
-                        <a className="source-url" href={src.url} target="_blank" rel="noopener noreferrer">
-                          {src.url}
-                        </a>
-
-                        {/* snippet */}
-                        <div className="source-snippet">{src.snippet}</div>
-                      </div>
-                    ))}
+            <>
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`chat-bubble ${
+                    msg.sender === "bot" || msg.role === "assistant" ? "bot" : "user"
+                  }`}
+                >
+                  <div className="markdown-body">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.text || msg.items}
+                    </ReactMarkdown>
                   </div>
-                )}
-              </div>
-            ))
+
+                  {msg.sender === "bot" && msg.sources?.length > 0 && (
+                    <div className="message-sources">
+                      {msg.sources.map((src, i) => (
+                        <div className="source-item" key={i}>
+                          
+                          {/* 제목 */}
+                          <div className="source-title">{src.title}</div>
+                          
+                          {/* URL - 클릭 가능 링크 */}
+                          <a className="source-url" href={src.url} target="_blank" rel="noopener noreferrer">
+                            {src.url}
+                          </a>
+
+                          {/* snippet */}
+                          <div className="source-snippet">{src.snippet}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {isBotResponding && (
+                <div className="chat-bubble bot">
+                  <LoadingSpinner />
+                </div>
+              )}
+            </>
           )
         )}
       </main>
 
-      <ChatInput onSendMessage={handleSendMessage} />
+      <ChatInput onSendMessage={handleSendMessage} disabled={isBotResponding} />
       <BottomNav active="chat" />
       <ChatOverlay
         isOpen={isOverlayOpen}
