@@ -42,7 +42,7 @@ export default function MainPage() {
       onClick={() => navigate(path)}
       className="w-full text-left group"
     >
-      <Card className="h-full hover:scale-[1.02] transition-transform duration-300 !p-5 border-l-4" style={{ borderLeftColor: color }}>
+      <Card className="h-full bg-white dark:bg-slate-900 shadow-md hover:shadow-xl hover:scale-[1.02] transition-transform duration-300 !p-5 border-l-4" style={{ borderLeftColor: color }}>
         <div className="flex justify-between items-start mb-3">
           <div className={`p-3 rounded-2xl bg-slate-50 text-slate-900 group-hover:bg-primary/10 group-hover:text-primary transition-colors`}>
             <Icon size={24} />

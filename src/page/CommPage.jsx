@@ -222,7 +222,7 @@ export default function CommunityPage() {
     <div className="flex flex-col h-full bg-slate-50 relative">
       <Header
         type={viewMode === "list" ? "search" : "back"}
-        title={viewMode === "write" ? "글쓰기" : viewMode === "detail" ? "상세보기" : "커뮤니티"}
+        title={viewMode === "write" ? "나도 한마디" : viewMode === "detail" ? "사장님의 한마디" : "사장님 수다방"}
         onMenuClick={viewMode === "list" ? () => setIsSearchOpen(!isSearchOpen) : goBack}
       />
 

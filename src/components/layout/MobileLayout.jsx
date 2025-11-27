@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, BatteryFull, Wifi } from 'lucide-react';
 
 const MobileLayout = ({ children }) => {
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -50,9 +50,8 @@ const MobileLayout = ({ children }) => {
 
                         {/* macOS-style Dots */}
                         <div className="flex gap-1.5">
-                            <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors cursor-pointer"></div>
-                            <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors cursor-pointer"></div>
-                            <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors cursor-pointer"></div>
+                            <Wifi size={16} />
+                            <BatteryFull size={16} />
                         </div>
                     </div>
                 </div>
