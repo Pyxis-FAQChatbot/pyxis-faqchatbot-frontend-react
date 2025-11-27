@@ -1,19 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { useNavigate, useParams } from "react-router-dom";
 import { chatApi, botRoomPath } from "../api/chatApi"
 import Header from "../components/Header";
 import ChatOverlay from "../components/ChatOverlay";
 import ChatInput from "../components/ChatInput";
-import BottomNav from "../components/BottomNav";
 import LoadingSpinner from "../components/LoadingSpinner";
-import "../styles/ChatPage.css";
-
+import ChatBubble from "../components/ui/ChatBubble";
+import { Sparkles } from "lucide-react";
 
 export default function ChatPage() {
   const navigate = useNavigate();
-  const { chatId } = useParams(); // URL 파라미터로 chatId 추출
+  const { chatId } = useParams();
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isBotResponding, setIsBotResponding] = useState(false);
@@ -25,59 +22,55 @@ export default function ChatPage() {
   const PAGE_SIZE = 20;
   const firstMessage = new URLSearchParams(window.location.search).get("firstMessage");
 
-  // ✅ 메시지 불러오기 (페이지 단위)
   const fetchMessages = async (id, pageNum = 0) => {
     if (isLoading || pageNum > totalPages) return;
 
     try {
       setIsLoading(true);
-      // const res = await axios.get(
-      //   `http://localhost:8080/api/v1/chatbot/${id}/message?page=${pageNum}&size=${PAGE_SIZE}`
-      // );
       const res = await chatApi.botMsgLog(id, pageNum, PAGE_SIZE);
       const data = res.data ? res.data : res;
       const fetched = data.items;
 
-      // UI가 요구하는 형태로 변환
       const converted = fetched.flatMap((m) => {
-        const arr = [{ 
-          sender: "user", 
-          text: m.userQuery, 
-          createdAt: m.createdAt }];
+        const arr = [{
+          sender: "user",
+          text: m.userQuery,
+          createdAt: m.createdAt
+        }];
         if (m.botResponse) {
-          arr.push({ 
-            sender: "bot", 
+          arr.push({
+            sender: "bot",
             text: m.botResponse,
-            createdAt: m.createdAt, 
-            sources: m.sourceData || [] });
+            createdAt: m.createdAt,
+            sources: m.sourceData || [],
+            followUpQuestions: m.followUpQuestions || []
+          });
         }
         return arr;
       });
 
-      // 오래된 → 최신 순으로 변환 (최신이 아래로)
       const convertedSorted = converted.sort(
         (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
       );
 
-      // 이전 메시지 위로 추가
       setMessages((prev) => [...prev, ...convertedSorted]);
       setTotalPages(data.totalPages);
       setPage(pageNum + 1);
 
-      // ✅ 첫 로드시 맨 아래로 스크롤
       if (pageNum === 0) {
         setTimeout(() => {
           const container = chatContainerRef.current;
-          container.scrollTop = container.scrollHeight;
+          if (container) container.scrollTop = container.scrollHeight;
         }, 100);
       } else {
-        // ✅ 추가 로드 시 스크롤 위치 유지
         const container = chatContainerRef.current;
-        const prevHeight = container.scrollHeight;
-        setTimeout(() => {
-          const newHeight = container.scrollHeight;
-          container.scrollTop = newHeight - prevHeight;
-        }, 100);
+        if (container) {
+          const prevHeight = container.scrollHeight;
+          setTimeout(() => {
+            const newHeight = container.scrollHeight;
+            container.scrollTop = newHeight - prevHeight;
+          }, 100);
+        }
       }
     } catch (error) {
       console.error("메시지 로드 실패:", error);
@@ -86,48 +79,43 @@ export default function ChatPage() {
     }
   };
 
-  // ✅ 스크롤이 맨 위일 때 이전 페이지 로드
   const handleScroll = () => {
     const container = chatContainerRef.current;
-    if (container.scrollTop === 0 && !isLoading && page < totalPages) {
+    if (container && container.scrollTop === 0 && !isLoading && page < totalPages) {
       fetchMessages(chatId, page);
     }
   };
 
-  // ✅ 사용자 메시지 전송
   const handleSendMessage = async (userInput) => {
     if (!userInput.trim()) return;
 
-    // 사용자 메시지 표시
     setMessages((prev) => [...prev, { sender: "user", text: userInput }]);
 
     try {
       setIsBotResponding(true);
 
-      // ✅ chatId 없으면 새 방 생성
       if (!chatId) {
         const createRes = await chatApi.botCreatePath();
-        console.log('새로운쳇 객체확인 : ',createRes.botChatId)
         const newChatId = createRes.botChatId;
         navigate(`/chatbot/${newChatId}?firstMessage=${encodeURIComponent(userInput)}`);
         return;
       }
 
-      // ✅ 기존 방에 메시지 전송
-      const response = await chatApi.botMsgPath(chatId,
-        { userQuery: userInput }
-      );
-
+      const response = await chatApi.botMsgPath(chatId, { userQuery: userInput });
       const botReply = response.botResponse;
       const botsources = response.sourceData;
+      const followUps = response.followUpQuestions || [];
 
-      // 봇 응답 표시
-      setMessages((prev) => [...prev, { sender: "bot", text: botReply , sources:botsources }]);
+      setMessages((prev) => [...prev, {
+        sender: "bot",
+        text: botReply,
+        sources: botsources,
+        followUpQuestions: followUps
+      }]);
 
-      // 새 메시지 전송 후 스크롤 맨 아래로 이동
       setTimeout(() => {
         const container = chatContainerRef.current;
-        container.scrollTop = container.scrollHeight;
+        if (container) container.scrollTop = container.scrollHeight;
       }, 100);
     } catch (error) {
       console.error("API 요청 실패:", error);
@@ -141,20 +129,15 @@ export default function ChatPage() {
     }
   };
 
-  // 체팅페이지 삭제 핸들러
   const handleDeleteRoom = async (roomId) => {
     const confirmed = window.confirm("정말 삭제하시겠습니까?");
     if (!confirmed) return;
 
     try {
       await chatApi.botDeletePath(roomId);
-
-      // 현재 페이지가 삭제한 방이라면 /chatbot 으로 이동
       if (String(roomId) === String(chatId)) {
         navigate("/chatbot");
       }
-
-      // 오버레이 목록 갱신을 위해 닫았다가 다시 열기
       setIsOverlayOpen(false);
       setTimeout(() => setIsOverlayOpen(true), 50);
     } catch (err) {
@@ -163,45 +146,37 @@ export default function ChatPage() {
     }
   };
 
-  // 채팅페이지 입장 시 초기 메시지 로드
   useEffect(() => {
     if (chatId) {
       setMessages([]);
       setPage(0);
       fetchMessages(chatId, 0);
-      // firstMessage가 있을 경우 자동 전송
+    }
     if (firstMessage) {
       handleSendMessage(firstMessage);
-      // URL에서 firstMessage를 제거해서 새로고침 시 중복 전송 방지
       window.history.replaceState({}, "", `/chatbot/${chatId}`);
-    }
     }
   }, [chatId]);
 
-  // 채팅방 제목 로드
   useEffect(() => {
     async function loadRoomTitle() {
       if (!chatId) {
         setChatTitle("새로운 챗봇");
         return;
       }
-
       try {
         const res = await botRoomPath(0, 100);
         const rooms = res.rooms || res.items || [];
         const room = rooms.find(r => String(r.botchatId) === String(chatId));
-
         if (room) setChatTitle(room.title);
         else setChatTitle("새로운 챗봇");
       } catch (e) {
-        console.error("방 제목 로드 실패:", e);
         setChatTitle("새로운 챗봇");
       }
     }
     loadRoomTitle();
   }, [chatId]);
 
-  // 스크롤 이벤트 등록
   useEffect(() => {
     const container = chatContainerRef.current;
     if (!container) return;
@@ -209,98 +184,83 @@ export default function ChatPage() {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [page, totalPages, isLoading]);
 
-  // PC 버전에서 사이드바 상태를 body에 반영
+  // Auto-scroll to bottom when new messages are added (if not loading history)
   useEffect(() => {
-    const isPC = window.innerWidth >= 1000;
-    if (isPC && isOverlayOpen) {
-      document.body.classList.add("sidebar-open");
-    } else {
-      document.body.classList.remove("sidebar-open");
-    }
-
-    const handleResize = () => {
-      const isPC = window.innerWidth >= 1000;
-      if (isPC && isOverlayOpen) {
-        document.body.classList.add("sidebar-open");
-      } else if (!isPC) {
-        document.body.classList.remove("sidebar-open");
+    if (page <= 1 && !isLoading) {
+      const container = chatContainerRef.current;
+      if (container) {
+        container.scrollTop = container.scrollHeight;
       }
-    };
+    }
+  }, [messages, isBotResponding]);
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [isOverlayOpen]);
+  const handleFollowUpClick = (question) => {
+    handleSendMessage(question);
+  };
 
   return (
-    <div className={`chat-page ${isOverlayOpen ? "sidebar-open" : ""}`}>
+    <div className="flex flex-col h-full bg-slate-50 relative">
       <Header
         type="menu"
         title={chatTitle}
         onMenuClick={() => setIsOverlayOpen(true)}
       />
 
-      <main className="chat-content" ref={chatContainerRef}>
-        
-        {!chatId ? (
-          <div className="welcome-screen">
-            <div className="logo-placeholder">로고</div>
-            <p className="welcome-text">무엇이 궁금하신가요?</p>
+      <main
+        className="flex-1 overflow-y-auto px-4 py-6 scrollbar-hide"
+        ref={chatContainerRef}
+      >
+        {!chatId || messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-4">
+            <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center">
+              <span className="text-4xl">🤖</span>
+            </div>
+            <p className="font-medium">무엇이 궁금하신가요?</p>
           </div>
         ) : (
-          messages.length === 0 ? (
-            <div className="welcome-screen">
-              <div className="logo-placeholder">로고</div>
-              <p className="welcome-text">무엇이 궁금하신가요?</p>
-            </div>
-          ) : (
-            <>
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`chat-bubble ${
-                    msg.sender === "bot" || msg.role === "assistant" ? "bot" : "user"
-                  }`}
-                >
-                  <div className="markdown-body">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {msg.text || msg.items}
-                    </ReactMarkdown>
-                  </div>
+          <>
+            {messages.map((msg, index) => (
+              <ChatBubble
+                key={index}
+                message={msg}
+                isBot={msg.sender === "bot" || msg.role === "assistant"}
+              />
+            ))}
 
-                  {msg.sender === "bot" && msg.sources?.length > 0 && (
-                    <div className="message-sources">
-                      {msg.sources.map((src, i) => (
-                        <div className="source-item" key={i}>
-                          
-                          {/* 제목 */}
-                          <div className="source-title">{src.title}</div>
-                          
-                          {/* URL - 클릭 가능 링크 */}
-                          <a className="source-url" href={src.url} target="_blank" rel="noopener noreferrer">
-                            {src.url}
-                          </a>
-
-                          {/* snippet */}
-                          <div className="source-snippet">{src.snippet}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-              
-              {isBotResponding && (
-                <div className="chat-bubble bot">
+            {isBotResponding && (
+              <div className="flex justify-start mb-4">
+                <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 border border-slate-100 shadow-sm">
                   <LoadingSpinner />
                 </div>
-              )}
-            </>
-          )
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Follow-up Questions at Bottom */}
+        {messages.length > 0 && messages[messages.length - 1]?.followUpQuestions?.length > 0 && (
+          <div className="px-4 pb-4">
+            <p className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1">
+              <Sparkles size={12} className="text-primary" />
+              추천 질문
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {messages[messages.length - 1].followUpQuestions.map((question, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleFollowUpClick(question)}
+                  className="px-3 py-1.5 rounded-full bg-white border border-primary/20 text-primary text-xs font-medium hover:bg-primary/5 transition-colors shadow-sm"
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </main>
 
-      <ChatInput onSendMessage={handleSendMessage} disabled={isBotResponding} />
-      <BottomNav active="chat" />
+      <ChatInput onSendMessage={handleSendMessage} disabled={isBotResponding} showPrompts={!chatId || messages.length === 0} />
+
       <ChatOverlay
         isOpen={isOverlayOpen}
         onClose={() => setIsOverlayOpen(false)}

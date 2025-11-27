@@ -1,23 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
-import "../styles/ChatOverlay.css";
 import { botRoomPath } from "../api/chatApi";
-import { ArrowRight, X } from "lucide-react";
+import { X, Plus, MessageSquare, Trash2 } from "lucide-react";
 
 export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, onDeleteRoom }) {
-  const PAGE_SIZE = 10; // ✅ 한 번에 불러올 개수 상수 지정
+  const PAGE_SIZE = 10;
   const [rooms, setRooms] = useState([]);
-  const [page, setPage] = useState(0); // ✅ 현재 페이지
-  const [hasMore, setHasMore] = useState(true); // ✅ 더 불러올 목록이 있는지
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const listRef = useRef(null);
 
-  // ✅ 채팅방 목록 불러오기 함수
   const fetchRooms = async (pageNum) => {
     try {
       const res = await botRoomPath(pageNum, PAGE_SIZE);
-      const newRooms = res.items;
+      const newRooms = res.items || [];
 
       if (newRooms.length === 0) {
-        setHasMore(false); // 더 이상 데이터 없음
+        setHasMore(false);
         return;
       }
 
@@ -25,14 +23,12 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, 
         (a, b) => new Date(b.lastMessageAt) - new Date(a.lastMessageAt)
       );
 
-      // 기존 목록 + 새로 불러온 목록
-      setRooms((prev) => [...prev, ...sorted]);
+      setRooms((prev) => (pageNum === 0 ? sorted : [...prev, ...sorted]));
     } catch (err) {
       console.error("채팅방 목록 로드 실패:", err);
     }
   };
 
-  // ✅ isOpen 시 첫 페이지 로드
   useEffect(() => {
     if (isOpen) {
       setRooms([]);
@@ -42,18 +38,14 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, 
     }
   }, [isOpen]);
 
-  // ✅ 스크롤 감지해서 다음 페이지 로드
   const handleScroll = () => {
     const list = listRef.current;
     if (!list || !hasMore) return;
-
-    // 스크롤이 맨 아래에 도달했을 때
     if (list.scrollTop + list.clientHeight >= list.scrollHeight - 10) {
-      setPage((prevPage) => prevPage + 1);
+      setPage((prev) => prev + 1);
     }
   };
 
-  // ✅ page 변경 시 추가 데이터 로드
   useEffect(() => {
     if (page > 0 && hasMore) {
       fetchRooms(page);
@@ -62,59 +54,70 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, 
 
   return (
     <>
-      {/* 반투명 배경 */}
+      {/* Backdrop */}
       <div
-        className={`overlay-backdrop ${isOpen ? "show" : ""}`}
+        className={`absolute inset-0 bg-slate-900/20 backdrop-blur-sm z-40 transition-opacity duration-300 ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
         onClick={onClose}
       ></div>
 
-      {/* 좌측 슬라이드 패널 */}
-      <div className={`chat-overlay ${isOpen ? "open" : ""}`}>
-        <div className="overlay-header">
-          <div className="overlay-logo">
-            <div className="overlay-placeholder">로고</div>
-            <span className="overlay-title">Pyxis</span>
+      {/* Drawer */}
+      <div className={`absolute top-0 left-0 bottom-0 w-[80%] max-w-[320px] bg-white z-40 shadow-2xl transition-transform duration-300 ease-out flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}>
+        {/* Header */}
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <div>
+            <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Pyxis</h2>
+            <p className="text-xs text-slate-500">채팅 히스토리</p>
           </div>
-          <button className="close-btn" onClick={onClose}>
-            <ArrowRight size={28}/>
+          <button onClick={onClose} className="p-2 -mr-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600">
+            <X size={20} />
           </button>
         </div>
 
-        <div className="overlay-content">
-          <button className="new-chat-btn" onClick={onNewChat}>
-            💬 새 채팅
-          </button>
-
-          <div
-            className="chat-room-list"
-            ref={listRef}
-            onScroll={handleScroll}
-            style={{ maxHeight: "470px" }} // 스크롤 영역
+        {/* New Chat Button */}
+        <div className="p-4">
+          <button
+            onClick={onNewChat}
+            className="w-full py-3 px-4 rounded-xl bg-primary/5 text-primary font-semibold hover:bg-primary/10 transition-colors flex items-center justify-center gap-2"
           >
-            {rooms.map((room) => (
-              <div
-                key={room.botchatId}
-                className="chat-room-item"
-              >
-                <div
-                  className="room-title"
-                  onClick={() => onSelectRoom(room.botchatId)}
-                >
-                  {room.title?.trim() ? room.title : "새로운 챗봇"}
-                </div>
+            <Plus size={20} />
+            새로운 채팅 시작
+          </button>
+        </div>
 
-                <button
-                  className="delete-btn"
-                  onClick={(e) => {
-                    e.stopPropagation(); // 방 클릭 처리 막기
-                    onDeleteRoom(room.botchatId);
-                  }}
-                >
-                  <X size={16}/>
-                </button>
+        {/* Room List */}
+        <div
+          className="flex-1 overflow-y-auto px-4 pb-4 space-y-2"
+          ref={listRef}
+          onScroll={handleScroll}
+        >
+          {rooms.map((room) => (
+            <div
+              key={room.botchatId}
+              className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-100 transition-all"
+              onClick={() => onSelectRoom(room.botchatId)}
+            >
+              <div className="flex items-center gap-3 overflow-hidden">
+                <div className="p-2 rounded-lg bg-slate-100 text-slate-400 group-hover:bg-white group-hover:text-primary group-hover:shadow-sm transition-all">
+                  <MessageSquare size={18} />
+                </div>
+                <span className="text-sm font-medium text-slate-700 truncate">
+                  {room.title?.trim() ? room.title : "새로운 챗봇"}
+                </span>
               </div>
-            ))}
-          </div>
+
+              <button
+                className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteRoom(room.botchatId);
+                }}
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </>
