@@ -19,9 +19,9 @@ export default function PostDetailView({
   const [commentText, setCommentText] = useState("");
   const [openMenu, setOpenMenu] = useState(false);
   const userInfo = JSON.parse(sessionStorage.getItem("userInfo") || "{}");
-  const currentUserId = userInfo.userId;
+  const currentUserId = userInfo.id;
 
-  const displayNick = (nick, type) => {
+  const displayNick = (nick, type = null) => {
     if (type === "ANONYMOUS") return "익명";
     return nick;
   };
@@ -30,7 +30,9 @@ export default function PostDetailView({
     try {
       const res = await api.postViewPath(postId);
       const data = res.data || res;
-      const extended = { ...data, isOwner: data.userId === currentUserId };
+      // post 데이터 구조에 맞게 userId 확인
+      const postUserId = data.community?.userId || data.userId;
+      const extended = { ...data, isOwner: String(postUserId) === String(currentUserId) };
       setPost(extended);
     } catch (e) {
       console.error("게시글 조회 실패:", e);
@@ -43,9 +45,11 @@ export default function PostDetailView({
       const data = res.data || res;
       const mapped = data.items.map((c) => ({
         ...c,
-        isMine: c.userId === currentUserId,
+        isMine: String(c.userId) === String(currentUserId),
         isReplyOpen: false,
         replies: [],
+        replyPage: 0,
+        hasMoreReplies: false,
       }));
 
       if (isLoadMore) {
@@ -107,9 +111,14 @@ export default function PostDetailView({
     try {
       const res = await api.replyViewPath(postId, parentId, page, size);
       const data = res.data || res;
-      const replyItems = data.items.map((r) => ({ ...r, isMine: r.userId === currentUserId }));
+      const replyItems = data.items.map((r) => ({ ...r, isMine: String(r.userId) === String(currentUserId) }));
       setComments((prev) =>
-        prev.map((c) => c.commentId === parentId ? { ...c, replies: replyItems } : c)
+        prev.map((c) => c.commentId === parentId ? { 
+          ...c, 
+          replies: page === 0 ? replyItems : [...(c.replies || []), ...replyItems],
+          replyPage: page + 1,
+          hasMoreReplies: data.totalPages > page + 1
+        } : c)
       );
     } catch (e) {
       console.error("대댓글 조회 실패:", e);
@@ -140,7 +149,7 @@ export default function PostDetailView({
 
   return (
     <div className="flex flex-col h-full bg-slate-50">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-36">
         {/* Post Content */}
         <Card className="!p-5">
           <div className="flex justify-between items-start mb-3">
@@ -161,7 +170,7 @@ export default function PostDetailView({
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
-            <span className="font-medium text-slate-700">{displayNick(post.nickname, post.community.postType)}</span>
+            <span className="font-medium text-slate-700">{displayNick(post.community?.nickname || post.nickname, post.community?.postType)}</span>
             <span>•</span>
             <span>{timeAgo(post.community.createdAt)}</span>
             <span>•</span>
@@ -198,7 +207,7 @@ export default function PostDetailView({
             <div key={c.commentId} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-sm text-slate-800">{displayNick(c.nickname)}</span>
+                  <span className="font-semibold text-sm text-slate-800">{c.status === 'DELETED' ? '(삭제됨)' : displayNick(c.nickname, c.postType)}</span>
                   <span className="text-xs text-slate-400">{timeAgo(c.createdAt)}</span>
                   <span className="text-[10px] text-slate-300">• {new Date(c.createdAt).toLocaleString('ko-KR', {
                     month: '2-digit',
@@ -216,7 +225,7 @@ export default function PostDetailView({
                 )}
               </div>
 
-              <p className="text-sm text-slate-700 mb-3 break-all">{c.content}</p>
+              <p className={`text-sm mb-3 break-all ${c.status === 'BLOCKED' ? 'text-red-500' : 'text-slate-700'}`}>{c.content}</p>
 
               <div className="flex items-center gap-2">
                 <button
@@ -224,7 +233,7 @@ export default function PostDetailView({
                   className="text-xs font-medium text-primary flex items-center gap-1 hover:bg-primary/5 px-2 py-1 rounded-lg transition-colors"
                 >
                   <MessageSquare size={12} />
-                  {c.childCommentCount ? `답글 ${c.childCommentCount}개` : "답글 달기"}
+                  {c.isReplyOpen ? "답글 닫기" : (c.childCommentCount ? `답글 ${c.childCommentCount}개` : "답글 달기")}
                 </button>
               </div>
 
@@ -235,7 +244,7 @@ export default function PostDetailView({
                     <div key={r.commentId} className="bg-slate-50 p-3 rounded-xl">
                       <div className="flex justify-between items-start mb-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium text-xs text-slate-700">{displayNick(r.nickname)}</span>
+                          <span className="font-medium text-xs text-slate-700">{r.status === 'DELETED' ? '(삭제됨)' : displayNick(r.nickname, r.postType)}</span>
                           <span className="text-[10px] text-slate-400">{timeAgo(r.createdAt)}</span>
                           <span className="text-[9px] text-slate-300">• {new Date(r.createdAt).toLocaleString('ko-KR', {
                             month: '2-digit',
@@ -252,9 +261,18 @@ export default function PostDetailView({
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-slate-600 break-all">{r.content}</p>
+                      <p className={`text-xs break-all ${r.status === 'BLOCKED' ? 'text-red-500' : 'text-slate-600'}`}>{r.content}</p>
                     </div>
                   ))}
+
+                  {c.hasMoreReplies && (
+                    <button
+                      onClick={() => loadReplies(c.commentId, c.replyPage, PAGE_SIZE)}
+                      className="text-xs text-slate-400 hover:text-primary transition-colors font-medium"
+                    >
+                      답글 더보기
+                    </button>
+                  )}
 
                   {c.status === 'ACTIVE' && (
                     <div className="flex gap-2 mt-2">
@@ -263,6 +281,12 @@ export default function PostDetailView({
                         placeholder="답글 입력..."
                         value={c.replyInput || ""}
                         onChange={(e) => setComments(prev => prev.map(c2 => c2.commentId === c.commentId ? { ...c2, replyInput: e.target.value } : c2))}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            submitReply(c.commentId, c.replyInput);
+                          }
+                        }}
                       />
                       <button
                         onClick={() => submitReply(c.commentId, c.replyInput)}
@@ -301,6 +325,12 @@ export default function PostDetailView({
             placeholder="댓글을 입력하세요..."
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitComment();
+              }
+            }}
           />
           <button
             onClick={submitComment}

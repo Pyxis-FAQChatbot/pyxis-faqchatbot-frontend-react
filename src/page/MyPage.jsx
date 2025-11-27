@@ -129,7 +129,7 @@ export default function MyPage() {
           <div className="bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 p-6 pb-8">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 shadow-md flex items-center justify-center text-2xl">
-                👤
+                {myInfo?.role === 'ADMIN'? "👨🏼‍✈️": "👤"}
               </div>
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">{myInfo?.nickname || "Guest"}</h2>

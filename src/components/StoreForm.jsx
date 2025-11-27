@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { storeApi } from "../api/storeApi";
 import IndustrySearch from "./IndustrySearch";
+import DaumPostcode from 'react-daum-postcode';
 import Button from "./ui/Button";
 import Input from "./ui/Input";
 import { X } from "lucide-react";
@@ -13,7 +14,30 @@ const StoreForm = ({ onClose }) => {
         address: "",
     });
     const [isEditMode, setIsEditMode] = useState(false);
+    const [isPostcodeOpen, setIsPostcodeOpen] = useState(false);
+    const addressStyle = {
+        width: '100%',
+        height: '300px',
+        border: 'none',
+    };
 
+    const addressHandler = (data) => {
+        setFormData((prev) => ({ ...prev, address: data.address }));
+        setIsPostcodeOpen(false);
+    };
+    const addressCloser = (state) => {
+        if (state === 'FORCE_CLOSE') {
+            setIsPostcodeOpen(false);
+            console.log('FORCE_CLOSE');
+        } else if (state === 'COMPLETE_CLOSE') {
+            setIsPostcodeOpen(false);
+            console.log('COMPLETE_CLOSE');
+        }
+    };
+    
+    const handleAddressInputClick = () => {
+        setIsPostcodeOpen(true);
+    };
     useEffect(() => {
         const fetchStoreInfo = async () => {
             try {
@@ -55,8 +79,9 @@ const StoreForm = ({ onClose }) => {
     };
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-            <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl p-6 animate-float border border-slate-100 dark:border-slate-800">
+        <>
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl p-6 animate-float border border-slate-100 dark:border-slate-800">
                 <div className="flex justify-between items-center mb-6">
                     <div>
                         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -94,12 +119,13 @@ const StoreForm = ({ onClose }) => {
 
                     <div className="space-y-1.5">
                         <label className="text-sm font-medium text-slate-600 dark:text-slate-300 ml-1">주소</label>
-                        <textarea
+                        <Input
                             name="address"
                             value={formData.address}
-                            onChange={handleChange}
-                            rows="3"
-                            className="w-full px-5 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white dark:focus:bg-slate-800 transition-all duration-300 resize-none"
+                            placeholder="주소를 선택해주세요"
+                            readOnly
+                            onClick={handleAddressInputClick}
+                            className="cursor-pointer"
                         />
                     </div>
 
@@ -112,8 +138,33 @@ const StoreForm = ({ onClose }) => {
                         </Button>
                     </div>
                 </form>
+                </div>
             </div>
-        </div>,
+            
+            {isPostcodeOpen && createPortal(
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
+                        <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">주소 검색</h3>
+                            <button
+                                onClick={() => setIsPostcodeOpen(false)}
+                                className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="p-4">
+                            <DaumPostcode
+                                style={addressStyle}
+                                onComplete={addressHandler}
+                                onClose={addressCloser}
+                            />
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+        </>,
         document.body
     );
 };

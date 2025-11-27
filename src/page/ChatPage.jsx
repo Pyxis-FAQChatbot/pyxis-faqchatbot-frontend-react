@@ -22,8 +22,8 @@ export default function ChatPage() {
   const PAGE_SIZE = 20;
   const firstMessage = new URLSearchParams(window.location.search).get("firstMessage");
 
-  const fetchMessages = async (id, pageNum = 0) => {
-    if (isLoading || pageNum > totalPages) return;
+  const fetchMessages = async (id, pageNum = 0, currentIsLoading = false, currentTotalPages = 0) => {
+    if (currentIsLoading || pageNum > currentTotalPages) return;
 
     try {
       setIsLoading(true);
@@ -81,10 +81,10 @@ export default function ChatPage() {
     }
   };
 
-  const handleScroll = () => {
+  const handleScroll = (currentPage, currentTotalPages, currentIsLoading) => {
     const container = chatContainerRef.current;
-    if (container && container.scrollTop === 0 && !isLoading && page < totalPages) {
-      fetchMessages(chatId, page);
+    if (container && container.scrollTop === 0 && !currentIsLoading && currentPage < currentTotalPages) {
+      fetchMessages(chatId, currentPage, currentIsLoading, currentTotalPages);
     }
   };
 
@@ -152,7 +152,8 @@ export default function ChatPage() {
     if (chatId) {
       setMessages([]);
       setPage(0);
-      fetchMessages(chatId, 0);
+      setTotalPages(0);
+      fetchMessages(chatId, 0, false, 0);
     }
     if (firstMessage) {
       handleSendMessage(firstMessage);
@@ -182,9 +183,11 @@ export default function ChatPage() {
   useEffect(() => {
     const container = chatContainerRef.current;
     if (!container) return;
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, [page, totalPages, isLoading]);
+    
+    const handleScrollEvent = () => handleScroll(page, totalPages, isLoading);
+    container.addEventListener("scroll", handleScrollEvent);
+    return () => container.removeEventListener("scroll", handleScrollEvent);
+  }, [page, totalPages, isLoading, chatId]);
 
   // Auto-scroll to bottom when new messages are added (if not loading history)
   useEffect(() => {

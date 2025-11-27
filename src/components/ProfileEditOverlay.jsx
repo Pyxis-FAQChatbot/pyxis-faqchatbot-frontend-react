@@ -75,8 +75,14 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
                 alert("지역이 변경되었습니다.");
             }
 
+            // 변경 후 최신 정보 다시 로드
+            await fetchUserInfo();
+            // sessionStorage도 업데이트
+            const updatedInfo = await myInfoPath();
+            sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
+            // 부모 컴포넌트에 알림
             if (onUpdated) onUpdated();
-            fetchUserInfo();
+
         } catch (err) {
             console.error(err);
             if (type === 'nickname') alert("닉네임 변경에 실패했습니다.");
@@ -96,6 +102,11 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
                 newPassword: passwordForm.newPassword,
             });
             alert("비밀번호가 변경되었습니다.");
+            // 비밀번호 변경 후 최신 정보 로드
+            const updatedInfo = await myInfoPath();
+            sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
+            // 부모 컴포넌트에 알림
+            if (onUpdated) onUpdated();
             onClose();
         } catch (err) {
             alert(err.message || "비밀번호 변경 실패");
