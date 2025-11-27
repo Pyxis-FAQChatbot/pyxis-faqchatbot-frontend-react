@@ -1,18 +1,13 @@
-import React from "react";
-import "../styles/FloatButton.css";
+import React from 'react';
+import { Plus } from 'lucide-react';
 
-export default function FloatButton({ onClick, icon = "+", size = 60 }) {
+export default function FloatButton({ onClick }) {
   return (
     <button
-      className="fab-button"
       onClick={onClick}
-      style={{
-        width: `${size}px`,
-        height: `${size}px`,
-        fontSize: `${size * 0.5}px`,
-      }}
+      className="absolute bottom-20 right-6 z-30 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary text-white shadow-glow hover:scale-110 active:scale-95 transition-transform flex items-center justify-center"
     >
-      {icon}
+      <Plus size={28} strokeWidth={2.5} />
     </button>
   );
 }

@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import FloatButton from "../components/FloatButton";
-import "../styles/CommunityListPage.css";
+import Button from "./ui/Button";
+import Input from "./ui/Input";
+import { User, Ghost } from "lucide-react";
 
 export default function CommunityWrite({
   api,
-  mode = "write",      // write | edit
-  postId = null,        // edit 모드일 때만 필요
-  initialData = null,   // edit 모드일 때 기본 값
-  onBack = () => {},    // 뒤로가기만 전달
+  mode = "write",
+  postId = null,
+  initialData = null,
+  onBack = () => { },
 }) {
-
   const navigate = useNavigate();
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
 
-  // 수정모드일 경우 initialData로 input 초기화
   useEffect(() => {
     if (mode === "edit" && initialData) {
       setTitle(initialData.title || "");
@@ -32,87 +30,82 @@ export default function CommunityWrite({
       return;
     }
 
-    const ok = window.confirm(
-      mode === "edit" ? "게시글을 수정하시겠습니까?" : "게시글을 등록하시겠습니까?"
-    );
-    if (!ok) return;
+    // const ok = window.confirm(
+    //   mode === "edit" ? "게시글을 수정하시겠습니까?" : "게시글을 등록하시겠습니까?"
+    // );
+    // if (!ok) return;
+
+    console.log("Submitting post:", { title, content, postType: isAnonymous ? "ANONYMOUS" : "DEFAULT" });
 
     try {
       if (mode === "write") {
-
-        // 게시글 작성 API
-        const res = await api.postCreatePath({
+        await api.postCreatePath({
           title,
           content,
           postType: isAnonymous ? "ANONYMOUS" : "DEFAULT"
         });
-
-        const createdId = res.commPostyId;
-
         alert("게시글이 등록되었습니다.");
-        navigate(`/community/${createdId}`); // 상세페이지로 바로 이동
-
-      } else {
-        // 수정 API
+        onBack();
+      } else if (mode === "edit") {
         await api.postEditPath(postId, {
           title,
           content,
           postType: isAnonymous ? "ANONYMOUS" : "DEFAULT"
         });
-
         alert("게시글이 수정되었습니다.");
-        onBack();  // 기존 상세페이지 or 이전 화면으로 돌아가기
+        onBack();
       }
-
     } catch (err) {
       console.error("게시글 저장 실패:", err);
-      alert("게시글 저장 중 오류가 발생했습니다.");
+      const msg = err.response?.data?.message || "게시글 저장 중 오류가 발생했습니다.";
+      alert(msg);
     }
   };
 
   return (
-    <div className="community-write-page">
-
-      <div className="community-write-box">
-        {/* 제목 */}
-        <input
-          type="text"
-          className="community-write-title"
+    <div className="flex flex-col h-full bg-white">
+      <div className="flex-1 p-6 space-y-4 overflow-y-auto">
+        <Input
           placeholder="제목을 입력하세요"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          className="text-lg font-bold"
         />
 
-        {/* 내용 */}
         <textarea
-          className="community-write-content"
+          className="w-full h-[calc(100%-100px)] p-4 rounded-2xl bg-slate-50 border border-slate-100 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none transition-all"
           placeholder="내용을 입력하세요"
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
       </div>
-      <div className="write-complete-bar">
-        <div className="write-type-select">
-          <button 
-            className={isAnonymous ? "" : "active"}
-            onClick={() => setIsAnonymous(false)}
-          >
-            일반
-          </button>
-          <button
-            className={isAnonymous ? "active" : ""}
-            onClick={() => setIsAnonymous(true)}
-          >
-            익명
-          </button>
+
+      <div className="p-4 border-t border-slate-100 bg-white/80 backdrop-blur-md">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="flex bg-slate-100 rounded-xl p-1">
+            <button
+              onClick={() => setIsAnonymous(false)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${!isAnonymous ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-700"
+                }`}
+            >
+              <User size={14} />
+              일반
+            </button>
+            <button
+              onClick={() => setIsAnonymous(true)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${isAnonymous ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-700"
+                }`}
+            >
+              <Ghost size={14} />
+              익명
+            </button>
+          </div>
         </div>
-        <button
-          onClick={handleSubmit}
-        >
-          작성
-        </button>
+
+        <Button onClick={handleSubmit}>
+          {mode === "edit" ? "수정 완료" : "작성 완료"}
+        </Button>
       </div>
-      {/* 작성/수정 버튼 */}
     </div>
   );
 }

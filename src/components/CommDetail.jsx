@@ -1,60 +1,43 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { timeAgo } from "../utils/timeAgo";
-import {
-  MessageSquare,
-  ListCheck,
-  MoreVertical,
-  CornerDownRight,
-} from "lucide-react";
-import { useNavigate } from "react-router-dom"
+import { MessageSquare, Eye, MoreVertical, Send, Trash2 } from "lucide-react";
+import Card from "./ui/Card";
 
 export default function PostDetailView({
-  postId,             // 게시글 번호
-  api,                // API 객체 (post, comment) - 상위에서 전달
-  onBack= () => {},   // 뒤로가기 필요 시
-  onPostLoaded = () => {}
+  postId,
+  api,
+  onBack = () => { },
+  onPostLoaded = () => { }
 }) {
   const navigate = useNavigate();
-  const PAGE_SIZE = 5
-  // 게시글
+  const PAGE_SIZE = 10;
   const [post, setPost] = useState(null);
-  // 댓글 리스트
   const [comments, setComments] = useState([]);
-  // 댓글 입력
+  const [commentPage, setCommentPage] = useState(0);
+  const [hasMoreComments, setHasMoreComments] = useState(false);
   const [commentText, setCommentText] = useState("");
-  // 설정 메뉴 열림 여부
   const [openMenu, setOpenMenu] = useState(false);
-  // 사용자 정보 불러오기
   const userInfo = JSON.parse(sessionStorage.getItem("userInfo") || "{}");
   const currentUserId = userInfo.userId;
-  // 닉네임 익명설정
-  const displayNick = (nick) => {
-    if (!post) return nick;
-    if (post.community.postType === "ANONYMOUS") return "익명";
+
+  const displayNick = (nick, type) => {
+    if (type === "ANONYMOUS") return "익명";
     return nick;
   };
 
-  // 1) 게시글 상세 조회
- 
   const loadPost = async () => {
     try {
-      const res = await api.postViewPath(postId); 
+      const res = await api.postViewPath(postId);
       const data = res.data || res;
-
-      const extended = {
-        ...data,
-        isOwner: data.userId === currentUserId
-      };
-
-      setPost(extended); 
+      const extended = { ...data, isOwner: data.userId === currentUserId };
+      setPost(extended);
     } catch (e) {
       console.error("게시글 조회 실패:", e);
     }
   };
 
-  // 2) 댓글 불러오기
-  
-  const loadComments = async (page, size) => {
+  const loadComments = async (page, size, isLoadMore = false) => {
     try {
       const res = await api.cmtViewPath(postId, page, size);
       const data = res.data || res;
@@ -65,294 +48,268 @@ export default function PostDetailView({
         replies: [],
       }));
 
-      setComments(mapped);
+      if (isLoadMore) {
+        setComments((prev) => [...prev, ...mapped]);
+      } else {
+        setComments(mapped);
+      }
+
+      setHasMoreComments(data.totalPages > page + 1);
     } catch (e) {
       console.error("댓글 조회 실패:", e);
     }
   };
 
   useEffect(() => {
-  
-    if (!postId) return
+    if (!postId) return;
     loadPost();
-    loadComments(0,PAGE_SIZE);
+    loadComments(0, PAGE_SIZE);
+    setCommentPage(0);
   }, [postId]);
 
   useEffect(() => {
     if (post) onPostLoaded(post);
-  }, [post]);  
-
-  // 3) 댓글 등록
+  }, [post]);
 
   const submitComment = async () => {
     if (!commentText.trim()) return;
-
     try {
-      await api.cmtCreatePath(postId, {
-        parentId: null,
-        content: commentText
-      });
-
+      await api.cmtCreatePath(postId, { parentId: null, content: commentText });
       setCommentText("");
-      loadComments(0,PAGE_SIZE); // 새 댓글 반영
+      loadComments(0, PAGE_SIZE);
+      setCommentPage(0);
     } catch (e) {
       console.error("댓글 작성 실패:", e);
     }
   };
 
-  // 4) 댓글 삭제
-
   const deleteComment = async (commentId) => {
     try {
       await api.cmtDeletePath(postId, commentId);
-      loadComments(0,PAGE_SIZE);
+      loadComments(0, PAGE_SIZE);
+      setCommentPage(0);
     } catch (e) {
       console.error("댓글 삭제 실패:", e);
     }
   };
 
-  // 5) 게시글 수정 / 삭제
-
-  const editPost = () => {
-    // 수정 모드로 전환 (상위 페이지로 알림)
-    navigate(`/community/${postId}/edit`);
-  };
-
   const deletePost = async () => {
-    const ok = window.confirm("정말 삭제할까요?");
-    if (!ok) return;
-
+    if (!window.confirm("정말 삭제할까요?")) return;
     try {
       await api.postDeletePath(postId);
-      onBack(); // 목록으로 돌아가기
+      onBack();
     } catch (e) {
       console.error("게시글 삭제 실패:", e);
     }
   };
-  // 6. 대댓글 조회
+
   const loadReplies = async (parentId, page, size) => {
-  try {
-    const res = await api.replyViewPath(postId, parentId, page, size);
-    const data = res.data || res;
+    try {
+      const res = await api.replyViewPath(postId, parentId, page, size);
+      const data = res.data || res;
+      const replyItems = data.items.map((r) => ({ ...r, isMine: r.userId === currentUserId }));
+      setComments((prev) =>
+        prev.map((c) => c.commentId === parentId ? { ...c, replies: replyItems } : c)
+      );
+    } catch (e) {
+      console.error("대댓글 조회 실패:", e);
+    }
+  };
 
-    const replyItems = data.items.map((r) => ({
-      ...r,
-      isMine: r.userId === currentUserId
-    }));
-
-    setComments((prev) =>
-      prev.map((c) =>
-        c.commentId === parentId
-          ? { ...c, replies: replyItems }
-          : c
-      )
-    );
-
-  } catch (e) {
-    console.error("대댓글 조회 실패:", e);
-  }
-};
-  // 7. 대댓글 작성
   const submitReply = async (parentCommentId, text) => {
     if (!text.trim()) return;
-
     try {
-      await api.cmtCreatePath(postId, {
-        content: text,
-        parentId: parentCommentId
-      });
-
-      loadReplies(parentCommentId, 0, PAGE_SIZE); // 등록 후 곧바로 대댓글 갱신
-
-      setComments(prev =>   // 초기화
-        prev.map(c =>
-          c.commentId === parentCommentId
-            ? { ...c, replyInput: "" }
-            : c
-        )
-      );
+      await api.cmtCreatePath(postId, { content: text, parentId: parentCommentId });
+      loadReplies(parentCommentId, 0, PAGE_SIZE);
+      setComments(prev => prev.map(c => c.commentId === parentCommentId ? { ...c, replyInput: "" } : c));
     } catch (e) {
       console.error("대댓글 작성 실패:", e);
     }
   };
-  // 8. 대댓글 트리거
+
   const toggleReplySection = (commentId) => {
     setComments((prev) => {
-      const updated = prev.map((c) =>
-        c.commentId === commentId
-          ? { ...c, isReplyOpen: !c.isReplyOpen }
-          : c
-      );
-
+      const updated = prev.map((c) => c.commentId === commentId ? { ...c, isReplyOpen: !c.isReplyOpen } : c);
       const target = updated.find((c) => c.commentId === commentId);
-
-      if (target.isReplyOpen) {
-        loadReplies(commentId, 0, PAGE_SIZE);
-      }
-
+      if (target.isReplyOpen) loadReplies(commentId, 0, PAGE_SIZE);
       return updated;
     });
   };
 
-  if (!post) return <div>로딩중...</div>;
+  if (!post) return <div className="p-6 text-center text-slate-400">로딩중...</div>;
 
   return (
-    <div className="community-post-view">
+    <div className="flex flex-col h-full bg-slate-50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+        {/* Post Content */}
+        <Card className="!p-5">
+          <div className="flex justify-between items-start mb-3">
+            <h2 className="text-xl font-bold text-slate-900 leading-tight break-all">{post.community.title}</h2>
+            {post.isOwner && (
+              <div className="relative">
+                <button onClick={() => setOpenMenu(!openMenu)} className="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+                  <MoreVertical size={20} />
+                </button>
+                {openMenu && (
+                  <div className="absolute right-0 top-8 w-32 bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden z-10">
+                    <button onClick={() => navigate(`/community/${postId}/edit`)} className="w-full px-4 py-2 text-left text-sm hover:bg-slate-50">수정하기</button>
+                    <button onClick={deletePost} className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50">삭제하기</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
-      {/* 게시글 본문 */}
-      <div className="community-post-card">
-        <h2 className="community-post-title">{post.community.title}</h2>
+          <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
+            <span className="font-medium text-slate-700">{displayNick(post.nickname, post.community.postType)}</span>
+            <span>•</span>
+            <span>{timeAgo(post.community.createdAt)}</span>
+            <span>•</span>
+            <span className="text-[10px]">{new Date(post.community.createdAt).toLocaleString('ko-KR', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false
+            })}</span>
+          </div>
 
-        <div className="community-post-meta">
-          <span className="meta-nickname">{
-          displayNick(post.nickname)
-          }</span>
-          <span className="meta-time">{timeAgo(post.community.createdAt)}</span>
-        </div>
+          <div className="text-slate-800 whitespace-pre-wrap leading-relaxed mb-6 min-h-[100px] break-all">
+            {post.community.content}
+          </div>
 
-        <div className="community-post-content">{post.community.content}</div>
-
-        <div className="community-post-footer">
-          <div className="post-stats">
-            <div className="stat-item">
-              <ListCheck size={18} />
+          <div className="flex items-center gap-4 text-slate-400 text-sm border-t border-slate-100 pt-3">
+            <div className="flex items-center gap-1">
+              <Eye size={16} />
               <span>{post.community.viewCount}</span>
             </div>
-            <div className="stat-item">
-              <MessageSquare size={18} />
+            <div className="flex items-center gap-1">
+              <MessageSquare size={16} />
               <span>{post.community.commentCount}</span>
             </div>
           </div>
+        </Card>
 
-          {post.isOwner && (
-            <div className="post-option">
-              <MoreVertical
-                size={22}
-                className="option-icon"
-                onClick={() => setOpenMenu((v) => !v)}
-              />
+        {/* Comments List */}
+        <div className="space-y-3">
+          {comments.map((c) => (
+            <div key={c.commentId} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-semibold text-sm text-slate-800">{displayNick(c.nickname)}</span>
+                  <span className="text-xs text-slate-400">{timeAgo(c.createdAt)}</span>
+                  <span className="text-[10px] text-slate-300">• {new Date(c.createdAt).toLocaleString('ko-KR', {
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                  })}</span>
+                </div>
+                {c.isMine && c.status === 'ACTIVE' && (
+                  <button onClick={() => deleteComment(c.commentId)} className="text-slate-300 hover:text-red-500">
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
 
-              {openMenu && (
-                <div className="post-option-menu">
-                  <div className="option-item" onClick={editPost}>
-                    수정하기
-                  </div>
-                  <div className="option-item delete" onClick={deletePost}>
-                    삭제하기
-                  </div>
+              <p className="text-sm text-slate-700 mb-3 break-all">{c.content}</p>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => toggleReplySection(c.commentId)}
+                  className="text-xs font-medium text-primary flex items-center gap-1 hover:bg-primary/5 px-2 py-1 rounded-lg transition-colors"
+                >
+                  <MessageSquare size={12} />
+                  {c.childCommentCount ? `답글 ${c.childCommentCount}개` : "답글 달기"}
+                </button>
+              </div>
+
+              {/* Replies */}
+              {c.isReplyOpen && (
+                <div className="mt-3 pl-3 border-l-2 border-slate-100 space-y-3">
+                  {c.replies.map((r) => (
+                    <div key={r.commentId} className="bg-slate-50 p-3 rounded-xl">
+                      <div className="flex justify-between items-start mb-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium text-xs text-slate-700">{displayNick(r.nickname)}</span>
+                          <span className="text-[10px] text-slate-400">{timeAgo(r.createdAt)}</span>
+                          <span className="text-[9px] text-slate-300">• {new Date(r.createdAt).toLocaleString('ko-KR', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                          })}</span>
+                        </div>
+                        {r.isMine && r.status === 'ACTIVE' && (
+                          <button onClick={() => deleteComment(r.commentId)} className="text-slate-300 hover:text-red-500">
+                            <Trash2 size={12} />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-600 break-all">{r.content}</p>
+                    </div>
+                  ))}
+
+                  {c.status === 'ACTIVE' && (
+                    <div className="flex gap-2 mt-2">
+                      <input
+                        className="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:outline-none focus:border-primary"
+                        placeholder="답글 입력..."
+                        value={c.replyInput || ""}
+                        onChange={(e) => setComments(prev => prev.map(c2 => c2.commentId === c.commentId ? { ...c2, replyInput: e.target.value } : c2))}
+                      />
+                      <button
+                        onClick={() => submitReply(c.commentId, c.replyInput)}
+                        className="p-2 bg-primary text-white rounded-xl hover:bg-primary/90"
+                      >
+                        <Send size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
+          ))}
+
+          {hasMoreComments && (
+            <button
+              onClick={() => {
+                const nextPage = commentPage + 1;
+                setCommentPage(nextPage);
+                loadComments(nextPage, PAGE_SIZE, true);
+              }}
+              className="w-full py-3 text-sm text-slate-500 font-medium hover:text-primary transition-colors"
+            >
+              댓글 더보기
+            </button>
           )}
         </div>
       </div>
 
-      {/* 댓글 리스트 */}
-      <div className="community-comment-section">
-
-        {comments.length === 0 && (
-          <div className="community-no-comment">댓글이 없습니다.</div>
-        )}
-
-        {comments.map((c) => (
-          <div key={c.commentId} className="community-comment-item">
-
-            <div className="comment-meta-row">
-              <span className="comment-nickname">{displayNick(c.nickname)}</span>
-              <span className="comment-time">{timeAgo(c.createdAt)}</span>
-
-              {c.isMine && c.status === 'ACTIVE' &&
-                <span
-                  className="comment-delete"
-                  onClick={() => deleteComment(c.commentId)}
-                >
-                  삭제
-                </span>
-              }
-            </div>
-
-            <div className="comment-content">{c.content}</div>
-
-            <div 
-              className="comment-reply-row"
-            >
-              <div className="reply-count">
-                <CornerDownRight size={14} />
-                <span>{c.childCommentCount ?? 0}</span>
-              </div>
-              <button
-                className="reply-btn"
-                onClick={() => toggleReplySection(c.commentId)}
-              >
-                {c.isReplyOpen ? "닫기" : (c.childCommentCount ? "답글 보기" : "답글 작성")}
-              </button>
-            </div>
-            {/* 대댓글 목록 */}
-            {c.isReplyOpen && (
-              <div className="reply-wrapper">
-                
-                {c.replies.map((r) => (
-                  <div key={r.commentId} className="reply-item">
-                    <div className="reply-meta">
-                      <span>
-                        <span>{displayNick(r.nickname)}</span>
-                        <span>{timeAgo(r.createdAt)}</span>
-                      </span>
-
-                      {r.isMine && r.status === 'ACTIVE' && (
-                        <span className="reply-delete" onClick={() => deleteComment(r.commentId)}>삭제</span>
-                      )}
-                    </div>
-
-                    <div className="reply-content">{r.content}</div>
-                  </div>
-                ))}
-                {c.status === 'ACTIVE' &&
-                  <div className="reply-input-row">
-                    <input
-                      className="reply-input"
-                      placeholder="답글을 입력하세요"
-                      value={c.replyInput || ""}
-                      onChange={(e) =>
-                        setComments((prev) =>
-                          prev.map((c2) =>
-                            c2.commentId === c.commentId
-                              ? { ...c2, replyInput: e.target.value }
-                              : c2
-                          )
-                        )
-                      }
-                    />
-                    <button
-                      className="reply-submit"
-                      onClick={() => submitReply(c.commentId, c.replyInput)}
-                    >
-                      등록
-                    </button>
-                  </div>
-                }
-
-              </div>
-            )}
-          </div>
-        ))}
-
+      {/* Comment Input */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-slate-100">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            className="flex-1 px-4 py-3 rounded-2xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+            placeholder="댓글을 입력하세요..."
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+          />
+          <button
+            onClick={submitComment}
+            className="p-3 bg-primary text-white rounded-2xl shadow-glow hover:scale-105 transition-all"
+          >
+            <Send size={20} />
+          </button>
+        </div>
       </div>
-
-      {/* 댓글 입력폼 */}
-      <div className="community-comment-input-row">
-        <input
-          type="text"
-          className="comment-input"
-          placeholder="댓글을 입력하세요"
-          value={commentText}
-          onChange={(e) => setCommentText(e.target.value)}
-        />
-        <button className="comment-submit" onClick={submitComment}>
-          등록
-        </button>
-      </div>
-
     </div>
   );
 }

@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { checkIdPath, checkNickPath, registerPath, myInfoPath } from "../api/authApi";
 import { loginPath } from "../api/loginApi";
-import "../styles/Signup.css";
+import Input from "../components/ui/Input";
+import Button from "../components/ui/Button";
+import { ChevronLeft } from "lucide-react";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -24,7 +26,11 @@ const Signup = () => {
   const [errors, setErrors] = useState({});
   const [idChecked, setIdChecked] = useState(false);
   const [nicknameChecked, setNicknameChecked] = useState(false);
-  
+  const [idCheckMessage, setIdCheckMessage] = useState("");
+  const [idCheckStatus, setIdCheckStatus] = useState(""); // "success" | "error" | ""
+  const [nicknameCheckMessage, setNicknameCheckMessage] = useState("");
+  const [nicknameCheckStatus, setNicknameCheckStatus] = useState(""); // "success" | "error" | ""
+
   // 입력값 변경 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -81,19 +87,23 @@ const Signup = () => {
   // 아이디/닉네임 중복확인
   const handleIdCheck = async () => {
     if (!formData.userId.trim()) {
-      alert("아이디를 입력해주세요.");
+      setIdCheckMessage("아이디를 입력해주세요.");
+      setIdCheckStatus("error");
       return;
     }
     try {
       await checkIdPath(formData.userId);
-      alert("사용 가능한 아이디입니다!");
+      setIdCheckMessage("사용 가능한 아이디입니다!");
+      setIdCheckStatus("success");
       setIdChecked(true);
     } catch (err) {
       if (err.response && err.response.status === 400) {
-        alert(err.response.data.message || "이미 사용 중인 아이디입니다.");
+        setIdCheckMessage(err.response.data.message || "이미 사용 중인 아이디입니다.");
+        setIdCheckStatus("error");
         setIdChecked(false);
       } else {
-        alert("아이디 중복확인 중 오류가 발생했습니다.");
+        setIdCheckMessage("아이디 중복확인 중 오류가 발생했습니다.");
+        setIdCheckStatus("error");
         console.error(err);
       }
     }
@@ -101,20 +111,24 @@ const Signup = () => {
 
   const handleNicknameCheck = async () => {
     if (!formData.nickname.trim()) {
-      alert("닉네임을 입력해주세요.");
+      setNicknameCheckMessage("닉네임을 입력해주세요.");
+      setNicknameCheckStatus("error");
       return;
     }
-  
+
     try {
       await checkNickPath(formData.nickname);
-      alert("사용 가능한 닉네임입니다!");
+      setNicknameCheckMessage("사용 가능한 닉네임입니다!");
+      setNicknameCheckStatus("success");
       setNicknameChecked(true);
     } catch (err) {
       if (err.response && err.response.status === 400) {
-        alert(err.response.data.message || "이미 사용 중인 닉네임입니다.");
+        setNicknameCheckMessage(err.response.data.message || "이미 사용 중인 닉네임입니다.");
+        setNicknameCheckStatus("error");
         setNicknameChecked(false);
       } else {
-        alert("닉네임 중복확인 중 오류가 발생했습니다.");
+        setNicknameCheckMessage("닉네임 중복확인 중 오류가 발생했습니다.");
+        setNicknameCheckStatus("error");
         console.error(err);
       }
     }
@@ -139,19 +153,19 @@ const Signup = () => {
         gender: formData.gender,
         birthday: `${formData.birthYear}-${birthMonth}-${birthDay}`,
       };
-    // 1. 가입요청
+      // 1. 가입요청
       const signupRes = await registerPath(requestData);
 
       console.log("회원가입 성공:", signupRes);
       // 2. 자동 로그인 처리
-      const loginRes = await loginPath ({
+      const loginRes = await loginPath({
         loginId: formData.userId,
         password: formData.password,
-      },{ withCredentials: true });
+      }, { withCredentials: true });
 
       const profile = await myInfoPath();
 
-  // 3. 프론트 세션에 사용자 정보 저장
+      // 3. 프론트 세션에 사용자 정보 저장
       sessionStorage.setItem(
         "userInfo",
         JSON.stringify({
@@ -162,9 +176,9 @@ const Signup = () => {
         })
       );
 
-    // 4. 1회성 팝업 플래그 저장 (메인에서 확인 예정)
+      // 4. 1회성 팝업 플래그 저장 (메인에서 확인 예정)
       sessionStorage.setItem("showSignupPopup", "true");
-      
+
       // 5. 메인 페이지로 이동
       navigate("/main", { replace: true });
     } catch (error) {
@@ -183,237 +197,258 @@ const Signup = () => {
     navigate("/");
   };
 
+  const selectClassName = "w-full px-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-300 appearance-none";
+
   return (
-    <div className="page-wrapper">
-      <div className="signup-container">
-        <h2 className="signup-title">회원가입</h2>
+    <div className="flex flex-col min-h-full px-6 py-6">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={handleBackToLogin}
+          className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors"
+        >
+          <ChevronLeft className="text-slate-800" />
+        </button>
+        <h2 className="text-xl font-bold text-slate-900">회원가입</h2>
+      </div>
 
-        <form className="signup-form" onSubmit={handleSubmit}>
-          {errors.general && (
-            <div className="error-text text-center">{errors.general}</div>
-          )}
+      <form className="space-y-4 pb-8" onSubmit={handleSubmit}>
+        {errors.general && (
+          <div className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-500 text-xs text-center font-medium">
+            {errors.general}
+          </div>
+        )}
 
-          {/* 아이디 */}
-          <div className="form-row">
-            <label>아이디</label>
-            <div className="input-with-btn">
-              <input
-                type="text"
+        {/* 아이디 */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-600 ml-1">아이디</label>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <Input
                 name="userId"
                 value={formData.userId}
-                onChange={handleChange}
+                onChange={(e) => {
+                  handleChange(e);
+                  setIdCheckMessage("");
+                  setIdCheckStatus("");
+                }}
                 placeholder="아이디 입력"
                 required
                 disabled={isLoading}
-                className={errors.userId ? "error" : ""}
+                error={errors.userId}
+                className="!mt-0"
               />
-              <button type="button" onClick={handleIdCheck} disabled={isLoading}>
-                중복확인
-              </button>
             </div>
-            {errors.userId && <div className="error-text">{errors.userId}</div>}
-          </div>
-
-          {/* 비밀번호 */}
-          <div className="form-row">
-            <label>비밀번호</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="비밀번호 입력"
-              required
+            <Button
+              type="button"
+              variant="secondary"
+              className="!w-auto whitespace-nowrap !py-3 text-xs"
+              onClick={handleIdCheck}
               disabled={isLoading}
-              className={errors.password ? "error" : ""}
-            />
-            {errors.password && (
-              <div className="error-text">{errors.password}</div>
-            )}
+            >
+              중복확인
+            </Button>
           </div>
+          {idCheckMessage && (
+            <p className={`text-xs ml-1 mt-1 ${idCheckStatus === "success" ? "text-green-600" : "text-red-500"
+              }`}>
+              {idCheckMessage}
+            </p>
+          )}
+        </div>
 
-          {/* 비밀번호 확인 */}
-          <div className="form-row">
-            <label>비밀번호 확인</label>
-            <input
-              type="password"
-              name="checkPassword"
-              value={formData.checkPassword}
-              onChange={handleChange}
-              placeholder="비밀번호 재입력"
-              required
-              disabled={isLoading}
-              className={errors.checkPassword ? "error" : ""}
-            />
-            {errors.checkPassword && (
-              <div className="error-text">{errors.checkPassword}</div>
-            )}
-          </div>
+        {/* 비밀번호 */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-600 ml-1">비밀번호</label>
+          <Input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="비밀번호 입력"
+            required
+            disabled={isLoading}
+            error={errors.password}
+            className="!mt-0"
+          />
+        </div>
 
-          {/* 닉네임 */}
-          <div className="form-row">
-            <label>닉네임</label>
-            <div className="input-with-btn">
-              <input
-                type="text"
+        {/* 비밀번호 확인 */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-600 ml-1">비밀번호 확인</label>
+          <Input
+            type="password"
+            name="checkPassword"
+            value={formData.checkPassword}
+            onChange={handleChange}
+            placeholder="비밀번호 재입력"
+            required
+            disabled={isLoading}
+            error={errors.checkPassword}
+            className="!mt-0"
+          />
+        </div>
+
+        {/* 닉네임 */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-600 ml-1">닉네임</label>
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <Input
                 name="nickname"
                 value={formData.nickname}
-                onChange={handleChange}
+                onChange={(e) => {
+                  handleChange(e);
+                  setNicknameCheckMessage("");
+                  setNicknameCheckStatus("");
+                }}
                 placeholder="닉네임 입력"
                 required
                 disabled={isLoading}
-                className={errors.nickname ? "error" : ""}
+                error={errors.nickname}
+                className="!mt-0"
               />
-              <button
-                type="button"
-                onClick={handleNicknameCheck}
-                disabled={isLoading}
-              >
-                중복확인
-              </button>
             </div>
-            {errors.nickname && (
-              <div className="error-text">{errors.nickname}</div>
-            )}
-          </div>
-
-          {/* 생년월일 */}
-          <div className="form-row">
-            <label>생년월일</label>
-            <div className="birth-group">
-              <select
-                name="birthYear"
-                value={formData.birthYear}
-                onChange={handleChange}
-                disabled={isLoading}
-                required
-              >
-                <option value="">년도</option>
-                {[...Array(100)].map((_, i) => (
-                  <option key={2025 - i} value={2025 - i}>
-                    {2025 - i}
-                  </option>
-                ))}
-              </select>
-              <select
-                name="birthMonth"
-                value={formData.birthMonth}
-                onChange={handleChange}
-                disabled={isLoading}
-                required
-              >
-                <option value="">월</option>
-                {[...Array(12)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                ))}
-              </select>
-              <select
-                name="birthDay"
-                value={formData.birthDay}
-                onChange={handleChange}
-                disabled={isLoading}
-                required
-              >
-                <option value="">일</option>
-                {[...Array(31)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {errors.birth && <div className="error-text">{errors.birth}</div>}
-          </div>
-
-          {/* 지역 */}
-          <div className="form-row remain">
-            <label>지역</label>
-            <select
-              name="addressMain"
-              value={formData.addressMain}
-              onChange={handleChange}
-              required
+            <Button
+              type="button"
+              variant="secondary"
+              className="!w-auto whitespace-nowrap !py-3 text-xs"
+              onClick={handleNicknameCheck}
               disabled={isLoading}
-              className={errors.addressMain ? "error" : ""}
             >
-              <option value="">선택</option>
-              {[
-                "서울",
-                "부산",
-                "대구",
-                "인천",
-                "광주",
-                "대전",
-                "울산",
-                "세종",
-                "제주",
-                "경기도",
-                "강원도",
-                "경상남도",
-                "경상북도",
-                "전라남도",
-                "전라북도",
-                "충청남도",
-                "충청북도",
-              ].map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
+              중복확인
+            </Button>
+          </div>
+          {nicknameCheckMessage && (
+            <p className={`text-xs ml-1 mt-1 ${nicknameCheckStatus === "success" ? "text-green-600" : "text-red-500"
+              }`}>
+              {nicknameCheckMessage}
+            </p>
+          )}
+        </div>
+
+        {/* 생년월일 */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-600 ml-1">생년월일</label>
+          <div className="grid grid-cols-3 gap-2">
+            <select
+              name="birthYear"
+              value={formData.birthYear}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+              className={selectClassName}
+            >
+              <option value="">년도</option>
+              {[...Array(100)].map((_, i) => (
+                <option key={2025 - i} value={2025 - i}>{2025 - i}</option>
               ))}
             </select>
-            {errors.addressMain && (
-              <div className="error-text">{errors.addressMain}</div>
-            )}
+            <select
+              name="birthMonth"
+              value={formData.birthMonth}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+              className={selectClassName}
+            >
+              <option value="">월</option>
+              {[...Array(12)].map((_, i) => (
+                <option key={i + 1} value={i + 1}>{i + 1}</option>
+              ))}
+            </select>
+            <select
+              name="birthDay"
+              value={formData.birthDay}
+              onChange={handleChange}
+              disabled={isLoading}
+              required
+              className={selectClassName}
+            >
+              <option value="">일</option>
+              {[...Array(31)].map((_, i) => (
+                <option key={i + 1} value={i + 1}>{i + 1}</option>
+              ))}
+            </select>
           </div>
+          {errors.birth && <p className="text-[10px] text-red-500 ml-1 mt-0.5">{errors.birth}</p>}
+        </div>
 
-          {/* 성별 */}
-          <div className="form-row remain">
-            <label>성별</label>
-            <div className="gender-group">
-              <label>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="MALE"
-                  checked={formData.gender === "MALE"}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                />
-                남
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="FEMALE"
-                  checked={formData.gender === "FEMALE"}
-                  onChange={handleChange}
-                  disabled={isLoading}
-                />
-                여
-              </label>
-            </div>
-            {errors.gender && (
-              <div className="error-text">{errors.gender}</div>
-            )}
+        {/* 지역 */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-600 ml-1">지역</label>
+          <select
+            name="addressMain"
+            value={formData.addressMain}
+            onChange={handleChange}
+            required
+            disabled={isLoading}
+            className={`${selectClassName} ${errors.addressMain ? 'ring-2 ring-red-500/50 bg-red-50/50' : ''}`}
+          >
+            <option value="">선택</option>
+            {["서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "제주", "경기도", "강원도", "경상남도", "경상북도", "전라남도", "전라북도", "충청남도", "충청북도"].map((r) => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+          {errors.addressMain && <p className="text-[10px] text-red-500 ml-1 mt-0.5">{errors.addressMain}</p>}
+        </div>
+
+        {/* 성별 */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-slate-600 ml-1">성별</label>
+          <div className="grid grid-cols-2 gap-2">
+            <label className={`
+              cursor-pointer rounded-2xl border p-2.5 flex items-center justify-center gap-2 transition-all text-sm
+              ${formData.gender === 'MALE'
+                ? 'bg-primary/10 border-primary text-primary font-semibold'
+                : 'bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100'}
+            `}>
+              <input
+                type="radio"
+                name="gender"
+                value="MALE"
+                checked={formData.gender === "MALE"}
+                onChange={handleChange}
+                disabled={isLoading}
+                className="hidden"
+              />
+              남성
+            </label>
+            <label className={`
+              cursor-pointer rounded-2xl border p-2.5 flex items-center justify-center gap-2 transition-all text-sm
+              ${formData.gender === 'FEMALE'
+                ? 'bg-primary/10 border-primary text-primary font-semibold'
+                : 'bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100'}
+            `}>
+              <input
+                type="radio"
+                name="gender"
+                value="FEMALE"
+                checked={formData.gender === "FEMALE"}
+                onChange={handleChange}
+                disabled={isLoading}
+                className="hidden"
+              />
+              여성
+            </label>
           </div>
+          {errors.gender && <p className="text-[10px] text-red-500 ml-1 mt-0.5">{errors.gender}</p>}
+        </div>
 
-          <button type="submit" className="submit-btn" disabled={isLoading}>
-            {isLoading ? "가입 중..." : "회원가입"}
+        <Button type="submit" disabled={isLoading} className="mt-6 shadow-lg shadow-primary/30">
+          {isLoading ? "가입 중..." : "회원가입 완료"}
+        </Button>
+
+        <div className="text-center pt-2 pb-4">
+          <button
+            type="button"
+            onClick={handleBackToLogin}
+            className="text-xs text-slate-500 hover:text-primary transition-colors"
+          >
+            아이디가 존재하면 <span className="font-semibold text-primary">로그인</span>으로 이동
           </button>
-        </form>
-
-        <button
-          type="button"
-          className="back-btn"
-          onClick={handleBackToLogin}
-          disabled={isLoading}
-        >
-          ← 로그인으로 돌아가기
-        </button>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };
