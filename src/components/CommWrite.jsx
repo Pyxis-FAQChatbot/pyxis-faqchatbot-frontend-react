@@ -30,22 +30,23 @@ export default function CommunityWrite({
       return;
     }
 
-    const ok = window.confirm(
-      mode === "edit" ? "게시글을 수정하시겠습니까?" : "게시글을 등록하시겠습니까?"
-    );
-    if (!ok) return;
+    // const ok = window.confirm(
+    //   mode === "edit" ? "게시글을 수정하시겠습니까?" : "게시글을 등록하시겠습니까?"
+    // );
+    // if (!ok) return;
+
+    console.log("Submitting post:", { title, content, postType: isAnonymous ? "ANONYMOUS" : "DEFAULT" });
 
     try {
       if (mode === "write") {
-        const res = await api.postCreatePath({
+        await api.postCreatePath({
           title,
           content,
           postType: isAnonymous ? "ANONYMOUS" : "DEFAULT"
         });
-        const createdId = res.commPostyId;
         alert("게시글이 등록되었습니다.");
-        navigate(`/community/${createdId}`);
-      } else {
+        onBack();
+      } else if (mode === "edit") {
         await api.postEditPath(postId, {
           title,
           content,
@@ -56,7 +57,8 @@ export default function CommunityWrite({
       }
     } catch (err) {
       console.error("게시글 저장 실패:", err);
-      alert("게시글 저장 중 오류가 발생했습니다.");
+      const msg = err.response?.data?.message || "게시글 저장 중 오류가 발생했습니다.";
+      alert(msg);
     }
   };
 

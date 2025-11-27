@@ -11,7 +11,7 @@ export default function PostDetailView({
   onPostLoaded = () => { }
 }) {
   const navigate = useNavigate();
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 10;
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [commentPage, setCommentPage] = useState(0);
@@ -144,7 +144,7 @@ export default function PostDetailView({
         {/* Post Content */}
         <Card className="!p-5">
           <div className="flex justify-between items-start mb-3">
-            <h2 className="text-xl font-bold text-slate-900 leading-tight">{post.community.title}</h2>
+            <h2 className="text-xl font-bold text-slate-900 leading-tight break-all">{post.community.title}</h2>
             {post.isOwner && (
               <div className="relative">
                 <button onClick={() => setOpenMenu(!openMenu)} className="p-1 rounded-full hover:bg-slate-100 text-slate-400">
@@ -171,11 +171,12 @@ export default function PostDetailView({
               day: '2-digit',
               hour: '2-digit',
               minute: '2-digit',
-              second: '2-digit'
+              second: '2-digit',
+              hour12: false
             })}</span>
           </div>
 
-          <div className="text-slate-800 whitespace-pre-wrap leading-relaxed mb-6 min-h-[100px]">
+          <div className="text-slate-800 whitespace-pre-wrap leading-relaxed mb-6 min-h-[100px] break-all">
             {post.community.content}
           </div>
 
@@ -204,7 +205,8 @@ export default function PostDetailView({
                     day: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit',
-                    second: '2-digit'
+                    second: '2-digit',
+                    hour12: false
                   })}</span>
                 </div>
                 {c.isMine && c.status === 'ACTIVE' && (
@@ -214,7 +216,7 @@ export default function PostDetailView({
                 )}
               </div>
 
-              <p className="text-sm text-slate-700 mb-3">{c.content}</p>
+              <p className="text-sm text-slate-700 mb-3 break-all">{c.content}</p>
 
               <div className="flex items-center gap-2">
                 <button
@@ -240,7 +242,8 @@ export default function PostDetailView({
                             day: '2-digit',
                             hour: '2-digit',
                             minute: '2-digit',
-                            second: '2-digit'
+                            second: '2-digit',
+                            hour12: false
                           })}</span>
                         </div>
                         {r.isMine && r.status === 'ACTIVE' && (
@@ -249,7 +252,7 @@ export default function PostDetailView({
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-slate-600">{r.content}</p>
+                      <p className="text-xs text-slate-600 break-all">{r.content}</p>
                     </div>
                   ))}
 

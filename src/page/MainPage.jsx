@@ -5,6 +5,8 @@ import Card from "../components/ui/Card";
 import { MessageCircle, Users, User, ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { myInfoPath } from "../api/authApi";
+
 export default function MainPage() {
   const [showStoreForm, setShowStoreForm] = useState(false);
   const navigate = useNavigate();
@@ -17,10 +19,22 @@ export default function MainPage() {
       sessionStorage.removeItem("showSignupPopup");
     }
 
-    const storedUser = sessionStorage.getItem("userInfo");
-    if (storedUser) {
-      setUserInfo(JSON.parse(storedUser));
-    }
+    const fetchUser = async () => {
+      try {
+        const res = await myInfoPath();
+        setUserInfo(res);
+        // Update session storage as well
+        sessionStorage.setItem("userInfo", JSON.stringify(res));
+      } catch (e) {
+        console.error("Failed to fetch user info", e);
+        // Fallback to session storage if API fails
+        const storedUser = sessionStorage.getItem("userInfo");
+        if (storedUser) {
+          setUserInfo(JSON.parse(storedUser));
+        }
+      }
+    };
+    fetchUser();
   }, []);
 
   const QuickAction = ({ icon: Icon, label, desc, path, color }) => (

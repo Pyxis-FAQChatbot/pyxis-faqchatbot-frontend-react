@@ -1,315 +1,303 @@
-const [myStore, setMyStore] = useState([]);
-const [myPosts, setMyPosts] = useState([]);
-const [myComments, setMyComments] = useState([]);
-const [page, setPage] = useState(0);       // 현재 페이지
-const [totalPages, setTotalPages] = useState(1); // 전체 페이지
-const [commentPage, setCommentPage] = useState(0);
-const [commentTotalPages, setCommentTotalPages] = useState(1);
-const [showStoreForm, setShowStoreForm] = useState(false);
-const [showOverlay, setShowOverlay] = useState(false);
-const [overlayMode, setOverlayMode] = useState(null);
+import React, { useEffect, useState } from "react";
+import Header from "../components/Header";
+import StoreForm from "../components/StoreForm";
+import ProfileEditOverlay from "../components/ProfileEditOverlay";
+import { useNavigate } from "react-router-dom";
+import { botRoomPath } from "../api/chatApi";
+import { timeAgo } from "../utils/timeAgo";
+import { myInfoPath, myPostPath, myCommentPath } from "../api/authApi";
+import { storeApi } from "../api/storeApi";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
+import { User, MapPin, Calendar, Store, Settings, MessageSquare, FileText, ChevronRight } from "lucide-react";
 
-const size = 5;
-const cmtsize = 8;
-const openProfileEdit = () => {
-  setOverlayMode("profile");
-  setShowOverlay(true);
-};
+export default function MyPage() {
+  const navigate = useNavigate();
+  const [recentChat, setRecentChat] = useState(null);
+  const [myInfo, setMyInfo] = useState(null);
+  const [myStore, setMyStore] = useState(null);
+  const [myPosts, setMyPosts] = useState([]);
+  const [myComments, setMyComments] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const size = 10;
+  const cmtsize = 10;
+  const [commentPage, setCommentPage] = useState(0);
+  const [commentTotalPages, setCommentTotalPages] = useState(1);
+  const [showStoreForm, setShowStoreForm] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [overlayMode, setOverlayMode] = useState("profile");
 
-const openPasswordEdit = () => {
-  setOverlayMode("password");
-  setShowOverlay(true);
-};
+  const openProfileEdit = () => {
+    setOverlayMode("profile");
+    setShowOverlay(true);
+  };
 
-const fetchRecentChat = async () => {
-  try {
-    const res = await botRoomPath(0, 1);
-    if (res.items && res.items.length > 0) {
-      setRecentChat(res.items[0]);
-    } else {
-      setRecentChat(null);
+  const openPasswordEdit = () => {
+    setOverlayMode("password");
+    setShowOverlay(true);
+  };
+
+  const fetchRecentChat = async () => {
+    try {
+      const res = await botRoomPath(0, 1);
+      if (res.items && res.items.length > 0) {
+        setRecentChat(res.items[0]);
+      } else {
+        setRecentChat(null);
+      }
+    } catch (err) {
+      console.error('채팅내역 로드 실패:', err);
     }
-  } catch (err) {
-    console.error('채팅내역 로드 실패:', err);
-  }
-};
-const fetchMyInfo = async () => {
-  try {
-    const res = await myInfoPath();
-    setMyInfo(res);
-  } catch (err) {
-    console.error("내 정보 불러오기 실패:", err);
-  }
-};
-const fetchMyStore = async () => {
-  try {
-    const res = await storeApi.ViewPath();
-    setMyStore(res);
-  } catch (err) {
-    console.log("사업장 정보 없음 또는 오류");
-    setMyStore(null);
-  }
-};
-const fetchMyPosts = async (pageNum = page) => {
-  try {
-    const res = await myPostPath(pageNum, size);
-    setMyPosts(res.items);         // 게시글 목록
-    setTotalPages(res.totalPages); // 전체 페이지 수
-  } catch (err) {
-    console.error("내가 쓴 글 조회 실패:", err);
-  }
-};
-const fetchMyComments = async (pageNum = commentPage) => {
-  try {
-    const res = await myCommentPath(pageNum, cmtsize);
-    setMyComments(res.items);
-    setCommentTotalPages(res.totalPages);
-  } catch (err) {
-    console.error("내가 쓴 댓글 조회 실패:", err);
-  }
-};
-useEffect(() => {
-  fetchMyInfo();
-  fetchMyStore();
-  fetchRecentChat();
-  fetchMyPosts();
-  fetchMyComments();
-}, []);
+  };
+  const fetchMyInfo = async () => {
+    try {
+      const res = await myInfoPath();
+      setMyInfo(res);
+    } catch (err) {
+      console.error("내 정보 불러오기 실패:", err);
+    }
+  };
+  const fetchMyStore = async () => {
+    try {
+      const res = await storeApi.ViewPath();
+      setMyStore(res);
+    } catch (err) {
+      console.log("사업장 정보 없음 또는 오류");
+      setMyStore(null);
+    }
+  };
+  const fetchMyPosts = async (pageNum = page) => {
+    try {
+      const res = await myPostPath(pageNum, size);
+      setMyPosts(res?.items || []);
+      setTotalPages(res?.totalPages || 1);
+    } catch (err) {
+      console.error("내가 쓴 글 조회 실패:", err);
+    }
+  };
+  const fetchMyComments = async (pageNum = commentPage) => {
+    try {
+      const res = await myCommentPath(pageNum, cmtsize);
+      setMyComments(res?.items || []);
+      setCommentTotalPages(res?.totalPages || 1);
+    } catch (err) {
+      console.error("내가 쓴 댓글 조회 실패:", err);
+    }
+  };
+  useEffect(() => {
+    fetchMyInfo();
+    fetchMyStore();
+    fetchRecentChat();
+    fetchMyPosts();
+    fetchMyComments();
+  }, []);
 
-return (
-  <div className="mypage-container">
-    <Header type="main" />
+  const InfoItem = ({ icon: Icon, label, value }) => (
+    <div className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none">
+      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+        <Icon size={16} />
+        <span>{label}</span>
+      </div>
+      <span className="text-slate-800 dark:text-slate-200 font-medium text-sm">{value || "—"}</span>
+    </div>
+  );
 
-    <main className="mypage-content">
-      {showStoreForm && (
-        <StoreForm
-          onClose={() => {
-            setShowStoreForm(false);
-            fetchMyStore()
-          }}
-        />
-      )}
-      {showOverlay && (
-        <ProfileEditOverlay
-          mode={overlayMode}
-          onClose={() => setShowOverlay(false)}
-          onUpdated={() => { fetchMyInfo() }}
-        />
-      )}
-      <div>
-        {/* 🔹 상단 좌우배치 영역 (750px 이상부터 적용) */}
-        <div className="top-grid">
+  return (
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      <Header type="main" />
 
-          {/* 핵심 계정 정보 */}
-          <section className="profile-card card">
-            <h3>계정 정보</h3>
+      <main className="flex-1 overflow-y-auto p-6 space-y-6 pb-24 scrollbar-hide">
+        {showStoreForm && (
+          <StoreForm
+            onClose={() => {
+              setShowStoreForm(false);
+              fetchMyStore()
+            }}
+          />
+        )}
+        {showOverlay && (
+          <ProfileEditOverlay
+            mode={overlayMode}
+            onClose={() => setShowOverlay(false)}
+            onUpdated={() => { fetchMyInfo() }}
+          />
+        )}
+
+        {/* Profile Card */}
+        <Card className="!p-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 p-6 pb-8">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 shadow-md flex items-center justify-center text-2xl">
+                👤
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{myInfo?.nickname || "Guest"}</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{myInfo?.loginId || ""}</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-5 -mt-4 bg-white dark:bg-slate-900 rounded-t-3xl transition-colors duration-300">
+            <InfoItem icon={MapPin} label="지역" value={myInfo?.addressMain} />
+            <InfoItem icon={Calendar} label="가입일" value={myInfo?.createdAt?.slice(0, 10)} />
+
+            <div className="mt-4 flex gap-2">
+              <Button variant="secondary" onClick={openProfileEdit} className="text-xs !py-2 flex-1">
+                정보 수정
+              </Button>
+              <Button variant="secondary" onClick={openPasswordEdit} className="text-xs !py-2 flex-1">
+                비밀번호 변경
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        {/* Store Card */}
+        <Card className="!p-5">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Store size={20} className="text-primary" />
+              내 사업장
+            </h3>
+            <button onClick={() => setShowStoreForm(true)} className="text-xs text-primary font-medium hover:underline">
+              설정
+            </button>
+          </div>
+          <div className="space-y-1">
+            <InfoItem icon={FileText} label="상호명" value={myStore?.storeName} />
+            <InfoItem icon={Settings} label="등록 코드" value={myStore?.industryCode} />
+            <InfoItem icon={MapPin} label="주소" value={myStore?.address} />
+          </div>
+        </Card>
+
+        {/* Recent Chat */}
+        <Card
+          className="!p-5 cursor-pointer hover:scale-[1.02] transition-transform active:scale-95"
+          onClick={() => recentChat && navigate(`/chatbot/${recentChat.botchatId}`)}
+        >
+          <h3 className="font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+            <MessageSquare size={20} className="text-secondary" />
+            최근 상담
+          </h3>
+          {recentChat ? (
             <div>
-              <div>
-                <div className="profile-item">
-                  <span className="label">닉네임</span>
-                  <span>{myInfo?.nickname || "—"}</span>
-                </div>
-                <div className="profile-item">
-                  <span className="label">로그인 ID</span>
-                  <span>{myInfo?.loginId || "—"}</span>
-                </div>
-                <div className="profile-item">
-                  <span className="label">지역</span>
-                  <span>{myInfo?.addressMain || "—"}</span>
-                </div>
-                <div className="profile-item">
-                  <span className="label">가입일</span>
-                  <span>{myInfo?.createdAt?.slice(0, 10) || "—"}</span>
-                </div>
+              <div className="flex justify-between items-center mb-1">
+                <span className="font-medium text-slate-800 dark:text-slate-200">{recentChat.title || "챗봇 상담"}</span>
+                <span className="text-xs text-slate-400">{timeAgo(recentChat.lastMessageAt || recentChat.createdAt)}</span>
               </div>
-              <div></div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">{recentChat.lasMessage || "메시지가 없습니다."}</p>
             </div>
-          </section>
-          <section className="profile-card card">
-            <h3>내 사업장</h3>
-            <div className="profile-item">
-              <span className="label">상호명</span>
-              <span>{myStore?.storeName || "—"}</span>
-            </div>
-            <div className="profile-item">
-              <span className="label">등록 코드</span>
-              <span>{myStore?.industryCode || "—"}</span>
-            </div>
-            <div className="profile-item">
-              <span className="label">주소</span>
-              <span>{myStore?.address || "—"}</span>
-            </div>
-          </section>
-        </div>
-        {/* 설정 버튼 섹션 */}
-        <section className="settings-bar">
-          <button
-            onClick={() => setShowStoreForm(true)}
-            className="setting-item card"
-          >
-            사업장 설정
-          </button>
-          <button
-            onClick={openPasswordEdit}
-            className="setting-item card"
-          >
-            비밀번호 변경
-          </button>
-          <button
-            onClick={openProfileEdit}
-            className="setting-item card"
-          >
-            닉네임 및 지역 변경
-          </button>
-        </section>
+          ) : (
+            <p className="text-sm text-slate-400">최근 이용한 챗봇이 없습니다.</p>
+          )}
+        </Card>
 
-        {/* 🔹 활동 섹션 */}
-        <section className="activity-section">
+        {/* My Posts */}
+        <div className="space-y-4">
+          <h3 className="font-bold text-slate-900 dark:text-white px-1">활동 내역</h3>
 
-          {/* 최근 이용한 챗봇 */}
-          <div
-            className="recent-chat card pointer"
-            onClick={() => navigate(`/chatbot/${recentChat.botchatId}`)}
-          >
-            {recentChat ? (
-              <>
-                <div className="title-row">
-                  <h3 className="chat-title">
-                    {recentChat.title || "챗봇 상담"}
-                  </h3>
-                  <span className="chat-time-short">
-                    {timeAgo(recentChat.lastMessageAt ||
-                      recentChat.createdAt)}
-                  </span>
-                </div>
-
-                <p className="chat-last-message">
-                  {recentChat.lasMessage || "메시지가 없습니다."}
-                </p>
-              </>
-            ) : (
-              <p>최근 이용한 챗봇이 없습니다.</p>
+          <Card className="!p-0 overflow-hidden">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 font-medium text-sm text-slate-700 dark:text-slate-300">
+              내가 쓴 글
+            </div>
+            <div className="divide-y divide-slate-50 dark:divide-slate-800">
+              {myPosts.length > 0 ? (
+                myPosts.map(post => (
+                  <div
+                    key={post.postId}
+                    onClick={() => navigate(`/community/${post.postId}`)}
+                    className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors flex justify-between items-center group"
+                  >
+                    <div className="flex-1 min-w-0 mr-4">
+                      <div className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{post.title}</div>
+                      <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                        <span>
+                          {new Date(post.createdAt).toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                          })}
+                        </span>
+                        <span className="text-[10px] text-slate-300">
+                          {new Date(post.createdAt).toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight size={16} className="text-slate-300 dark:text-slate-600 group-hover:text-primary" />
+                  </div>
+                ))
+              ) : (
+                <div className="p-6 text-center text-sm text-slate-400">작성한 글이 없습니다.</div>
+              )}
+            </div>
+            {totalPages > 1 && (
+              <div className="p-3 flex justify-center gap-2 border-t border-slate-100 dark:border-slate-800">
+                <button onClick={() => { setPage(p => Math.max(0, p - 1)); fetchMyPosts(Math.max(0, page - 1)); }} disabled={page === 0} className="px-3 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-50">이전</button>
+                <span className="text-xs py-1 text-slate-500">{page + 1} / {totalPages}</span>
+                <button onClick={() => { setPage(p => Math.min(totalPages - 1, p + 1)); fetchMyPosts(Math.min(totalPages - 1, page + 1)); }} disabled={page >= totalPages - 1} className="px-3 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-50">다음</button>
+              </div>
             )}
-          </div>
+          </Card>
 
-          {/* 좌우 배치 (750px 이상) */}
-          <div className="activity-grid">
-            <div className="post-card card">
-              <div>
-                <h3>내가 쓴 글</h3>
-                {myPosts.length > 0 ? (
-                  myPosts.map(post => (
-                    <div
-                      key={post.postId}
-                      className="post-item"
-                      onClick={() => navigate(`/community/${post.postId}`)}
-                    >
-                      <div className="post-title">{post.title}</div>
-                      <p className="ellipsis">{post.content}</p>
-                      <div className="post-date">
-                        {post.createdAt.slice(0, 10)}
+          <Card className="!p-0 overflow-hidden">
+            <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 font-medium text-sm text-slate-700 dark:text-slate-300">
+              내가 쓴 댓글
+            </div>
+            <div className="divide-y divide-slate-50 dark:divide-slate-800">
+              {myComments.length > 0 ? (
+                myComments.map(cmt => (
+                  <div
+                    key={cmt.commentId}
+                    onClick={() => navigate(`/community/${cmt.postId}`)}
+                    className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors flex justify-between items-center group"
+                  >
+                    <div className="flex-1 min-w-0 mr-4">
+                      <div className="text-sm text-slate-800 dark:text-slate-200 truncate">
+                        {cmt.parentId && <span className="text-slate-400 mr-1">↳</span>}
+                        {cmt.content}
+                      </div>
+                      <div className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+                        <span>
+                          {new Date(cmt.createdAt).toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                          })}
+                        </span>
+                        <span className="text-[10px] text-slate-300">
+                          {new Date(cmt.createdAt).toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                          })}
+                        </span>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <p>작성한 글이 없습니다.</p>
-                )}
-              </div>
-
-              {/* 페이지네이션 버튼 */}
-              <div className="pagination">
-                {page > 0 && (    // 맨앞으로
-                  <button onClick={() => { setPage(0); fetchMyPosts(0); }}>
-                    &laquo;&laquo;
-                  </button>
-                )}
-                {page > 0 && (    // 이전 페이지
-                  <button onClick={() => { setPage(page - 1); fetchMyPosts(page - 1); }}>
-                    &laquo;
-                  </button>
-                )}
-                <span className="page-number">{page + 1} / {totalPages}</span>
-
-                {page + 1 < totalPages && (   // 다음 페이지
-                  <button onClick={() => { setPage(page + 1); fetchMyPosts(page + 1); }}>
-                    &raquo;
-                  </button>
-                )}
-                {page + 1 < totalPages && (   // 맨 뒤로
-                  <button onClick={() => { setPage(totalPages - 1); fetchMyPosts(totalPages - 1); }}>
-                    &raquo;&raquo;
-                  </button>
-                )}
-              </div>
+                    <ChevronRight size={16} className="text-slate-300 dark:text-slate-600 group-hover:text-primary" />
+                  </div>
+                ))
+              ) : (
+                <div className="p-6 text-center text-sm text-slate-400">작성한 댓글이 없습니다.</div>
+              )}
             </div>
-            <div className="post-card card">
-              <div>
-                <h3>내가 쓴 댓글</h3>
-                {myComments.length > 0 ? (
-                  myComments.map(cmt => (
-                    <div
-                      key={cmt.commentId}
-                      className="post-item"
-                      onClick={() => navigate(`/community/${cmt.postId}`)}
-                    >
-
-                      <div className="post-title ellipsis">
-                        {cmt.parentId && ('\u21B3  ')}
-                        {cmt.content}</div>
-                      <div className="post-date">
-                        {cmt.createdAt.slice(0, 10)}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p>작성한 댓글이 없습니다.</p>
-                )}
+            {commentTotalPages > 1 && (
+              <div className="p-3 flex justify-center gap-2 border-t border-slate-100 dark:border-slate-800">
+                <button onClick={() => { setCommentPage(p => Math.max(0, p - 1)); fetchMyComments(Math.max(0, commentPage - 1)); }} disabled={commentPage === 0} className="px-3 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-50">이전</button>
+                <span className="text-xs py-1 text-slate-500">{commentPage + 1} / {commentTotalPages}</span>
+                <button onClick={() => { setCommentPage(p => Math.min(commentTotalPages - 1, p + 1)); fetchMyComments(Math.min(commentTotalPages - 1, commentPage + 1)); }} disabled={commentPage >= commentTotalPages - 1} className="px-3 py-1 text-xs rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-50">다음</button>
               </div>
+            )}
+          </Card>
+        </div>
 
-              {/* 페이지네이션 버튼 */}
-              <div className="pagination">
-                {commentPage > 0 && (    // 맨앞으로
-                  <button onClick={() => { setCommentPage(0); fetchMyComments(0); }}>
-                    &laquo;&laquo;
-                  </button>
-                )}
-                {commentPage > 0 && (    // 이전 페이지
-                  <button onClick={() => { setCommentPage(commentPage - 1); fetchMyComments(commentPage - 1); }}>
-                    &laquo;
-                  </button>
-                )}
-                <span className="page-number">{commentPage + 1} / {commentTotalPages}</span>
-
-                {commentPage + 1 < commentTotalPages && (   // 다음 페이지
-                  <button onClick={() => { setCommentPage(page + 1); fetchMyComments(page + 1); }}>
-                    &raquo;
-                  </button>
-                )}
-                {commentPage + 1 < commentTotalPages && (   // 맨 뒤로
-                  <button onClick={() => {
-                    setCommentPage(commentTotalPages - 1);
-                    fetchMyComments(commentTotalPages - 1);
-                  }}>
-                    &raquo;&raquo;
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-        </section>
-      </div>
-
-      {/* 맨 아래 회원 탈퇴 */}
-      <div className="withdraw-box">
-        <span className="withdraw">
+        <button className="w-full py-4 text-sm text-slate-400 hover:text-red-500 transition-colors">
           회원 탈퇴
-        </span>
-      </div>
-
-    </main>
-
-    <BottomNav active="mypage" />
-  </div>
-);
+        </button>
+      </main>
+    </div>
+  );
 }

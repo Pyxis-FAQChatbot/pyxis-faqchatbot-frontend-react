@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Moon, Sun } from 'lucide-react';
 
 const MobileLayout = ({ children }) => {
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [isDarkMode, setIsDarkMode] = useState(false);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -19,29 +21,49 @@ const MobileLayout = ({ children }) => {
         });
     };
 
+    const toggleTheme = () => {
+        setIsDarkMode(!isDarkMode);
+        if (!isDarkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    };
+
     return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-2 font-sans">
-            <div className="relative w-full max-w-[420px] h-[920px] bg-white rounded-[40px] shadow-2xl overflow-hidden border-[8px] border-slate-800 ring-2 ring-slate-700/50 flex flex-col">
+        <div className="min-h-screen w-full flex items-center justify-center bg-white p-4 sm:p-8 transition-colors duration-300">
+            {/* Mobile Frame */}
+            <div className="relative w-full max-w-[400px] h-[850px] bg-white dark:bg-slate-950 rounded-[40px] shadow-2xl overflow-hidden border-[8px] border-slate-900 dark:border-slate-800 transition-colors duration-300 flex flex-col">
                 {/* Status Bar */}
-                <div className="absolute top-0 left-0 right-0 h-11 z-50 flex justify-between items-center px-6 text-xs font-medium text-slate-900">
+                <div className="absolute top-0 left-0 right-0 h-11 z-50 flex justify-between items-center px-6 text-xs font-medium text-slate-900 dark:text-white">
                     {/* Real-time Clock */}
                     <span className="font-semibold">{formatTime(currentTime)}</span>
 
-                    {/* macOS-style Dots */}
-                    <div className="flex gap-1.5">
-                        <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors cursor-pointer"></div>
-                        <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors cursor-pointer"></div>
-                        <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors cursor-pointer"></div>
+                    <div className="flex items-center gap-3">
+                        {/* Theme Toggle */}
+                        <button
+                            onClick={toggleTheme}
+                            className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        >
+                            {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
+                        </button>
+
+                        {/* macOS-style Dots */}
+                        <div className="flex gap-1.5">
+                            <div className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 transition-colors cursor-pointer"></div>
+                            <div className="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 transition-colors cursor-pointer"></div>
+                            <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 transition-colors cursor-pointer"></div>
+                        </div>
                     </div>
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto overflow-x-hidden pt-11 pb-6 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden pt-11 pb-6 scrollbar-hide bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
                     {children}
                 </div>
 
                 {/* Home Indicator */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-900/20 rounded-full"></div>
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-900/20 dark:bg-white/20 rounded-full"></div>
             </div>
         </div>
     );

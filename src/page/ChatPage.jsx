@@ -35,7 +35,8 @@ export default function ChatPage() {
         const arr = [{
           sender: "user",
           text: m.userQuery,
-          createdAt: m.createdAt
+          createdAt: m.createdAt,
+          isNew: false // History messages are not new
         }];
         if (m.botResponse) {
           arr.push({
@@ -43,7 +44,8 @@ export default function ChatPage() {
             text: m.botResponse,
             createdAt: m.createdAt,
             sources: m.sourceData || [],
-            followUpQuestions: m.followUpQuestions || []
+            followUpQuestions: m.followUpQuestions || [],
+            isNew: false // History messages are not new
           });
         }
         return arr;
@@ -89,7 +91,8 @@ export default function ChatPage() {
   const handleSendMessage = async (userInput) => {
     if (!userInput.trim()) return;
 
-    setMessages((prev) => [...prev, { sender: "user", text: userInput }]);
+    // User message is new, but doesn't need streaming
+    setMessages((prev) => [...prev, { sender: "user", text: userInput, isNew: true }]);
 
     try {
       setIsBotResponding(true);
@@ -106,17 +109,16 @@ export default function ChatPage() {
       const botsources = response.sourceData;
       const followUps = response.followUpQuestions || [];
 
+      // Bot message is new, needs streaming
       setMessages((prev) => [...prev, {
         sender: "bot",
         text: botReply,
         sources: botsources,
-        followUpQuestions: followUps
+        followUpQuestions: followUps,
+        isNew: true
       }]);
 
-      setTimeout(() => {
-        const container = chatContainerRef.current;
-        if (container) container.scrollTop = container.scrollHeight;
-      }, 100);
+      // Scroll is handled by ChatBubble's typing effect for new messages
     } catch (error) {
       console.error("API 요청 실패:", error);
       setMessages((prev) => [
@@ -199,7 +201,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 relative">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
       <Header
         type="menu"
         title={chatTitle}
@@ -212,10 +214,10 @@ export default function ChatPage() {
       >
         {!chatId || messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-4">
-            <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center">
+            <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
               <span className="text-4xl">🤖</span>
             </div>
-            <p className="font-medium">무엇이 궁금하신가요?</p>
+            <p className="font-medium text-slate-500 dark:text-slate-400">무엇이 궁금하신가요?</p>
           </div>
         ) : (
           <>
@@ -224,12 +226,23 @@ export default function ChatPage() {
                 key={index}
                 message={msg}
                 isBot={msg.sender === "bot" || msg.role === "assistant"}
+                isLatest={index === messages.length - 1}
+                scrollToBottom={() => {
+                  const container = chatContainerRef.current;
+                  if (container) {
+                    // Only scroll if user is near bottom (within 100px)
+                    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+                    if (isNearBottom) {
+                      container.scrollTop = container.scrollHeight;
+                    }
+                  }
+                }}
               />
             ))}
 
             {isBotResponding && (
               <div className="flex justify-start mb-4">
-                <div className="bg-white rounded-2xl rounded-tl-none px-4 py-3 border border-slate-100 shadow-sm">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl rounded-tl-none px-4 py-3 border border-slate-100 dark:border-slate-700 shadow-sm">
                   <LoadingSpinner />
                 </div>
               </div>
@@ -240,7 +253,7 @@ export default function ChatPage() {
         {/* Follow-up Questions at Bottom */}
         {messages.length > 0 && messages[messages.length - 1]?.followUpQuestions?.length > 0 && (
           <div className="px-4 pb-4">
-            <p className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1">
               <Sparkles size={12} className="text-primary" />
               추천 질문
             </p>
@@ -249,7 +262,7 @@ export default function ChatPage() {
                 <button
                   key={i}
                   onClick={() => handleFollowUpClick(question)}
-                  className="px-3 py-1.5 rounded-full bg-white border border-primary/20 text-primary text-xs font-medium hover:bg-primary/5 transition-colors shadow-sm"
+                  className="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-primary/20 dark:border-primary/40 text-primary dark:text-primary/90 text-xs font-medium hover:bg-primary/5 dark:hover:bg-primary/20 transition-colors shadow-sm"
                 >
                   {question}
                 </button>

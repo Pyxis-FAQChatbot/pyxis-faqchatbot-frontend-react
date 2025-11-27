@@ -45,8 +45,19 @@ export default function CommunityPage() {
       setViewMode("write");
       return;
     }
+
+    // Check for refresh flag
+    if (location.state?.refresh) {
+      // Clear posts to force refetch
+      setPosts([]);
+      setPage(0);
+      setIsLast(false);
+      // Clear state to prevent infinite refresh loop if we navigate back and forth
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+
     setViewMode("list");
-  }, [postId, location.pathname]);
+  }, [postId, location.pathname, location.state]);
 
   const fetchPosts = async () => {
     if (isLast) return;
@@ -94,7 +105,13 @@ export default function CommunityPage() {
           mode={viewMode}
           postId={selectedPostId}
           initialData={currentPost?.community}
-          onBack={() => navigate(`/community/${selectedPostId}`)}
+          onBack={() => {
+            if (viewMode === "write") {
+              navigate("/community", { state: { refresh: true } });
+            } else {
+              navigate(`/community/${selectedPostId}`);
+            }
+          }}
         />
       );
     }
@@ -162,13 +179,18 @@ export default function CommunityPage() {
                 <span className="font-medium text-slate-600">
                   {post.postType === "DEFAULT" ? post.nickname : "익명"}
                 </span>
-                <span>{timeAgo(post.createdAt)}</span>
-                <span className="text-[10px]">• {new Date(post.createdAt).toLocaleString('ko-KR', {
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}</span>
+                <span>
+                  {(() => {
+                    const date = new Date(post.createdAt);
+                    const now = new Date();
+                    const isToday = date.toDateString() === now.toDateString();
+                    return isToday ? timeAgo(post.createdAt) : date.toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit'
+                    });
+                  })()}
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
