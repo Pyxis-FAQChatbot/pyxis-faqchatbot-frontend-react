@@ -33,23 +33,29 @@ export default function CommunityWrite({
     }
 
     try {
-      // FormData 생성
       const formData = new FormData();
 
-      // JSON 데이터는 문자열로 넣어야 함
+      // JSON 데이터
       const jsonData = {
         title,
         content,
         postType: isAnonymous ? "ANONYMOUS" : "DEFAULT"
       };
-      formData.append("data", JSON.stringify(jsonData));
+
+      // JSON을 Blob으로 변환 (명확하게 application/json 지정)
+      const blob = new Blob([JSON.stringify(jsonData)], {
+        type: 'application/json'
+      });
+
+      // 'data'라는 이름으로 추가 (파일명은 선택사항이지만 명시하는 게 안전)
+      formData.append('data', blob, 'data.json');
 
       // 파일이 있는 경우만 추가
       if (imageFile) {
-        formData.append("file", imageFile);
+        formData.append('file', imageFile);
       }
 
-      // 📌 mode에 따른 API 호출
+      // API 호출
       if (mode === "write") {
         await api.postCreatePath(formData);
         alert("게시글이 등록되었습니다.");
@@ -83,41 +89,41 @@ export default function CommunityWrite({
           onChange={(e) => setContent(e.target.value)}
         />
         {/* 이미지 업로드 영역 */}
-      <div
-        className="w-full p-3 mt-2 mb-4 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-        onClick={() => document.getElementById("imageUploadInput").click()}
-      >
-        {imageFile ? (
-          <span className="text-sm font-medium">📎 {imageFile.name}</span>
-        ) : (
-          <span className="text-sm text-slate-400">+ 이미지 업로드 (1개)</span>
-        )}
-      </div>
+        <div
+          className="w-full p-3 mt-2 mb-4 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+          onClick={() => document.getElementById("imageUploadInput").click()}
+        >
+          {imageFile ? (
+            <span className="text-sm font-medium">📎 {imageFile.name}</span>
+          ) : (
+            <span className="text-sm text-slate-400">+ 이미지 업로드 (1개)</span>
+          )}
+        </div>
 
-      <input
-        id="imageUploadInput"
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (!file) return;
+        <input
+          id="imageUploadInput"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
 
-          // 파일 유형 체크
-          if (!file.type.startsWith("image/")) {
-            alert("이미지 파일만 업로드할 수 있습니다.");
-            return;
-          }
+            // 파일 유형 체크
+            if (!file.type.startsWith("image/")) {
+              alert("이미지 파일만 업로드할 수 있습니다.");
+              return;
+            }
 
-          // 용량 체크 (5MB 기준)
-          if (file.size > MAX_FILE_SIZE) {
-            alert("이미지 파일은 5MB 이하만 업로드할 수 있습니다.");
-            return;
-          }
+            // 용량 체크 (5MB 기준)
+            if (file.size > MAX_FILE_SIZE) {
+              alert("이미지 파일은 5MB 이하만 업로드할 수 있습니다.");
+              return;
+            }
 
-          setImageFile(file);
-        }}
-      />
+            setImageFile(file);
+          }}
+        />
 
       </div>
 
