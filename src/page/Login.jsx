@@ -87,11 +87,11 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full bg-white dark:bg-slate-950 transition-colors duration-300 overflow-hidden">
+    <div className="flex flex-col items-center justify-center h-full w-full bg-white overflow-hidden">
       <div className="mt-[40px] w-full max-w-[320px] flex flex-col items-center gap-4 sm:gap-6 scale-90 sm:scale-100 origin-center">
         {/* Logo Section */}
         <div className="flex flex-col items-center gap-2 animate-float">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-primary/20 to-secondary/20 dark:from-primary/30 dark:to-secondary/30 flex items-center justify-center shadow-glow backdrop-blur-sm border border-white/50 dark:border-slate-700/50 transition-colors">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-primary/20 to-secondary/20 flex items-center justify-center shadow-glow backdrop-blur-sm border border-white/50">
             <img src={logo} alt="pyxisLogo" className="w-10 h-10 sm:w-12 sm:h-12 object-contain drop-shadow-lg" />
           </div>
           <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
@@ -103,7 +103,7 @@ const Login = () => {
         <form className="w-full space-y-3 sm:space-y-4" onSubmit={handleLogin}>
           <div className="min-h-[20px] flex items-center justify-center">
             {errors.general && (
-              <div className="w-full p-2 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800/50 text-red-500 dark:text-red-400 text-xs text-center font-medium animate-fade-in transition-colors">
+              <div className="w-full p-2 rounded-xl bg-red-50 border border-red-100 text-red-500 text-xs text-center font-medium animate-fade-in">
                 {errors.general}
               </div>
             )}
@@ -143,10 +143,10 @@ const Login = () => {
         <div className="w-full space-y-3 sm:space-y-4">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+              <div className="w-full border-t border-slate-200"></div>
             </div>
             <div className="relative flex justify-center text-xs sm:text-sm">
-              <span className="px-2 bg-white dark:bg-slate-950 text-slate-500 dark:text-slate-400 transition-colors">SNS 계정으로 로그인</span>
+              <span className="px-2 bg-white text-slate-500">SNS 계정으로 로그인</span>
             </div>
           </div>
 
@@ -181,7 +181,7 @@ const Login = () => {
           <button
             type="button"
             onClick={handleSignup}
-            className="text-xs text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
+            className="text-xs text-slate-500 hover:text-primary transition-colors"
           >
             아이디가 없으면 <span className="font-semibold text-primary">회원가입</span>으로 이동
           </button>
