@@ -12,27 +12,27 @@ export default function MainPage() {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
 
-  useEffect(async () => {
+  useEffect(() => {
     const justSignedUp = sessionStorage.getItem("showSignupPopup");
     if (justSignedUp === "true") {
       setShowStoreForm(true);
       sessionStorage.removeItem("showSignupPopup");
     }
 
-    if (!sessionStorage.getItem("userinfo")) {
-      const profile = await myInfoPath();
-      // 프론트세션에 저장\
-      console.log(profile);
-      sessionStorage.setItem(
-        "userInfo",
-        JSON.stringify({
-          userId: profile.id,
-          loginId: profile.loginId,
-          nickname: profile.nickname,
-          role: profile.role,
-        })
-      );
-    }
+    // if (!sessionStorage.getItem("userinfo")) {
+    //   const profile = await myInfoPath();
+    //   // 프론트세션에 저장\
+    //   console.log(profile);
+    //   sessionStorage.setItem(
+    //     "userInfo",
+    //     JSON.stringify({
+    //       userId: profile.id,
+    //       loginId: profile.loginId,
+    //       nickname: profile.nickname,
+    //       role: profile.role,
+    //     })
+    //   );
+    // }
 
 
     const fetchUser = async () => {

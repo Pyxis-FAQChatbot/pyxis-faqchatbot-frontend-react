@@ -103,7 +103,8 @@ const Login = () => {
         <form className="w-full space-y-3 sm:space-y-4" onSubmit={handleLogin}>
           <div className="min-h-[20px] flex items-center justify-center">
             {errors.general && (
-              <div className="w-full p-2 rounded-xl bg-red-50 border border-red-100 text-red-500 text-xs text-center font-medium animate-fade-in">
+              <div className="w-full p-2 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800/50 text-red-500 dark:text-red-400 text-xs text-center font-medium animate-fade-in transition-colors">
+
                 {errors.general}
               </div>
             )}
