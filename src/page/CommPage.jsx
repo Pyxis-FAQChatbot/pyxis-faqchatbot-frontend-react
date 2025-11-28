@@ -128,20 +128,20 @@ export default function CommunityPage() {
 
     // List Mode
     return (
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-6">
         {/* Search Bar */}
         {isSearchOpen && (
-          <div className="bg-white p-4 rounded-2xl shadow-lg mb-4 animate-float">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-lg mb-4 animate-float border border-slate-100 dark:border-slate-800 transition-colors">
             <div className="flex gap-2">
               <input
                 type="text"
-                className="flex-1 px-4 py-2 rounded-xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className="flex-1 px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
                 placeholder="검색어를 입력하세요"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
-              <button onClick={handleSearch} className="p-2 bg-primary text-white rounded-xl">
+              <button onClick={handleSearch} className="p-2 bg-primary text-white rounded-xl hover:scale-105 transition-transform">
                 <Search size={20} />
               </button>
             </div>
@@ -156,7 +156,7 @@ export default function CommunityPage() {
               onClick={() => setFilterType(type)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${filterType === type
                 ? "bg-primary text-white shadow-glow"
-                : "bg-white text-slate-500 border border-slate-100 hover:bg-slate-50"
+                : "bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 }`}
             >
               {type === "" ? "전체" : type === "DEFAULT" ? "일반" : "익명"}
@@ -168,15 +168,15 @@ export default function CommunityPage() {
         {posts.map((post) => (
           <Card
             key={post.communityId}
-            className="!p-5 cursor-pointer hover:scale-[1.02] transition-transform active:scale-95"
+            className="!p-5 cursor-pointer hover:scale-[1.02] transition-transform active:scale-95 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800"
             onClick={() => navigate(`/community/${post.postId}`)}
           >
-            <h3 className="font-bold text-slate-900 mb-2 line-clamp-1">{post.title}</h3>
-            <p className="text-sm text-slate-500 mb-4 line-clamp-2">{post.content}</p>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-2 line-clamp-1">{post.title}</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">{post.content}</p>
 
-            <div className="flex items-center justify-between text-xs text-slate-400">
+            <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500">
               <div className="flex items-center gap-3">
-                <span className="font-medium text-slate-600">
+                <span className="font-medium text-slate-600 dark:text-slate-300">
                   {post.postType === "DEFAULT" ? post.nickname : "익명"}
                 </span>
                 <span>
@@ -219,7 +219,7 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 relative">
+    <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
       <Header
         type={viewMode === "list" ? "search" : "back"}
         title={viewMode === "write" ? "나도 한마디" : viewMode === "detail" ? "사장님의 한마디" : "사장님 수다방"}

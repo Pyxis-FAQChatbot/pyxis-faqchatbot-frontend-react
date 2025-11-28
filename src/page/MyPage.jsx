@@ -9,7 +9,41 @@ import { myInfoPath, myPostPath, myCommentPath } from "../api/authApi";
 import { storeApi } from "../api/storeApi";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
-import { User, MapPin, Calendar, Store, Settings, MessageSquare, FileText, ChevronRight } from "lucide-react";
+import { MapPin, Calendar, Store, Settings, MessageSquare, FileText, ChevronRight } from "lucide-react";
+
+const TruncatedText = ({ label, value }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  if (!value) return <span className="text-slate-800 dark:text-slate-200 font-medium text-sm">—</span>;
+  
+  // 라벨을 포함한 전체 길이 체크 (라벨: 값 형식)
+  const displayText = `${label}: ${value}`;
+  const isLong = displayText.length > 12;
+  
+  return (
+    <div className="relative">
+      <button
+        onClick={() => isLong && setIsOpen(!isOpen)}
+        className={`text-slate-800 dark:text-slate-200 font-medium text-sm truncate text-right max-w-[180px] transition-colors ${
+          isLong ? 'cursor-pointer' : 'cursor-default'
+        }`}
+      >
+        {value}
+      </button>
+      {isOpen && isLong && (
+        <div className="absolute top-full right-0 mt-1 z-10 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg p-3 max-w-xs">
+          <p className="text-sm text-slate-800 dark:text-slate-200 break-words">{value}</p>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="absolute top-1 right-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function MyPage() {
   const navigate = useNavigate();
@@ -94,12 +128,12 @@ export default function MyPage() {
   }, []);
 
   const InfoItem = ({ icon: Icon, label, value }) => (
-    <div className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none">
-      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+    <div className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none gap-3">
+      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm flex-shrink-0 whitespace-nowrap">
         <Icon size={16} />
         <span>{label}</span>
       </div>
-      <span className="text-slate-800 dark:text-slate-200 font-medium text-sm">{value || "—"}</span>
+      <span className="text-slate-800 dark:text-slate-200 font-medium text-sm flex-1 text-right truncate">{value || "—"}</span>
     </div>
   );
 
@@ -164,9 +198,21 @@ export default function MyPage() {
             </button>
           </div>
           <div className="space-y-1">
-            <InfoItem icon={FileText} label="상호명" value={myStore?.storeName} />
+            <div className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+                <FileText size={16} />
+                <span>상호명</span>
+              </div>
+              <TruncatedText label="상호명" value={myStore?.storeName} />
+            </div>
             <InfoItem icon={Settings} label="등록 코드" value={myStore?.industryCode} />
-            <InfoItem icon={MapPin} label="주소" value={myStore?.address} />
+            <div className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+                <MapPin size={16} />
+                <span>주소</span>
+              </div>
+              <TruncatedText label="주소" value={myStore?.address} />
+            </div>
           </div>
         </Card>
 

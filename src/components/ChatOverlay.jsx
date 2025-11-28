@@ -62,15 +62,15 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, 
       ></div>
 
       {/* Drawer */}
-      <div className={`absolute top-0 left-0 bottom-0 w-[80%] max-w-[320px] bg-white z-40 shadow-2xl transition-transform duration-300 ease-out flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"
+      <div className={`absolute top-0 left-0 bottom-0 w-[80%] max-w-[320px] bg-white dark:bg-slate-900 z-40 shadow-2xl transition-transform duration-300 ease-out flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"
         }`}>
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 transition-colors">
           <div>
             <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Pyxis</h2>
-            <p className="text-xs text-slate-500">채팅 히스토리</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">채팅 히스토리</p>
           </div>
-          <button onClick={onClose} className="p-2 -mr-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600">
+          <button onClick={onClose} className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -79,7 +79,7 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, 
         <div className="p-4">
           <button
             onClick={onNewChat}
-            className="w-full py-3 px-4 rounded-xl bg-primary/5 text-primary font-semibold hover:bg-primary/10 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 rounded-xl bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary/90 font-semibold hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors flex items-center justify-center gap-2"
           >
             <Plus size={20} />
             새로운 채팅 시작
@@ -95,14 +95,14 @@ export default function ChatOverlay({ isOpen, onClose, onSelectRoom, onNewChat, 
           {rooms.map((room) => (
             <div
               key={room.botchatId}
-              className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-100 transition-all"
+              className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition-all"
               onClick={() => onSelectRoom(room.botchatId)}
             >
               <div className="flex items-center gap-3 overflow-hidden">
-                <div className="p-2 rounded-lg bg-slate-100 text-slate-400 group-hover:bg-white group-hover:text-primary group-hover:shadow-sm transition-all">
+                <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:bg-white dark:group-hover:bg-slate-700 group-hover:text-primary group-hover:shadow-sm transition-all">
                   <MessageSquare size={18} />
                 </div>
-                <span className="text-sm font-medium text-slate-700 truncate">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
                   {room.title?.trim() ? room.title : "새로운 챗봇"}
                 </span>
               </div>

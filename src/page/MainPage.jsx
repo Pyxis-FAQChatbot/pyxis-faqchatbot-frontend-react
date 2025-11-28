@@ -44,19 +44,19 @@ export default function MainPage() {
     >
       <Card className="h-full bg-white dark:bg-slate-900 shadow-md hover:shadow-xl hover:scale-[1.02] transition-transform duration-300 !p-5 border-l-4" style={{ borderLeftColor: color }}>
         <div className="flex justify-between items-start mb-3">
-          <div className={`p-3 rounded-2xl bg-slate-50 text-slate-900 group-hover:bg-primary/10 group-hover:text-primary transition-colors`}>
+          <div className={`p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 group-hover:bg-primary/10 group-hover:text-primary transition-colors`}>
             <Icon size={24} />
           </div>
-          <ArrowRight size={20} className="text-slate-300 group-hover:text-primary transition-colors" />
+          <ArrowRight size={20} className="text-slate-300 dark:text-slate-600 group-hover:text-primary transition-colors" />
         </div>
-        <h3 className="font-bold text-slate-900 mb-1">{label}</h3>
-        <p className="text-xs text-slate-500">{desc}</p>
+        <h3 className="font-bold text-slate-900 dark:text-white mb-1">{label}</h3>
+        <p className="text-xs text-slate-500 dark:text-slate-400">{desc}</p>
       </Card>
     </button>
   );
 
   return (
-    <div className="min-h-full bg-slate-50/50">
+    <div className="min-h-full bg-slate-50/50 dark:bg-slate-950 transition-colors">
       {showStoreForm && (
         <StoreForm onClose={() => setShowStoreForm(false)} />
       )}
@@ -70,7 +70,7 @@ export default function MainPage() {
             <Sparkles size={16} />
             <span>Welcome back</span>
           </div>
-          <h2 className="text-3xl font-bold text-slate-900">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
             {userInfo?.nickname || 'Guest'}님,<br />
             안녕하세요!
           </h2>

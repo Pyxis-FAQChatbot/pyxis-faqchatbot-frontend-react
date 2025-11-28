@@ -197,31 +197,31 @@ const Signup = () => {
     navigate("/");
   };
 
-  const selectClassName = "w-full px-4 py-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-300 appearance-none";
+  const selectClassName = "w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary/40 transition-all duration-300 appearance-none dark:autofill:bg-slate-800 dark:autofill:text-slate-100";
 
   return (
-    <div className="flex flex-col min-h-full px-6 py-6">
+    <div className="flex flex-col min-h-full px-6 py-6 bg-white dark:bg-slate-950 transition-colors duration-300">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={handleBackToLogin}
-          className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors"
+          className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
-          <ChevronLeft className="text-slate-800" />
+          <ChevronLeft className="text-slate-800 dark:text-slate-200" />
         </button>
-        <h2 className="text-xl font-bold text-slate-900">회원가입</h2>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">회원가입</h2>
       </div>
 
       <form className="space-y-4 pb-8" onSubmit={handleSubmit}>
         {errors.general && (
-          <div className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-500 text-xs text-center font-medium">
+          <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800/50 text-red-500 dark:text-red-400 text-xs text-center font-medium transition-colors">
             {errors.general}
           </div>
         )}
 
         {/* 아이디 */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-600 ml-1">아이디</label>
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">아이디</label>
           <div className="flex gap-2">
             <div className="flex-1">
               <Input
@@ -250,7 +250,7 @@ const Signup = () => {
             </Button>
           </div>
           {idCheckMessage && (
-            <p className={`text-xs ml-1 mt-1 ${idCheckStatus === "success" ? "text-green-600" : "text-red-500"
+            <p className={`text-xs ml-1 mt-1 ${idCheckStatus === "success" ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"
               }`}>
               {idCheckMessage}
             </p>
@@ -259,7 +259,7 @@ const Signup = () => {
 
         {/* 비밀번호 */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-600 ml-1">비밀번호</label>
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">비밀번호</label>
           <Input
             type="password"
             name="password"
@@ -275,7 +275,7 @@ const Signup = () => {
 
         {/* 비밀번호 확인 */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-600 ml-1">비밀번호 확인</label>
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">비밀번호 확인</label>
           <Input
             type="password"
             name="checkPassword"
@@ -291,7 +291,7 @@ const Signup = () => {
 
         {/* 닉네임 */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-600 ml-1">닉네임</label>
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">닉네임</label>
           <div className="flex gap-2">
             <div className="flex-1">
               <Input
@@ -320,7 +320,7 @@ const Signup = () => {
             </Button>
           </div>
           {nicknameCheckMessage && (
-            <p className={`text-xs ml-1 mt-1 ${nicknameCheckStatus === "success" ? "text-green-600" : "text-red-500"
+            <p className={`text-xs ml-1 mt-1 ${nicknameCheckStatus === "success" ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"
               }`}>
               {nicknameCheckMessage}
             </p>
@@ -329,7 +329,7 @@ const Signup = () => {
 
         {/* 생년월일 */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-600 ml-1">생년월일</label>
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">생년월일</label>
           <div className="grid grid-cols-3 gap-2">
             <select
               name="birthYear"
@@ -371,37 +371,37 @@ const Signup = () => {
               ))}
             </select>
           </div>
-          {errors.birth && <p className="text-[10px] text-red-500 ml-1 mt-0.5">{errors.birth}</p>}
+          {errors.birth && <p className="text-[10px] text-red-500 dark:text-red-400 ml-1 mt-0.5">{errors.birth}</p>}
         </div>
 
         {/* 지역 */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-600 ml-1">지역</label>
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">지역</label>
           <select
             name="addressMain"
             value={formData.addressMain}
             onChange={handleChange}
             required
             disabled={isLoading}
-            className={`${selectClassName} ${errors.addressMain ? 'ring-2 ring-red-500/50 bg-red-50/50' : ''}`}
+            className={`${selectClassName} ${errors.addressMain ? 'ring-2 ring-red-500/50 dark:ring-red-400/50 bg-red-50/50 dark:bg-red-900/20' : ''}`}
           >
             <option value="">선택</option>
             {["서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "제주", "경기도", "강원도", "경상남도", "경상북도", "전라남도", "전라북도", "충청남도", "충청북도"].map((r) => (
               <option key={r} value={r}>{r}</option>
             ))}
           </select>
-          {errors.addressMain && <p className="text-[10px] text-red-500 ml-1 mt-0.5">{errors.addressMain}</p>}
+          {errors.addressMain && <p className="text-[10px] text-red-500 dark:text-red-400 ml-1 mt-0.5">{errors.addressMain}</p>}
         </div>
 
         {/* 성별 */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-slate-600 ml-1">성별</label>
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">성별</label>
           <div className="grid grid-cols-2 gap-2">
             <label className={`
               cursor-pointer rounded-2xl border p-2.5 flex items-center justify-center gap-2 transition-all text-sm
               ${formData.gender === 'MALE'
-                ? 'bg-primary/10 border-primary text-primary font-semibold'
-                : 'bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100'}
+                ? 'bg-primary/10 dark:bg-primary/30 border-primary text-primary font-semibold'
+                : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}
             `}>
               <input
                 type="radio"
@@ -417,8 +417,8 @@ const Signup = () => {
             <label className={`
               cursor-pointer rounded-2xl border p-2.5 flex items-center justify-center gap-2 transition-all text-sm
               ${formData.gender === 'FEMALE'
-                ? 'bg-primary/10 border-primary text-primary font-semibold'
-                : 'bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100'}
+                ? 'bg-primary/10 dark:bg-primary/30 border-primary text-primary font-semibold'
+                : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'}
             `}>
               <input
                 type="radio"
@@ -432,7 +432,7 @@ const Signup = () => {
               여성
             </label>
           </div>
-          {errors.gender && <p className="text-[10px] text-red-500 ml-1 mt-0.5">{errors.gender}</p>}
+          {errors.gender && <p className="text-[10px] text-red-500 dark:text-red-400 ml-1 mt-0.5">{errors.gender}</p>}
         </div>
 
         <Button type="submit" disabled={isLoading} className="mt-6 shadow-lg shadow-primary/30">
@@ -443,7 +443,7 @@ const Signup = () => {
           <button
             type="button"
             onClick={handleBackToLogin}
-            className="text-xs text-slate-500 hover:text-primary transition-colors"
+            className="text-xs text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
           >
             아이디가 존재하면 <span className="font-semibold text-primary">로그인</span>으로 이동
           </button>

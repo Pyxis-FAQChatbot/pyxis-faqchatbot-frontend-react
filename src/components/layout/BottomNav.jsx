@@ -17,7 +17,7 @@ const BottomNav = () => {
     if (['/', '/signup'].includes(location.pathname)) return null;
 
     return (
-        <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-100 px-6 py-4 rounded-b-[32px]">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 px-6 py-4 rounded-b-[32px] transition-colors flex-shrink-0">
             <div className="flex justify-between items-center">
                 {navItems.map((item) => {
                     const isActive = location.pathname.startsWith(item.path);
@@ -25,14 +25,14 @@ const BottomNav = () => {
                         <button
                             key={item.path}
                             onClick={() => navigate(item.path)}
-                            className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive ? 'text-primary' : 'text-slate-400 hover:text-slate-600'
+                            className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive ? 'text-primary' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400'
                                 }`}
                         >
-                            <div className={`p-2 rounded-xl transition-all ${isActive ? 'bg-primary/10 shadow-glow' : 'bg-transparent'
+                            <div className={`p-2 rounded-xl transition-all ${isActive ? 'bg-primary/10 dark:bg-primary/20 shadow-glow' : 'bg-transparent'
                                 }`}>
                                 <item.icon size={24} strokeWidth={isActive ? 2.5 : 2} />
                             </div>
-                            <span className="text-[10px] font-medium">{item.label}</span>
+                            <span className="text-[10px] font-medium dark:text-slate-300">{item.label}</span>
                         </button>
                     );
                 })}

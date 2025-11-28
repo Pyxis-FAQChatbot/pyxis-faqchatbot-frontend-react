@@ -35,7 +35,7 @@ const MobileLayout = ({ children, enableScroll = true }) => {
             {/* Mobile Frame */}
             <div className="relative w-full max-w-[400px] h-[850px] bg-white dark:bg-slate-950 rounded-[40px] shadow-2xl overflow-hidden border-[8px] border-slate-900 dark:border-slate-800 transition-colors duration-300 flex flex-col">
                 {/* Status Bar */}
-                <div className="absolute top-0 left-0 right-0 h-11 z-50 flex justify-between items-center px-6 text-xs font-medium text-slate-900 dark:text-white">
+                <div className="h-11 z-50 flex justify-between items-center px-6 text-xs font-medium text-slate-900 dark:text-white flex-shrink-0">
                     {/* Real-time Clock */}
                     <span className="font-semibold">{formatTime(currentTime)}</span>
 
@@ -57,13 +57,13 @@ const MobileLayout = ({ children, enableScroll = true }) => {
                 </div>
 
                 {/* Content Area */}
-                <div className={`flex-1 overflow-x-hidden pt-11 scrollbar-hide bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 ${enableScroll ? 'overflow-y-auto pb-6' : 'overflow-hidden'
+                <div className={`flex-1 overflow-x-hidden scrollbar-hide bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 ${enableScroll ? 'overflow-y-auto' : 'overflow-hidden'
                     }`}>
                     {children}
                 </div>
 
                 {/* Home Indicator */}
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-900/20 dark:bg-white/20 rounded-full"></div>
+                <div className="h-1 bg-slate-900/20 dark:bg-white/20 rounded-full flex-shrink-0"></div>
             </div>
         </div>
     );

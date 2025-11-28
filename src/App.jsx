@@ -9,7 +9,6 @@ import Community from './page/CommPage.jsx';
 import MyPage from './page/MyPage.jsx'
 import MobileLayout from './components/layout/MobileLayout';
 import BottomNav from './components/layout/BottomNav';
-import "./App.css";
 
 function App() {
   return (
@@ -33,7 +32,7 @@ function AppContent() {
   return (
     <MobileLayout enableScroll={enableScroll}>
       <div className="h-full flex flex-col">
-        <div className={`flex-1 ${isLoginPage ? 'overflow-hidden' : 'overflow-y-auto'} ${!isAuthPage ? 'pb-20' : ''}`}>
+        <div className={`flex-1 ${isLoginPage ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/signup" element={<Signup />} />

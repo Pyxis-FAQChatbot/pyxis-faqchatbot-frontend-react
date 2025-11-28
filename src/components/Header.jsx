@@ -32,7 +32,7 @@ export default function Header({ type = "main", title = "", onMenuClick }) {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-md border-b border-slate-100">
+    <header className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 transition-colors">
       <div className="flex items-center gap-3">
         {type === "main" ? (
           <button
@@ -45,18 +45,18 @@ export default function Header({ type = "main", title = "", onMenuClick }) {
           <div className="flex items-center gap-3">
             <button
               onClick={onMenuClick || (() => navigate(-1))}
-              className="p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors text-slate-700"
+              className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
             >
               {IconSwitch()}
             </button>
-            <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
+            <h1 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h1>
           </div>
         )}
       </div>
 
       <button
         onClick={handleLogout}
-        className="p-2 -mr-2 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+        className="p-2 -mr-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
         title="로그아웃"
       >
         <LogOut size={20} />

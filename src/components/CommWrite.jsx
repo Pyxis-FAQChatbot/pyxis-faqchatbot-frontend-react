@@ -63,7 +63,7 @@ export default function CommunityWrite({
   };
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white dark:bg-slate-900 transition-colors">
       <div className="flex-1 p-6 space-y-4 overflow-y-auto">
         <Input
           placeholder="제목을 입력하세요"
@@ -73,19 +73,19 @@ export default function CommunityWrite({
         />
 
         <textarea
-          className="w-full h-[calc(100%-100px)] p-4 rounded-2xl bg-slate-50 border border-slate-100 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none transition-all"
+          className="w-full h-[calc(100%-100px)] p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary/40 resize-none transition-colors"
           placeholder="내용을 입력하세요"
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
       </div>
 
-      <div className="p-4 border-t border-slate-100 bg-white/80 backdrop-blur-md">
+      <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 backdrop-blur-md transition-colors">
         <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="flex bg-slate-100 rounded-xl p-1">
+          <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 transition-colors">
             <button
               onClick={() => setIsAnonymous(false)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${!isAnonymous ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-700"
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${!isAnonymous ? "bg-white dark:bg-slate-700 text-primary shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
                 }`}
             >
               <User size={14} />
@@ -93,7 +93,7 @@ export default function CommunityWrite({
             </button>
             <button
               onClick={() => setIsAnonymous(true)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${isAnonymous ? "bg-white text-primary shadow-sm" : "text-slate-500 hover:text-slate-700"
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${isAnonymous ? "bg-white dark:bg-slate-700 text-primary shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
                 }`}
             >
               <Ghost size={14} />
