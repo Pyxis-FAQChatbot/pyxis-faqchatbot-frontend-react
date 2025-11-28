@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Search, MessageSquare, Eye } from "lucide-react";
 import Header from "../components/Header";
-import BottomNav from "../components/layout/BottomNav";
 import FloatButton from "../components/FloatButton";
 import CommDetail from "../components/CommDetail";
 import CommWrite from "../components/CommWrite";
@@ -25,6 +24,8 @@ export default function CommunityPage() {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const PAGE_SIZE = 8;
+  const placeholderImg =
+  "data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='%23d1d5db'/%3E%3Cline x1='20' y1='20' x2='60' y2='60' stroke='white' stroke-width='6'/%3E%3Cline x1='60' y1='20' x2='20' y2='60' stroke='white' stroke-width='6'/%3E%3C/svg%3E";
 
   const goBack = () => navigate(-1);
 
@@ -165,46 +166,82 @@ export default function CommunityPage() {
         </div>
 
         {/* Post List */}
-        {posts.map((post) => (
-          <Card
-            key={post.communityId}
-            className="!p-5 cursor-pointer hover:scale-[1.02] transition-transform active:scale-95 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800"
-            onClick={() => navigate(`/community/${post.postId}`)}
-          >
-            <h3 className="font-bold text-slate-900 dark:text-white mb-2 line-clamp-1">{post.title}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">{post.content}</p>
+        {posts.map((post) => {
+          // Check if post is new (created within 1 hour)
+          const postTime = new Date(post.createdAt);
+          const now = new Date();
+          const diffMinutes = (now - postTime) / (1000 * 60);
+          const isNew = diffMinutes < 60;
 
-            <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500">
-              <div className="flex items-center gap-3">
-                <span className="font-medium text-slate-600 dark:text-slate-300">
-                  {post.postType === "DEFAULT" ? post.nickname : "익명"}
-                </span>
-                <span>
-                  {(() => {
-                    const date = new Date(post.createdAt);
-                    const now = new Date();
-                    const isToday = date.toDateString() === now.toDateString();
-                    return isToday ? timeAgo(post.createdAt) : date.toLocaleDateString('ko-KR', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit'
-                    });
-                  })()}
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <Eye size={14} />
-                  <span>{post.viewCount}</span>
+          return (
+            <Card
+              key={post.communityId}
+              className="!p-5 cursor-pointer hover:scale-[1.02] transition-transform active:scale-95 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800"
+              onClick={() => navigate(`/community/${post.postId}`)}
+            >
+              <div className="flex gap-4">
+                {/* Thumbnail */}
+                <img
+                  src={post.imageUrl || placeholderImg}
+                  alt="thumbnail"
+                  className="w-20 h-20 object-cover rounded-lg flex-shrink-0 bg-slate-200 dark:bg-slate-700"
+                />
+
+                {/* Right Content */}
+                <div className="flex flex-col flex-1">
+                  {/* Title + New Badge */}
+                  <div className="flex items-start gap-2 mb-1">
+                    <h3 className="font-bold text-slate-900 dark:text-white line-clamp-1 flex-1">
+                      {post.title}
+                    </h3>
+                    {isNew && (
+                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">N</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Content Preview */}
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-2 line-clamp-2">
+                    {post.content}
+                  </p>
+
+                  {/* Info Line */}
+                  <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-slate-600 dark:text-slate-300">
+                        {post.postType === "DEFAULT" ? post.nickname : "익명"}
+                      </span>
+                      <span>
+                        {(() => {
+                          const date = new Date(post.createdAt);
+                          const now = new Date();
+                          const isToday = date.toDateString() === now.toDateString();
+                          return isToday ? timeAgo(post.createdAt) : date.toLocaleDateString('ko-KR', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                          });
+                        })()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        <Eye size={14} />
+                        <span>{post.viewCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MessageSquare size={14} />
+                        <span>{post.commentCount}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <MessageSquare size={14} />
-                  <span>{post.commentCount}</span>
-                </div>
               </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+
+          );
+        })}
 
         {!isLast && (
           <button

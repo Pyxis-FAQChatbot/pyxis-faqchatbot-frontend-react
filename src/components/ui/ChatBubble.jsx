@@ -1,6 +1,8 @@
 import React from 'react';
 import { FileText, ExternalLink } from 'lucide-react';
 import { useTypingEffect } from '../../hooks/useTypingEffect';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function ChatBubble({ message, isBot, isLatest, scrollToBottom }) {
     // Apply typing effect only to bot messages AND if it's a NEW message (not history)
@@ -27,12 +29,16 @@ export default function ChatBubble({ message, isBot, isLatest, scrollToBottom })
                     : "bg-gradient-to-br from-primary to-secondary text-white shadow-glow"
                     }`}
             >
-                <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    className="text-sm leading-relaxed whitespace-pre-wrap break-words markdown-body"
+                >
                     {finalDisplay}
-                    {shouldType && finalDisplay.length < message.text.length && (
-                        <span ref={cursorRef} className="inline-block w-1 h-4 ml-0.5 bg-slate-400 animate-pulse"></span>
-                    )}
-                </p>
+                </ReactMarkdown>
+
+                {shouldType && finalDisplay.length < message.text.length && (
+                    <span ref={cursorRef} className="inline-block w-1 h-4 ml-0.5 bg-slate-400 animate-pulse"></span>
+                )}
 
                 {/* Reference Materials */}
                 {isBot && message.sources?.length > 0 && (

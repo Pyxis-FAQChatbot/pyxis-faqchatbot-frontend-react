@@ -2,8 +2,12 @@ import axiosInstance from "./axiosInstance";
 import endpoints from "./endpoints";
 
 // 게시글 생성
-const postCreatePath = async (data) => {
-  const response = await axiosInstance.post(endpoints.comm.create, data);
+const postCreatePath = async (formData) => {
+  const response = await axiosInstance.post(endpoints.comm.create, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
 
@@ -28,10 +32,15 @@ const postListPath = async (pageNum, sizeNum, boardtype, titlequery) => {
 };
 
 // 게시글 수정
-const postEditPath = async (id, data) => {
-  const response = await axiosInstance.put(endpoints.comm.handle(id), data);
+const postEditPath = async (id, formData) => {
+  const response = await axiosInstance.put(endpoints.comm.handle(id), formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
+
 
 // 댓글 생성
 const cmtCreatePath = async (id, data) => {

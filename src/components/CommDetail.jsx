@@ -184,7 +184,15 @@ export default function PostDetailView({
               hour12: false
             })}</span>
           </div>
-
+          {post.community.imageUrl && (
+            <div className="w-full mb-6">
+              <img
+                src={post.community.imageUrl}
+                alt="post image"
+                className="w-full max-h-[500px] object-contain rounded-xl bg-slate-100 dark:bg-slate-800"
+              />
+            </div>
+          )}
           <div className="text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed mb-6 min-h-[100px] break-all">
             {post.community.content}
           </div>

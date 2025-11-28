@@ -15,6 +15,8 @@ export default function CommunityWrite({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
   useEffect(() => {
     if (mode === "edit" && initialData) {
@@ -30,35 +32,37 @@ export default function CommunityWrite({
       return;
     }
 
-    // const ok = window.confirm(
-    //   mode === "edit" ? "게시글을 수정하시겠습니까?" : "게시글을 등록하시겠습니까?"
-    // );
-    // if (!ok) return;
-
-    console.log("Submitting post:", { title, content, postType: isAnonymous ? "ANONYMOUS" : "DEFAULT" });
-
     try {
+      // FormData 생성
+      const formData = new FormData();
+
+      // JSON 데이터는 문자열로 넣어야 함
+      const jsonData = {
+        title,
+        content,
+        postType: isAnonymous ? "ANONYMOUS" : "DEFAULT"
+      };
+      formData.append("data", JSON.stringify(jsonData));
+
+      // 파일이 있는 경우만 추가
+      if (imageFile) {
+        formData.append("file", imageFile);
+      }
+
+      // 📌 mode에 따른 API 호출
       if (mode === "write") {
-        await api.postCreatePath({
-          title,
-          content,
-          postType: isAnonymous ? "ANONYMOUS" : "DEFAULT"
-        });
+        await api.postCreatePath(formData);
         alert("게시글이 등록되었습니다.");
         onBack();
       } else if (mode === "edit") {
-        await api.postEditPath(postId, {
-          title,
-          content,
-          postType: isAnonymous ? "ANONYMOUS" : "DEFAULT"
-        });
+        await api.postEditPath(postId, formData);
         alert("게시글이 수정되었습니다.");
         onBack();
       }
+
     } catch (err) {
       console.error("게시글 저장 실패:", err);
-      const msg = err.response?.data?.message || "게시글 저장 중 오류가 발생했습니다.";
-      alert(msg);
+      alert(err.response?.data?.message || "게시글 저장 중 오류가 발생했습니다.");
     }
   };
 
@@ -78,6 +82,43 @@ export default function CommunityWrite({
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
+        {/* 이미지 업로드 영역 */}
+      <div
+        className="w-full p-3 mt-2 mb-4 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+        onClick={() => document.getElementById("imageUploadInput").click()}
+      >
+        {imageFile ? (
+          <span className="text-sm font-medium">📎 {imageFile.name}</span>
+        ) : (
+          <span className="text-sm text-slate-400">+ 이미지 업로드 (1개)</span>
+        )}
+      </div>
+
+      <input
+        id="imageUploadInput"
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+
+          // 파일 유형 체크
+          if (!file.type.startsWith("image/")) {
+            alert("이미지 파일만 업로드할 수 있습니다.");
+            return;
+          }
+
+          // 용량 체크 (5MB 기준)
+          if (file.size > MAX_FILE_SIZE) {
+            alert("이미지 파일은 5MB 이하만 업로드할 수 있습니다.");
+            return;
+          }
+
+          setImageFile(file);
+        }}
+      />
+
       </div>
 
       <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 backdrop-blur-md transition-colors">

@@ -29,37 +29,39 @@ export default function ChatInput({ onSendMessage, disabled, showPrompts = false
   );
 
   return (
-    <div className="p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 transition-colors">
+    <>
       {/* Quick Prompts - Only show when chat is empty */}
       {showPrompts && (
-        <div className="flex flex-col items-end gap-2 pb-3">
+        <div className="flex flex-col items-end gap-2 pb-3 px-4 pt-4 bg-transparent">
           <QuickPrompt text="오늘의 정책 추천해줘" />
           <QuickPrompt text="최신 정책 알려줘" />
           <QuickPrompt text="소상공인 지원금?" />
         </div>
       )}
 
-      <div className="relative flex items-center">
-        <input
-          type="text"
-          placeholder="메시지를 입력하세요..."
-          className="w-full pl-5 pr-12 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white dark:focus:bg-slate-700 transition-all"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={disabled}
-        />
-        <button
-          className={`absolute right-2 p-2 rounded-xl transition-all ${inputValue.trim()
-            ? 'bg-primary text-white shadow-glow hover:scale-105'
-            : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-            }`}
-          onClick={handleSend}
-          disabled={!inputValue.trim() || disabled}
-        >
-          <Send size={18} />
-        </button>
+      <div className="p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 transition-colors">
+        <div className="relative flex items-center">
+          <input
+            type="text"
+            placeholder="메시지를 입력하세요..."
+            className="w-full pl-5 pr-12 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white dark:focus:bg-slate-700 transition-all"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={disabled}
+          />
+          <button
+            className={`absolute right-2 p-2 rounded-xl transition-all ${inputValue.trim()
+              ? 'bg-primary text-white shadow-glow hover:scale-105'
+              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+              }`}
+            onClick={handleSend}
+            disabled={!inputValue.trim() || disabled}
+          >
+            <Send size={18} />
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
