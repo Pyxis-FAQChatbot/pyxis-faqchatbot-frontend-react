@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from 'react';
 import Login from "./page/Login.jsx";
 import Signup from './page/Signup.jsx';
@@ -13,25 +13,41 @@ import "./App.css";
 
 function App() {
   return (
-    <MobileLayout>
-      <Router>
-        <div className="h-full flex flex-col">
-          <div className="flex-1 overflow-y-auto pb-20"> {/* Padding for bottom nav */}
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/chatbot" element={<Chatbot />} />
-              <Route path="/chatbot/:chatId" element={<Chatbot />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/community/:postId" element={<Community />} />
-              <Route path="/community/write" element={<Community />} />
-              <Route path="/main" element={<Main />} />
-              <Route path="/mypage" element={<MyPage />} />
-            </Routes>
-          </div>
-          <BottomNav />
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
+
+function AppContent() {
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/';
+  const isSignupPage = location.pathname === '/signup';
+  const isAuthPage = isLoginPage || isSignupPage;
+
+  // Login page: No scroll.
+  // Signup page: Scroll enabled.
+  // Other pages: Scroll enabled.
+  const enableScroll = !isLoginPage;
+
+  return (
+    <MobileLayout enableScroll={enableScroll}>
+      <div className="h-full flex flex-col">
+        <div className={`flex-1 ${isLoginPage ? 'overflow-hidden' : 'overflow-y-auto'} ${!isAuthPage ? 'pb-20' : ''}`}>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/chatbot" element={<Chatbot />} />
+            <Route path="/chatbot/:chatId" element={<Chatbot />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/community/:postId" element={<Community />} />
+            <Route path="/community/write" element={<Community />} />
+            <Route path="/main" element={<Main />} />
+            <Route path="/mypage" element={<MyPage />} />
+          </Routes>
         </div>
-      </Router>
+        {!isAuthPage && <BottomNav />}
+      </div>
     </MobileLayout>
   );
 }

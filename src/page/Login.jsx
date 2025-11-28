@@ -87,7 +87,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-[800px] w-full bg-white overflow-hidden">
+    <div className="flex flex-col items-center justify-center h-full w-full bg-white overflow-hidden">
       <div className="mt-[40px] w-full max-w-[320px] flex flex-col items-center gap-4 sm:gap-6 scale-90 sm:scale-100 origin-center">
         {/* Logo Section */}
         <div className="flex flex-col items-center gap-2 animate-float">

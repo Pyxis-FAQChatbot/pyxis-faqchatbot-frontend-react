@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Moon, Sun, BatteryFull, Wifi } from 'lucide-react';
 
-const MobileLayout = ({ children }) => {
+const MobileLayout = ({ children, enableScroll = true }) => {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -57,7 +57,8 @@ const MobileLayout = ({ children }) => {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto overflow-x-hidden pt-11 pb-6 scrollbar-hide bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
+                <div className={`flex-1 overflow-x-hidden pt-11 scrollbar-hide bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 ${enableScroll ? 'overflow-y-auto pb-6' : 'overflow-hidden'
+                    }`}>
                     {children}
                 </div>
 
