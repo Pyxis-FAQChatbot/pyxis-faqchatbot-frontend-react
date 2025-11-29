@@ -22,17 +22,17 @@ function AppContent() {
   const location = useLocation();
   const isLoginPage = location.pathname === '/';
   const isSignupPage = location.pathname === '/signup';
+  const isCommunityDetailPage = /^\/community\/\d+/.test(location.pathname); // Matches /community/123
   const isAuthPage = isLoginPage || isSignupPage;
 
-  // Login page: No scroll.
-  // Signup page: Scroll enabled.
-  // Other pages: Scroll enabled.
-  const enableScroll = !isLoginPage;
+  // Disable outer scroll for: Login page and Community Detail page
+  // Enable outer scroll for: Signup, MainPage, MyPage, Community List, Chatbot
+  const enableScroll = !isLoginPage && !isCommunityDetailPage;
 
   return (
     <MobileLayout enableScroll={enableScroll}>
       <div className="h-full flex flex-col">
-        <div className={`flex-1 ${isLoginPage ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 ${enableScroll ? 'overflow-y-auto' : 'overflow-hidden'}`}>
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/signup" element={<Signup />} />

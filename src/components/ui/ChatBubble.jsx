@@ -29,12 +29,11 @@ export default function ChatBubble({ message, isBot, isLatest, scrollToBottom })
                     : "bg-gradient-to-br from-primary to-secondary text-white shadow-glow"
                     }`}
             >
-                <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    className="text-sm leading-relaxed whitespace-pre-wrap break-words markdown-body"
-                >
-                    {finalDisplay}
-                </ReactMarkdown>
+                <div className="text-sm leading-relaxed whitespace-pre-wrap break-words markdown-body">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {finalDisplay}
+                    </ReactMarkdown>
+                </div>
 
                 {shouldType && finalDisplay.length < message.text.length && (
                     <span ref={cursorRef} className="inline-block w-1 h-4 ml-0.5 bg-slate-400 animate-pulse"></span>
