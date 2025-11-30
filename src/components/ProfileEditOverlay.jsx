@@ -24,6 +24,9 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
     const [originalData, setOriginalData] = useState(null);
     const [nicknameChecked, setNicknameChecked] = useState(false);
 
+    const [nicknameMessage, setNicknameMessage] = useState("");
+    const [nicknameStatus, setNicknameStatus] = useState(""); // 'success', 'error', 'info'
+
     const fetchUserInfo = async () => {
         try {
             const res = await myInfoPath();
@@ -42,22 +45,27 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
             fetchUserInfo();
         }
     }, [mode]);
+
     const handleNicknameCheck = async () => {
         if (profileForm.nickname === originalData?.nickname) {
-            alert("현재 닉네임이랑 동일합니다.");
+            setNicknameMessage("현재 닉네임과 동일합니다.");
+            setNicknameStatus("info");
             return;
         }
 
         try {
             await checkNickPath(profileForm.nickname);
-            alert("사용 가능한 닉네임입니다!");
+            setNicknameMessage("사용 가능한 닉네임입니다.");
+            setNicknameStatus("success");
             setNicknameChecked(true);
         } catch (err) {
             if (err.response && err.response.status === 400) {
-                alert(err.response.data.message || "이미 사용 중인 닉네임입니다.");
+                setNicknameMessage(err.response.data.message || "이미 사용 중인 닉네임입니다.");
+                setNicknameStatus("error");
                 setNicknameChecked(false);
             } else {
-                alert("닉네임 중복확인되어 변경이 불가합니다.");
+                setNicknameMessage("닉네임 변경이 불가능한 닉네임입니다.");
+                setNicknameStatus("error");
                 console.error(err);
             }
         }
@@ -69,6 +77,7 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
                 if (profileForm.nickname === originalData.nickname) return;
                 await myEditApi.nickPath({ newNickname: profileForm.nickname });
                 alert("닉네임이 변경되었습니다.");
+                onClose(); // 닉네임 변경 성공 시 창 닫기
             } else if (type === 'address') {
                 if (profileForm.addressMain === originalData.addressMain) return;
                 await myEditApi.addressPath({ newAddress: profileForm.addressMain });
@@ -154,6 +163,8 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
                                             onChange={(e) => {
                                                 setProfileForm({ ...profileForm, nickname: e.target.value });
                                                 setNicknameChecked(false);
+                                                setNicknameMessage(""); // 입력 시 메시지 초기화
+                                                setNicknameStatus("");
                                             }}
                                             placeholder="새로운 닉네임"
                                         />
@@ -163,11 +174,18 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
                                         variant="secondary"
                                         onClick={handleNicknameCheck}
                                         className="!w-auto whitespace-nowrap !py-3 text-xs"
-                                        disabled={originalData?.nickname === profileForm.nickname}
+                                        disabled={!profileForm.nickname}
                                     >
                                         중복확인
                                     </Button>
                                 </div>
+                                {nicknameMessage && (
+                                    <p className={`text-xs ml-1 ${nicknameStatus === 'success' ? 'text-green-500' :
+                                        nicknameStatus === 'error' ? 'text-red-500' : 'text-slate-500'
+                                        }`}>
+                                        {nicknameMessage}
+                                    </p>
+                                )}
                             </div>
                             <Button
                                 type="submit"
