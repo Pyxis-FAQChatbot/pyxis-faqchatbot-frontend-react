@@ -25,9 +25,16 @@ export default function CommunityWrite({
 
   useEffect(() => {
     if (mode === "edit" && initialData) {
+      console.log("Editing with initialData:", initialData);
       setTitle(initialData.title || "");
       setContent(initialData.content || "");
-      setIsAnonymous(initialData.community.postType === "ANONYMOUS");
+      setIsAnonymous(initialData.postType === "ANONYMOUS");
+
+      // Load existing image if available
+      const imageUrl = initialData.imageURL || initialData.imageUrl;
+      if (imageUrl) {
+        setImagePreview(imageUrl);
+      }
     }
   }, [mode, initialData]);
 
@@ -113,8 +120,8 @@ export default function CommunityWrite({
             rows={1}
           />
           <div className={`absolute bottom-2 right-3 text-xs ${title.length >= MAX_TITLE_LENGTH ? 'text-red-500' :
-              title.length >= 80 ? 'text-orange-500' :
-                'text-slate-400'
+            title.length >= 80 ? 'text-orange-500' :
+              'text-slate-400'
             }`}>
             {title.length}/{MAX_TITLE_LENGTH}
           </div>
@@ -134,8 +141,8 @@ export default function CommunityWrite({
             }}
           />
           <div className={`absolute bottom-2 right-3 text-xs ${content.length >= MAX_CONTENT_LENGTH ? 'text-red-500' :
-              content.length >= 200 ? 'text-orange-500' :
-                'text-slate-400'
+            content.length >= 200 ? 'text-orange-500' :
+              'text-slate-400'
             }`}>
             {content.length}/{MAX_CONTENT_LENGTH}
           </div>
@@ -228,9 +235,26 @@ export default function CommunityWrite({
           </div>
         </div>
 
-        <Button onClick={handleSubmit}>
-          {mode === "edit" ? "수정 완료" : "작성 완료"}
-        </Button>
+        {mode === "edit" ? (
+          <div className="flex gap-2">
+            <button
+              onClick={onBack}
+              className="flex-1 px-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >
+              취소
+            </button>
+            <Button
+              onClick={handleSubmit}
+              className="flex-1"
+            >
+              수정
+            </Button>
+          </div>
+        ) : (
+          <Button onClick={handleSubmit}>
+            작성 완료
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -22,7 +22,7 @@ function AppContent() {
   const location = useLocation();
   const isLoginPage = location.pathname === '/';
   const isSignupPage = location.pathname === '/signup';
-  const isCommunityDetailPage = /^\/community\/\d+/.test(location.pathname); // Matches /community/123
+  const isCommunityDetailPage = /^\/community\/\d+$/.test(location.pathname); // Matches /community/123 exactly, excludes /edit
   const isAuthPage = isLoginPage || isSignupPage;
 
   // Disable outer scroll for: Login page and Community Detail page
@@ -38,9 +38,10 @@ function AppContent() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/chatbot" element={<Chatbot />} />
             <Route path="/chatbot/:chatId" element={<Chatbot />} />
-            <Route path="/community" element={<Community />} />
+            <Route path="/community/:postId/edit" element={<Community />} />
             <Route path="/community/:postId" element={<Community />} />
             <Route path="/community/write" element={<Community />} />
+            <Route path="/community" element={<Community />} />
             <Route path="/main" element={<Main />} />
             <Route path="/mypage" element={<MyPage />} />
           </Routes>

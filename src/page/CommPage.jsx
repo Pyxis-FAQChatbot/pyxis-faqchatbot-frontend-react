@@ -30,8 +30,10 @@ export default function CommunityPage() {
 
   useEffect(() => {
     const path = location.pathname;
+    console.log("CommPage useEffect - path:", path, "postId:", postId);
     if (path.endsWith("/edit")) {
       if (!postId) return;
+      console.log("Setting viewMode to edit");
       setViewMode("edit");
       setSelectedPostId(Number(postId));
       return;
@@ -58,6 +60,25 @@ export default function CommunityPage() {
 
     setViewMode("list");
   }, [postId, location.pathname, location.state]);
+
+  // Load post data for edit mode
+  useEffect(() => {
+    const loadPostForEdit = async () => {
+      if (viewMode === "edit" && selectedPostId) {
+        console.log("Loading post for edit, ID:", selectedPostId);
+        try {
+          const res = await communityApi.postViewPath(selectedPostId);
+          console.log("Loaded post data:", res);
+          setCurrentPost(res);
+        } catch (error) {
+          console.error("게시글 불러오기 실패:", error);
+          alert("게시글을 불러올 수 없습니다.");
+          navigate("/community");
+        }
+      }
+    };
+    loadPostForEdit();
+  }, [viewMode, selectedPostId]);
 
   const fetchPosts = async () => {
     if (isLast) return;
