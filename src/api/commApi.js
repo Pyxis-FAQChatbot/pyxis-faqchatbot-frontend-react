@@ -33,7 +33,7 @@ const postListPath = async (pageNum, sizeNum, boardtype, titlequery) => {
 
 // 게시글 수정
 const postEditPath = async (id, formData) => {
-  const response = await axiosInstance.put(endpoints.comm.handle(id), formData, {
+  const response = await axiosInstance.patch(endpoints.comm.handle(id), formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
