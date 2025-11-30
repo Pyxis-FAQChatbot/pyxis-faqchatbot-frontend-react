@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { Search, MessageSquare, Eye } from "lucide-react";
 import Header from "../components/Header";
+import BottomNav from "../components/layout/BottomNav";
 import FloatButton from "../components/FloatButton";
 import CommDetail from "../components/CommDetail";
 import CommWrite from "../components/CommWrite";
@@ -24,7 +25,6 @@ export default function CommunityPage() {
   const [searchInput, setSearchInput] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const PAGE_SIZE = 8;
-
 
   const goBack = () => navigate(-1);
 
@@ -69,7 +69,7 @@ export default function CommunityPage() {
       setPage((prev) => prev + 1);
       if (data.last === true || newPosts.length < PAGE_SIZE) setIsLast(true);
     } catch (e) {
-      console.error("게시글 로드 실패:", e);
+      console.error("寃뚯떆湲 濡쒕뱶 ?ㅽ뙣:", e);
     }
   };
 
@@ -136,7 +136,7 @@ export default function CommunityPage() {
               <input
                 type="text"
                 className="flex-1 px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
-                placeholder="검색어를 입력하세요"
+                placeholder="寃?됱뼱瑜??낅젰?섏꽭??
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -159,99 +159,59 @@ export default function CommunityPage() {
                 : "bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 }`}
             >
-              {type === "" ? "전체" : type === "DEFAULT" ? "일반" : "익명"}
+              {type === "" ? "?꾩껜" : type === "DEFAULT" ? "?쇰컲" : "?듬챸"}
             </button>
           ))}
         </div>
 
         {/* Post List */}
-        {posts.map((post) => {
-          // Check if post is new (created within 1 hour)
-          const postTime = new Date(post.createdAt);
-          const now = new Date();
-          const diffMinutes = (now - postTime) / (1000 * 60);
-          const isNew = diffMinutes < 60;
+        {posts.map((post) => (
+          <Card
+            key={post.communityId}
+            className="!p-5 cursor-pointer hover:scale-[1.02] transition-transform active:scale-95 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800"
+            onClick={() => navigate(`/community/${post.postId}`)}
+          >
+            <h3 className="font-bold text-slate-900 dark:text-white mb-2 line-clamp-1">{post.title}</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">{post.content}</p>
 
-          return (
-            <Card
-              key={post.communityId}
-              className="!p-5 cursor-pointer hover:scale-[1.02] transition-transform active:scale-95 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800"
-              onClick={() => navigate(`/community/${post.postId}`)}
-            >
-              <div className="flex gap-4">
-                {/* Thumbnail */}
-                {/* Thumbnail */}
-                {post.imageUrl && (
-                  <img
-                    src={post.imageUrl}
-                    alt="thumbnail"
-                    className="w-20 h-20 object-cover rounded-lg flex-shrink-0 bg-slate-200 dark:bg-slate-700"
-                  />
-                )}
-
-                {/* Right Content */}
-                <div className="flex flex-col flex-1 min-w-0">
-                  {/* Title + New Badge */}
-                  <div className="flex items-start gap-2 mb-1">
-                    <h3 className="font-bold text-slate-900 dark:text-white line-clamp-1 flex-1">
-                      {post.title}
-                    </h3>
-                    {isNew && (
-                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">N</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content Preview */}
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-2 line-clamp-2">
-                    {post.content}
-                  </p>
-
-                  {/* Info Line */}
-                  <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500">
-                    <div className="flex items-center gap-3">
-                      <span className="font-medium text-slate-600 dark:text-slate-300">
-                        {post.postType === "DEFAULT" ? post.nickname : "익명"}
-                      </span>
-                      <span>
-                        {(() => {
-                          const date = new Date(post.createdAt);
-                          const now = new Date();
-                          const isToday = date.toDateString() === now.toDateString();
-                          return isToday ? timeAgo(post.createdAt) : date.toLocaleDateString('ko-KR', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit'
-                          });
-                        })()}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1">
-                        <Eye size={14} />
-                        <span>{post.viewCount}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MessageSquare size={14} />
-                        <span>{post.commentCount}</span>
-                      </div>
-                    </div>
-                  </div>
+            <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500">
+              <div className="flex items-center gap-3">
+                <span className="font-medium text-slate-600 dark:text-slate-300">
+                  {post.postType === "DEFAULT" ? post.nickname : "?듬챸"}
+                </span>
+                <span>
+                  {(() => {
+                    const date = new Date(post.createdAt);
+                    const now = new Date();
+                    const isToday = date.toDateString() === now.toDateString();
+                    return isToday ? timeAgo(post.createdAt) : date.toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit'
+                    });
+                  })()}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <Eye size={14} />
+                  <span>{post.viewCount}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <MessageSquare size={14} />
+                  <span>{post.commentCount}</span>
                 </div>
               </div>
-            </Card>
-
-          );
-        })}
+            </div>
+          </Card>
+        ))}
 
         {!isLast && (
           <button
             onClick={fetchPosts}
             className="w-full py-3 text-sm text-slate-500 font-medium hover:text-primary transition-colors"
           >
-            더보기
-          </button>
+            ?붾낫湲?          </button>
         )}
       </div>
     );
@@ -261,7 +221,7 @@ export default function CommunityPage() {
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
       <Header
         type={viewMode === "list" ? "search" : "back"}
-        title={viewMode === "write" ? "나도 한마디" : viewMode === "detail" ? "사장님의 한마디" : "사장님 수다방"}
+        title={viewMode === "write" ? "?섎룄 ?쒕쭏?? : viewMode === "detail" ? "?ъ옣?섏쓽 ?쒕쭏?? : "?ъ옣???섎떎諛?}
         onMenuClick={viewMode === "list" ? () => setIsSearchOpen(!isSearchOpen) : goBack}
       />
 
