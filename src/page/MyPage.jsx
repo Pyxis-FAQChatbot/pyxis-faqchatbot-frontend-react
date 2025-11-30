@@ -13,20 +13,19 @@ import { MapPin, Calendar, Store, Settings, MessageSquare, FileText, ChevronRigh
 
 const TruncatedText = ({ label, value }) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   if (!value) return <span className="text-slate-800 dark:text-slate-200 font-medium text-sm">—</span>;
-  
+
   // 라벨을 포함한 전체 길이 체크 (라벨: 값 형식)
   const displayText = `${label}: ${value}`;
   const isLong = displayText.length > 12;
-  
+
   return (
     <div className="relative">
       <button
         onClick={() => isLong && setIsOpen(!isOpen)}
-        className={`text-slate-800 dark:text-slate-200 font-medium text-sm truncate text-right max-w-[180px] transition-colors ${
-          isLong ? 'cursor-pointer' : 'cursor-default'
-        }`}
+        className={`text-slate-800 dark:text-slate-200 font-medium text-sm truncate text-right max-w-[180px] transition-colors ${isLong ? 'cursor-pointer' : 'cursor-default'
+          }`}
       >
         {value}
       </button>
@@ -161,13 +160,13 @@ export default function MyPage() {
         {/* Profile Card */}
         <Card className="!p-0 overflow-hidden">
           <div className="bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 p-6 pb-8">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 shadow-md flex items-center justify-center text-2xl">
-                {myInfo?.role === 'ADMIN'? "👨🏼‍✈️": "👤"}
+            <div className="flex gap-4">
+              <div className="w-16 h-16 rounded-full bg-white dark:bg-slate-800 shadow-md flex items-center justify-center text-2xl flex-shrink-0">
+                {myInfo?.role === 'ADMIN' ? "👨🏼‍✈️" : "👤"}
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">{myInfo?.nickname || "Guest"}</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{myInfo?.loginId || ""}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 break-words">{myInfo?.loginId || ""}</p>
               </div>
             </div>
           </div>
@@ -198,20 +197,26 @@ export default function MyPage() {
             </button>
           </div>
           <div className="space-y-1">
-            <div className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none">
-              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+            <div className="flex items-start justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none gap-3">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm flex-shrink-0 min-w-[90px]">
                 <FileText size={16} />
                 <span>상호명</span>
               </div>
-              <TruncatedText label="상호명" value={myStore?.storeName} />
+              <span className="text-slate-800 dark:text-slate-200 font-medium text-sm break-words">{myStore?.storeName || "—"}</span>
             </div>
-            <InfoItem icon={Settings} label="등록 코드" value={myStore?.industryCode} />
-            <div className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none">
-              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm">
+            <div className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none gap-3">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm flex-shrink-0 min-w-[90px]">
+                <Settings size={16} />
+                <span>등록 코드</span>
+              </div>
+              <span className="text-slate-800 dark:text-slate-200 font-medium text-sm flex-1 text-right truncate">{myStore?.industryCode || "—"}</span>
+            </div>
+            <div className="flex items-start justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none gap-3">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm flex-shrink-0 min-w-[90px]">
                 <MapPin size={16} />
                 <span>주소</span>
               </div>
-              <TruncatedText label="주소" value={myStore?.address} />
+              <span className="text-slate-800 dark:text-slate-200 font-medium text-sm break-words">{myStore?.address || "—"}</span>
             </div>
           </div>
         </Card>
