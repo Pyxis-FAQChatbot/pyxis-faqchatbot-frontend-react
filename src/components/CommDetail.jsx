@@ -17,6 +17,8 @@ export default function PostDetailView({
   const [commentPage, setCommentPage] = useState(0);
   const [hasMoreComments, setHasMoreComments] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editContent, setEditContent] = useState("");
 
   const userInfo = JSON.parse(sessionStorage.getItem("userInfo") || "{}");
   const currentUserId = userInfo.id;
@@ -48,8 +50,9 @@ export default function PostDetailView({
         isMine: String(c.userId) === String(currentUserId),
         isReplyOpen: false,
         replies: [],
-        replyPage: 0,
         hasMoreReplies: false,
+        replyPage: 0,
+        replyInput: ""
       }));
 
       if (isLoadMore) {
@@ -104,6 +107,28 @@ export default function PostDetailView({
       onBack();
     } catch (e) {
       console.error("게시글 삭제 실패:", e);
+    }
+  };
+
+  const startEditing = (comment) => {
+    setEditingCommentId(comment.commentId);
+    setEditContent(comment.content);
+  };
+
+  const cancelEditing = () => {
+    setEditingCommentId(null);
+    setEditContent("");
+  };
+
+  const updateComment = async (commentId) => {
+    if (!editContent.trim()) return;
+    try {
+      await api.cmtEditPath(postId, commentId, { content: editContent });
+      setComments(prev => prev.map(c => c.commentId === commentId ? { ...c, content: editContent } : c));
+      cancelEditing();
+    } catch (e) {
+      console.error("댓글 수정 실패:", e);
+      alert("댓글 수정에 실패했습니다.");
     }
   };
 
@@ -236,7 +261,7 @@ export default function PostDetailView({
                 </div>
                 {c.isMine && c.status === 'ACTIVE' && (
                   <div className="flex items-center gap-2">
-                    <button onClick={() => alert('댓글 수정 기능은 준비중입니다')} className="text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-primary transition-colors" title="수정하기">
+                    <button onClick={() => startEditing(c)} className="text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-primary transition-colors" title="수정하기">
                       <Pencil size={14} />
                     </button>
                     <button onClick={() => deleteComment(c.commentId)} className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors" title="삭제하기">
@@ -246,11 +271,31 @@ export default function PostDetailView({
                 )}
               </div>
 
-              <p className={`text-sm mb-3 break-all ${c.status === 'BLOCKED' || c.status === 'DELETED' ? 'text-slate-400 dark:text-slate-500 italic' :
+              {editingCommentId === c.commentId ? (
+                <div className="mb-3">
+                  <div className="flex gap-2">
+                    <input
+                      className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-700 border border-primary dark:border-primary text-sm text-slate-800 dark:text-slate-200 focus:outline-none"
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      autoFocus
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          updateComment(c.commentId);
+                        }
+                      }}
+                    />
+                    <button onClick={() => updateComment(c.commentId)} className="px-3 py-1 bg-primary text-white text-xs rounded-lg hover:bg-primary/90 transition-colors">저장</button>
+                    <button onClick={cancelEditing} className="px-3 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">취소</button>
+                  </div>
+                </div>
+              ) : (
+                <p className={`text-sm mb-3 break-all ${c.status === 'BLOCKED' || c.status === 'DELETED' ? 'text-slate-400 dark:text-slate-500 italic' :
                   'text-slate-700 dark:text-slate-300'
-                }`}>
-                {c.status === 'DELETED' ? '💭 ' : c.status === 'BLOCKED' ? '🚨 ' : ''}{c.content}
-              </p>
+                  }`}>
+                  {c.status === 'DELETED' ? '💭 ' : c.status === 'BLOCKED' ? '🚨 ' : ''}{c.content}
+                </p>
+              )}
 
               <div className="flex items-center gap-2">
                 <button
@@ -292,7 +337,7 @@ export default function PostDetailView({
                         )}
                       </div>
                       <p className={`text-xs break-all ${r.status === 'BLOCKED' || r.status === 'DELETED' ? 'text-slate-400 dark:text-slate-500 italic' :
-                          'text-slate-600 dark:text-slate-400'
+                        'text-slate-600 dark:text-slate-400'
                         }`}>
                         {r.status === 'DELETED' ? '💭 ' : r.status === 'BLOCKED' ? '🚨 ' : ''}{r.content}
                       </p>

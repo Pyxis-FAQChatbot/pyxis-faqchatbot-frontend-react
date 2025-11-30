@@ -49,7 +49,8 @@ const cmtCreatePath = async (id, data) => {
 };
 
 // 댓글 수정
-const cmtEditPath = async (id, commentId) => {
+// 댓글 수정
+const cmtEditPath = async (id, commentId, data) => {
   const response = await axiosInstance.patch(endpoints.comment.handle(id, commentId), data);
   return response.data;
 };
