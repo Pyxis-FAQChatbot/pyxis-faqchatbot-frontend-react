@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "./ui/Button";
 import Input from "./ui/Input";
-import { User, Ghost } from "lucide-react";
+import { User, Ghost, X } from "lucide-react";
 
 export default function CommunityWrite({
   api,
@@ -16,7 +16,12 @@ export default function CommunityWrite({
   const [content, setContent] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const titleRef = useRef(null);
+  const textareaRef = useRef(null);
   const MAX_FILE_SIZE = 5 * 1024 * 1024;
+  const MAX_TITLE_LENGTH = 100;
+  const MAX_CONTENT_LENGTH = 255;
 
   useEffect(() => {
     if (mode === "edit" && initialData) {
@@ -25,6 +30,24 @@ export default function CommunityWrite({
       setIsAnonymous(initialData.community.postType === "ANONYMOUS");
     }
   }, [mode, initialData]);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [content]);
+
+  // Auto-resize title
+  useEffect(() => {
+    const titleTextarea = titleRef.current;
+    if (titleTextarea) {
+      titleTextarea.style.height = 'auto';
+      titleTextarea.style.height = `${titleTextarea.scrollHeight}px`;
+    }
+  }, [title]);
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
@@ -74,20 +97,50 @@ export default function CommunityWrite({
 
   return (
     <div className="flex flex-col h-full bg-white dark:bg-slate-900 transition-colors">
-      <div className="flex-1 p-6 space-y-4 overflow-y-auto">
-        <Input
-          placeholder="제목을 입력하세요"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="text-lg font-bold"
-        />
+      <div className="flex-1 p-6 space-y-4">
+        {/* Title */}
+        <div className="relative">
+          <textarea
+            ref={titleRef}
+            placeholder="제목을 입력하세요"
+            value={title}
+            onChange={(e) => {
+              if (e.target.value.length <= MAX_TITLE_LENGTH) {
+                setTitle(e.target.value);
+              }
+            }}
+            className="w-full min-h-[3rem] p-4 text-lg font-bold rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary/40 resize-none transition-colors overflow-hidden"
+            rows={1}
+          />
+          <div className={`absolute bottom-2 right-3 text-xs ${title.length >= MAX_TITLE_LENGTH ? 'text-red-500' :
+              title.length >= 80 ? 'text-orange-500' :
+                'text-slate-400'
+            }`}>
+            {title.length}/{MAX_TITLE_LENGTH}
+          </div>
+        </div>
 
-        <textarea
-          className="w-full h-[calc(100%-100px)] p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary/40 resize-none transition-colors"
-          placeholder="내용을 입력하세요"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
+        {/* Content */}
+        <div className="relative">
+          <textarea
+            ref={textareaRef}
+            className="w-full min-h-40 p-4 pb-8 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary/40 resize-none transition-colors overflow-hidden"
+            placeholder="내용을 입력하세요"
+            value={content}
+            onChange={(e) => {
+              if (e.target.value.length <= MAX_CONTENT_LENGTH) {
+                setContent(e.target.value);
+              }
+            }}
+          />
+          <div className={`absolute bottom-2 right-3 text-xs ${content.length >= MAX_CONTENT_LENGTH ? 'text-red-500' :
+              content.length >= 200 ? 'text-orange-500' :
+                'text-slate-400'
+            }`}>
+            {content.length}/{MAX_CONTENT_LENGTH}
+          </div>
+        </div>
+
         {/* 이미지 업로드 영역 */}
         <div
           className="w-full p-3 mt-2 mb-4 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
@@ -122,8 +175,34 @@ export default function CommunityWrite({
             }
 
             setImageFile(file);
+            // Create preview URL
+            const previewUrl = URL.createObjectURL(file);
+            setImagePreview(previewUrl);
           }}
         />
+
+        {/* Image Preview */}
+        {imagePreview && (
+          <div className="relative mt-4 w-32 h-32 group">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="w-full h-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-[1.02] group-hover:animate-subtle-wiggle"
+            />
+            <button
+              onClick={() => {
+                setImageFile(null);
+                setImagePreview(null);
+                URL.revokeObjectURL(imagePreview);
+                document.getElementById("imageUploadInput").value = "";
+              }}
+              className="absolute -top-2 -right-2 p-1 bg-white dark:bg-slate-800 backdrop-blur-sm rounded-full shadow-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all hover:scale-110 active:scale-95"
+              title="이미지 삭제"
+            >
+              <X size={14} className="text-slate-700 dark:text-slate-200" />
+            </button>
+          </div>
+        )}
 
       </div>
 

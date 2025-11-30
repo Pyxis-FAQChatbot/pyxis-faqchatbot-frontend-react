@@ -202,7 +202,7 @@ export default function MyPage() {
                 <FileText size={16} />
                 <span>상호명</span>
               </div>
-              <span className="text-slate-800 dark:text-slate-200 font-medium text-sm break-words">{myStore?.storeName || "—"}</span>
+              <span className="text-slate-800 dark:text-slate-200 font-medium text-sm flex-1 text-right break-words">{myStore?.storeName || "—"}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-none gap-3">
               <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm flex-shrink-0 min-w-[90px]">
@@ -216,7 +216,7 @@ export default function MyPage() {
                 <MapPin size={16} />
                 <span>주소</span>
               </div>
-              <span className="text-slate-800 dark:text-slate-200 font-medium text-sm break-words">{myStore?.address || "—"}</span>
+              <span className="text-slate-800 dark:text-slate-200 font-medium text-sm flex-1 text-right break-words">{myStore?.address || "—"}</span>
             </div>
           </div>
         </Card>

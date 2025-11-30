@@ -18,9 +18,15 @@ export default {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-10px)' },
         },
+        'subtle-wiggle': {
+          '0%, 100%': { transform: 'translateX(0) rotate(0deg)' },
+          '25%': { transform: 'translateX(-2px) rotate(-0.5deg)' },
+          '75%': { transform: 'translateX(2px) rotate(0.5deg)' },
+        },
       },
       animation: {
         float: 'float 3s ease-in-out infinite',
+        'subtle-wiggle': 'subtle-wiggle 0.5s ease-in-out',
       },
       boxShadow: {
         'glow': '0 0 20px rgba(59, 130, 246, 0.3)',  // Blue glow
