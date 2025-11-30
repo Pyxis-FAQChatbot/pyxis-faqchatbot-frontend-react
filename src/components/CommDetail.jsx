@@ -91,6 +91,7 @@ export default function PostDetailView({
   };
 
   const deleteComment = async (commentId) => {
+    if (!window.confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
     try {
       await api.cmtDeletePath(postId, commentId);
       loadComments(0, PAGE_SIZE);
@@ -124,7 +125,20 @@ export default function PostDetailView({
     if (!editContent.trim()) return;
     try {
       await api.cmtEditPath(postId, commentId, { content: editContent });
-      setComments(prev => prev.map(c => c.commentId === commentId ? { ...c, content: editContent } : c));
+      // 댓글 목록 업데이트 (대댓글 포함)
+      setComments(prev => prev.map(c => {
+        if (c.commentId === commentId) {
+          return { ...c, content: editContent };
+        }
+        // 대댓글 중에 수정된 것이 있는지 확인
+        if (c.replies && c.replies.some(r => r.commentId === commentId)) {
+          return {
+            ...c,
+            replies: c.replies.map(r => r.commentId === commentId ? { ...r, content: editContent } : r)
+          };
+        }
+        return c;
+      }));
       cancelEditing();
     } catch (e) {
       console.error("댓글 수정 실패:", e);
@@ -327,7 +341,7 @@ export default function PostDetailView({
                         </div>
                         {r.isMine && r.status === 'ACTIVE' && (
                           <div className="flex items-center gap-2">
-                            <button onClick={() => alert('댓글 수정 기능은 준비중입니다')} className="text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-primary transition-colors" title="수정하기">
+                            <button onClick={() => startEditing(r)} className="text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-primary transition-colors" title="수정하기">
                               <Pencil size={12} />
                             </button>
                             <button onClick={() => deleteComment(r.commentId)} className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors" title="삭제하기">
@@ -336,11 +350,32 @@ export default function PostDetailView({
                           </div>
                         )}
                       </div>
-                      <p className={`text-xs break-all ${r.status === 'BLOCKED' || r.status === 'DELETED' ? 'text-slate-400 dark:text-slate-500 italic' :
-                        'text-slate-600 dark:text-slate-400'
-                        }`}>
-                        {r.status === 'DELETED' ? '💭 ' : r.status === 'BLOCKED' ? '🚨 ' : ''}{r.content}
-                      </p>
+
+                      {editingCommentId === r.commentId ? (
+                        <div className="mb-2">
+                          <div className="flex gap-2">
+                            <input
+                              className="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-600 border border-primary dark:border-primary text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
+                              value={editContent}
+                              onChange={(e) => setEditContent(e.target.value)}
+                              autoFocus
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                  updateComment(r.commentId);
+                                }
+                              }}
+                            />
+                            <button onClick={() => updateComment(r.commentId)} className="px-2 py-1 bg-primary text-white text-[10px] rounded-lg hover:bg-primary/90 transition-colors">저장</button>
+                            <button onClick={cancelEditing} className="px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">취소</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className={`text-xs break-all ${r.status === 'BLOCKED' || r.status === 'DELETED' ? 'text-slate-400 dark:text-slate-500 italic' :
+                          'text-slate-600 dark:text-slate-400'
+                          }`}>
+                          {r.status === 'DELETED' ? '💭 ' : r.status === 'BLOCKED' ? '🚨 ' : ''}{r.content}
+                        </p>
+                      )}
                     </div>
                   ))}
 
