@@ -223,7 +223,7 @@ export default function PostDetailView({
             <div key={c.commentId} className="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">{c.status === 'DELETED' ? '(삭제됨)' : displayNick(c.nickname, c.postType)}</span>
+                  <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">{displayNick(c.nickname, c.postType)}</span>
                   <span className="text-xs text-slate-400 dark:text-slate-500">{timeAgo(c.createdAt)}</span>
                   <span className="text-[10px] text-slate-300">• {new Date(c.createdAt).toLocaleString('ko-KR', {
                     month: '2-digit',
@@ -246,7 +246,11 @@ export default function PostDetailView({
                 )}
               </div>
 
-              <p className={`text-sm mb-3 break-all ${c.status === 'BLOCKED' ? 'text-red-500' : 'text-slate-700 dark:text-slate-300'}`}>{c.content}</p>
+              <p className={`text-sm mb-3 break-all ${c.status === 'BLOCKED' || c.status === 'DELETED' ? 'text-slate-400 dark:text-slate-500 italic' :
+                  'text-slate-700 dark:text-slate-300'
+                }`}>
+                {c.status === 'DELETED' ? '💭 ' : c.status === 'BLOCKED' ? '🚨 ' : ''}{c.content}
+              </p>
 
               <div className="flex items-center gap-2">
                 <button
@@ -265,7 +269,7 @@ export default function PostDetailView({
                     <div key={r.commentId} className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl transition-colors">
                       <div className="flex justify-between items-start mb-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium text-xs text-slate-700 dark:text-slate-300">{r.status === 'DELETED' ? '(삭제됨)' : displayNick(r.nickname, r.postType)}</span>
+                          <span className="font-medium text-xs text-slate-700 dark:text-slate-300">{displayNick(r.nickname, r.postType)}</span>
                           <span className="text-[10px] text-slate-400 dark:text-slate-500">{timeAgo(r.createdAt)}</span>
                           <span className="text-[9px] text-slate-300">• {new Date(r.createdAt).toLocaleString('ko-KR', {
                             month: '2-digit',
@@ -287,7 +291,11 @@ export default function PostDetailView({
                           </div>
                         )}
                       </div>
-                      <p className={`text-xs break-all ${r.status === 'BLOCKED' ? 'text-red-500' : 'text-slate-600 dark:text-slate-400'}`}>{r.content}</p>
+                      <p className={`text-xs break-all ${r.status === 'BLOCKED' || r.status === 'DELETED' ? 'text-slate-400 dark:text-slate-500 italic' :
+                          'text-slate-600 dark:text-slate-400'
+                        }`}>
+                        {r.status === 'DELETED' ? '💭 ' : r.status === 'BLOCKED' ? '🚨 ' : ''}{r.content}
+                      </p>
                     </div>
                   ))}
 
