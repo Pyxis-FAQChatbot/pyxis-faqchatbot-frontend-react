@@ -1,16 +1,60 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Header from "../components/Header";
 import StoreForm from "../components/StoreForm";
 import Card from "../components/ui/Card";
-import { MessageCircle, Users, User, ArrowRight, Sparkles } from 'lucide-react';
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import { MessageCircle, Users, User, ArrowRight, Sparkles, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import DaumPostcode from 'react-daum-postcode';
 
-import { myInfoPath } from "../api/authApi";
+import { myInfoPath, myEditApi } from "../api/authApi";
+import { storeApi } from "../api/storeApi";
 
 export default function MainPage() {
   const [showStoreForm, setShowStoreForm] = useState(false);
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [isPostcodeOpen, setIsPostcodeOpen] = useState(false);
+  const [address, setAddress] = useState("");
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
+
+  const addressStyle = {
+    width: '100%',
+    height: '300px',
+    border: 'none',
+  };
+
+  const addressHandler = (data) => {
+    setAddress(data.jibunAddress);
+    setIsPostcodeOpen(false);
+  };
+
+  const addressCloser = (state) => {
+    if (state === 'FORCE_CLOSE' || state === 'COMPLETE_CLOSE') {
+      setIsPostcodeOpen(false);
+    }
+  };
+
+  const handleAddressSubmit = async () => {
+    if (!address) {
+      alert("주소를 선택해주세요.");
+      return;
+    }
+    try {
+      await myEditApi.addressPath({ newAddress: address });
+      alert("주소가 저장되었습니다.");
+      const updatedInfo = await myInfoPath();
+      sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
+      setUserInfo(updatedInfo);
+      setShowAddressForm(false);
+      setAddress("");
+    } catch (err) {
+      console.error(err);
+      alert("주소 저장에 실패했습니다.");
+    }
+  };
 
   useEffect(() => {
     const justSignedUp = sessionStorage.getItem("showSignupPopup");
@@ -41,6 +85,21 @@ export default function MainPage() {
         setUserInfo(res);
         // Update session storage as well
         sessionStorage.setItem("userInfo", JSON.stringify(res));
+
+        // SNS initial login detection
+        if (res.userSocial && res.userSocial !== 'NONE') {
+          try {
+            await storeApi.ViewPath();
+          } catch (err) {
+            // First-time SNS user without store info
+            setShowStoreForm(true);
+          }
+        }
+
+        // Check if addressMain is empty
+        if (!res.addressMain) {
+          setShowAddressForm(true);
+        }
       } catch (e) {
         console.error("Failed to fetch user info", e);
         // Fallback to session storage if API fails
@@ -75,6 +134,77 @@ export default function MainPage() {
     <div className="min-h-full bg-slate-50/50 dark:bg-slate-950 transition-colors">
       {showStoreForm && (
         <StoreForm onClose={() => setShowStoreForm(false)} />
+      )}
+
+      {showAddressForm && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl p-6 border border-slate-100 dark:border-slate-800">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                  주소 입력
+                </h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  원활한 사용을 위해 주소를 작성해주세요
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAddressForm(false)}
+                className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 ml-1">주소</label>
+                <Input
+                  name="address"
+                  value={address}
+                  placeholder="주소를 선택해주세요"
+                  readOnly
+                  onClick={() => setIsPostcodeOpen(true)}
+                  className="cursor-pointer"
+                />
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <Button type="button" variant="secondary" onClick={() => setShowAddressForm(false)} className="w-full">
+                  나중에
+                </Button>
+                <Button type="button" onClick={handleAddressSubmit} className="w-full">
+                  저장
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {isPostcodeOpen && createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
+            <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">주소 검색</h3>
+              <button
+                onClick={() => setIsPostcodeOpen(false)}
+                className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-4">
+              <DaumPostcode
+                style={addressStyle}
+                onComplete={addressHandler}
+                onClose={addressCloser}
+              />
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
 
       <Header type="main" />

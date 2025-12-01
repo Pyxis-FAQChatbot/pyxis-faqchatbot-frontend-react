@@ -22,7 +22,7 @@ const StoreForm = ({ onClose }) => {
     };
 
     const addressHandler = (data) => {
-        setFormData((prev) => ({ ...prev, address: data.address }));
+        setFormData((prev) => ({ ...prev, address: data.jibunAddress }));
         setIsPostcodeOpen(false);
     };
     const addressCloser = (state) => {

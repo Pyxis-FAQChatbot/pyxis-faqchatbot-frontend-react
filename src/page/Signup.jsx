@@ -5,9 +5,8 @@ import { loginPath } from "../api/loginApi";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import { ChevronLeft } from "lucide-react";
-import KakaoIcon from "../assets/icons/KakaoIcon";
-import NaverIcon from "../assets/icons/NaverIcon";
-import GoogleIcon from "../assets/icons/GoogleIcon";
+import DaumPostcode from 'react-daum-postcode';
+import { createPortal } from "react-dom";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -33,6 +32,25 @@ const Signup = () => {
   const [idCheckStatus, setIdCheckStatus] = useState(""); // "success" | "error" | ""
   const [nicknameCheckMessage, setNicknameCheckMessage] = useState("");
   const [nicknameCheckStatus, setNicknameCheckStatus] = useState(""); // "success" | "error" | ""
+
+  const addressStyle = {
+    width: '100%',
+    height: '300px',
+    border: 'none',
+  };
+
+  const [isPostcodeOpen, setIsPostcodeOpen] = useState(false);
+
+  const addressHandler = (data) => {
+    setFormData((prev) => ({ ...prev, addressMain: data.jibunAddress }));
+    setIsPostcodeOpen(false);
+  };
+
+  const addressCloser = (state) => {
+    if (state === 'FORCE_CLOSE' || state === 'COMPLETE_CLOSE') {
+      setIsPostcodeOpen(false);
+    }
+  };
 
   // 입력값 변경 핸들러
   const handleChange = (e) => {
@@ -380,19 +398,15 @@ const Signup = () => {
         {/* 지역 */}
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">지역</label>
-          <select
+          <Input
             name="addressMain"
             value={formData.addressMain}
-            onChange={handleChange}
-            required
+            placeholder="지역을 선택해주세요"
+            readOnly
+            onClick={() => setIsPostcodeOpen(true)}
+            className="cursor-pointer"
             disabled={isLoading}
-            className={`${selectClassName} ${errors.addressMain ? 'ring-2 ring-red-500/50 dark:ring-red-400/50 bg-red-50/50 dark:bg-red-900/20' : ''}`}
-          >
-            <option value="">선택</option>
-            {["서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "제주", "경기도", "강원도", "경상남도", "경상북도", "전라남도", "전라북도", "충청남도", "충청북도"].map((r) => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
+          />
           {errors.addressMain && <p className="text-[10px] text-red-500 dark:text-red-400 ml-1 mt-0.5">{errors.addressMain}</p>}
         </div>
 
@@ -452,6 +466,30 @@ const Signup = () => {
           </button>
         </div>
       </form>
+
+      {isPostcodeOpen && createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
+            <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">지역 선택</h3>
+              <button
+                onClick={() => setIsPostcodeOpen(false)}
+                className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+              >
+                <ChevronLeft size={20} className="rotate-180" />
+              </button>
+            </div>
+            <div className="p-4">
+              <DaumPostcode
+                style={addressStyle}
+                onComplete={addressHandler}
+                onClose={addressCloser}
+              />
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
