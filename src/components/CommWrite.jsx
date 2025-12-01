@@ -88,11 +88,9 @@ export default function CommunityWrite({
       // API 호출
       if (mode === "write") {
         await api.postCreatePath(formData);
-        alert("게시글이 등록되었습니다.");
         onBack();
       } else if (mode === "edit") {
         await api.postEditPath(postId, formData);
-        alert("게시글이 수정되었습니다.");
         onBack();
       }
 

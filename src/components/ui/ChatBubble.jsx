@@ -7,7 +7,7 @@ import remarkGfm from "remark-gfm";
 export default function ChatBubble({ message, isBot, isLatest, scrollToBottom }) {
     // Apply typing effect only to bot messages AND if it's a NEW message (not history)
     const shouldType = isBot && message.isNew;
-    // Slower speed (50ms) for "천천히" effect
+    // 25ms per character typing speed
     const displayText = useTypingEffect(message.text, 25, shouldType);
 
     // If not typing, use full text

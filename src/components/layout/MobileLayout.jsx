@@ -39,19 +39,19 @@ const MobileLayout = ({ children, enableScroll = true }) => {
                     {/* Real-time Clock */}
                     <span className="font-semibold">{formatTime(currentTime)}</span>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
                         {/* Theme Toggle */}
                         <button
                             onClick={toggleTheme}
                             className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         >
-                            {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
+                            {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
                         </button>
 
                         {/* macOS-style Dots */}
                         <div className="flex gap-1.5">
-                            <Wifi size={16} />
-                            <BatteryFull size={16} />
+                            <Wifi size={18} />
+                            <BatteryFull size={18} />
                         </div>
                     </div>
                 </div>

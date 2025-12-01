@@ -279,7 +279,7 @@ export default function PostDetailView({
               </div>
               <div className="flex items-center gap-1">
                 <MessageSquare size={16} />
-                <span>{post.community.commentCount}</span>
+                <span>{post.commentCount}</span>
               </div>
             </div>
 

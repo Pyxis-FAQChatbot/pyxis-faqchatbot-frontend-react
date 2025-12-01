@@ -197,7 +197,12 @@ export default function MyPage() {
               <Button variant="secondary" onClick={openProfileEdit} className="text-xs !py-2 flex-1">
                 정보 수정
               </Button>
-              <Button variant="secondary" onClick={openPasswordEdit} className="text-xs !py-2 flex-1">
+              <Button 
+                variant="secondary" 
+                onClick={openPasswordEdit} 
+                disabled={myInfo?.userSocial !== 'NONE' || null}
+                className="text-xs !py-2 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 비밀번호 변경
               </Button>
             </div>
