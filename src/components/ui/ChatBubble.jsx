@@ -8,7 +8,7 @@ export default function ChatBubble({ message, isBot, isLatest, scrollToBottom })
     // Apply typing effect only to bot messages AND if it's a NEW message (not history)
     const shouldType = isBot && message.isNew;
     // Slower speed (50ms) for "천천히" effect
-    const displayText = useTypingEffect(message.text, 50, shouldType);
+    const displayText = useTypingEffect(message.text, 25, shouldType);
 
     // If not typing, use full text
     const finalDisplay = shouldType ? displayText : message.text;
@@ -49,29 +49,53 @@ export default function ChatBubble({ message, isBot, isLatest, scrollToBottom })
                             </p>
                         </div>
                         <div className="space-y-1.5">
-                            {message.sources.map((src, i) => (
-                                <a
-                                    key={i}
-                                    href={src.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="block p-2.5 rounded-lg bg-gradient-to-br from-slate-50/80 to-slate-50/40 dark:from-slate-800 dark:to-slate-800/50 hover:from-primary/5 hover:to-primary/10 border border-slate-100/80 dark:border-slate-700 hover:border-primary/20 hover:shadow-sm transition-all duration-200 group"
-                                >
-                                    <div className="flex items-start gap-2">
-                                        <div className="p-1 rounded bg-primary/5 group-hover:bg-primary/10 transition-colors">
-                                            <ExternalLink size={11} className="text-primary group-hover:scale-110 transition-transform" />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="text-[11px] font-medium text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors leading-snug line-clamp-2 mb-0.5">
-                                                {src.title}
+                            {message.sources.map((src, i) => {
+                                const isUnavailable = src.url === "N/A" || !src.url;
+                                
+                                if (isUnavailable) {
+                                    return (
+                                        <div
+                                            key={i}
+                                            className="block p-2.5 rounded-lg bg-gradient-to-br from-slate-50/80 to-slate-50/40 dark:from-slate-800 dark:to-slate-800/50 border border-slate-100/80 dark:border-slate-700 transition-all duration-200 opacity-50 cursor-not-allowed"
+                                        >
+                                            <div className="flex items-start gap-2">
+                                                <div className="p-1 rounded bg-primary/5 transition-colors">
+                                                    <ExternalLink size={11} className="text-primary" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-[11px] font-medium text-slate-700 dark:text-slate-200 transition-colors leading-snug line-clamp-2 mb-0.5">
+                                                        {src.title}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="text-[9px] text-slate-400 truncate font-mono">
-                                                {src.url.replace(/^https?:\/\//, '')}
+                                        </div>
+                                    );
+                                }
+                                
+                                return (
+                                    <a
+                                        key={i}
+                                        href={src.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="block p-2.5 rounded-lg bg-gradient-to-br from-slate-50/80 to-slate-50/40 dark:from-slate-800 dark:to-slate-800/50 hover:from-primary/5 hover:to-primary/10 border border-slate-100/80 dark:border-slate-700 hover:border-primary/20 hover:shadow-sm transition-all duration-200 group"
+                                    >
+                                        <div className="flex items-start gap-2">
+                                            <div className="p-1 rounded bg-primary/5 group-hover:bg-primary/10 transition-colors">
+                                                <ExternalLink size={11} className="text-primary group-hover:scale-110 transition-transform" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="text-[11px] font-medium text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors leading-snug line-clamp-2 mb-0.5">
+                                                    {src.title}
+                                                </div>
+                                                <div className="text-[9px] text-slate-400 truncate font-mono">
+                                                    {src.url.replace(/^https?:\/\//, '')}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </a>
-                            ))}
+                                    </a>
+                                );
+                            })}
                         </div>
                     </div>
                 )}

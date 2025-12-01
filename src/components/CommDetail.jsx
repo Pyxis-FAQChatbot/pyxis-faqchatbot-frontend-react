@@ -19,6 +19,12 @@ export default function PostDetailView({
   const [commentText, setCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    type: null, // 'post' or 'comment'
+    targetId: null,
+    title: ""
+  });
 
   const userInfo = JSON.parse(sessionStorage.getItem("userInfo") || "{}");
   const currentUserId = userInfo.id;
@@ -90,25 +96,43 @@ export default function PostDetailView({
     }
   };
 
-  const deleteComment = async (commentId) => {
-    if (!window.confirm("정말 이 댓글을 삭제하시겠습니까?")) return;
-    try {
-      await api.cmtDeletePath(postId, commentId);
-      loadComments(0, PAGE_SIZE);
-      setCommentPage(0);
-    } catch (e) {
-      console.error("댓글 삭제 실패:", e);
-    }
+  const deleteComment = async (commentId, commentContent = "") => {
+    setDeleteModal({
+      isOpen: true,
+      type: 'comment',
+      targetId: commentId,
+      title: commentContent.substring(0, 50)
+    });
   };
 
   const deletePost = async () => {
-    if (!window.confirm("정말 삭제할까요?")) return;
+    setDeleteModal({
+      isOpen: true,
+      type: 'post',
+      targetId: postId,
+      title: post.community.title
+    });
+  };
+
+  const confirmDelete = async () => {
     try {
-      await api.postDeletePath(postId);
-      onBack();
+      if (deleteModal.type === 'post') {
+        await api.postDeletePath(postId);
+        onBack();
+      } else if (deleteModal.type === 'comment') {
+        await api.cmtDeletePath(postId, deleteModal.targetId);
+        loadComments(0, PAGE_SIZE);
+        setCommentPage(0);
+      }
+      setDeleteModal({ isOpen: false, type: null, targetId: null, title: "" });
     } catch (e) {
-      console.error("게시글 삭제 실패:", e);
+      console.error("삭제 실패:", e);
+      alert("삭제에 실패했습니다.");
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteModal({ isOpen: false, type: null, targetId: null, title: "" });
   };
 
   const startEditing = (comment) => {
@@ -188,6 +212,40 @@ export default function PostDetailView({
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 transition-colors">
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6 max-w-sm mx-4 border border-slate-100 dark:border-slate-800 transition-colors">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+              {deleteModal.type === 'post' ? '게시글 삭제' : '댓글 삭제'}
+            </h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+              정말 삭제하시겠습니까?
+            </p>
+            {deleteModal.title && (
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 mb-4 border border-slate-100 dark:border-slate-700">
+                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+                  {deleteModal.title}
+                </p>
+              </div>
+            )}
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelDelete}
+                className="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-36">
         {/* Post Content */}
         <Card className="!p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
@@ -278,7 +336,7 @@ export default function PostDetailView({
                     <button onClick={() => startEditing(c)} className="text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-primary transition-colors" title="수정하기">
                       <Pencil size={14} />
                     </button>
-                    <button onClick={() => deleteComment(c.commentId)} className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors" title="삭제하기">
+                    <button onClick={() => deleteComment(c.commentId, c.content)} className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors" title="삭제하기">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -344,7 +402,7 @@ export default function PostDetailView({
                             <button onClick={() => startEditing(r)} className="text-slate-300 dark:text-slate-600 hover:text-primary dark:hover:text-primary transition-colors" title="수정하기">
                               <Pencil size={12} />
                             </button>
-                            <button onClick={() => deleteComment(r.commentId)} className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors" title="삭제하기">
+                            <button onClick={() => deleteComment(r.commentId, r.content)} className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors" title="삭제하기">
                               <Trash2 size={12} />
                             </button>
                           </div>

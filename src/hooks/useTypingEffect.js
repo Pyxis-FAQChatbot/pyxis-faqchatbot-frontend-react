@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
  * @param {boolean} enabled - Whether the typing effect is enabled
  * @returns {string} The text with typing effect applied
  */
-export function useTypingEffect(text, speed = 12, enabled = true) {
+export function useTypingEffect(text, speed = 20, enabled = true) {
     const [displayedText, setDisplayedText] = useState('');
     const [currentIndex, setCurrentIndex] = useState(0);
 
