@@ -10,6 +10,9 @@ import { storeApi } from "../api/storeApi";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { MapPin, Calendar, Store, Settings, MessageSquare, FileText, ChevronRight } from "lucide-react";
+import KakaoIcon from "../assets/icons/KakaoIcon";
+import NaverIcon from "../assets/icons/NaverIcon";
+import GoogleIcon from "../assets/icons/GoogleIcon";
 
 const TruncatedText = ({ label, value }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -166,7 +169,23 @@ export default function MyPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">{myInfo?.nickname || "Guest"}</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 break-words">{myInfo?.loginId || ""}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  {myInfo?.userSocial === 'NONE' ? (
+                    <p className="text-sm text-slate-500 dark:text-slate-400 break-words">{myInfo?.loginId || ""}</p>
+                  ) : myInfo?.userSocial === 'KAKAO' ? (
+                    <div className="w-5 h-5 rounded-lg bg-[#FEE500] flex items-center justify-center flex-shrink-0">
+                      <KakaoIcon width={16} height={16} />
+                    </div>
+                  ) : myInfo?.userSocial === 'NAVER' ? (
+                    <div className="w-5 h-5 rounded-lg bg-[#03C75A] flex items-center justify-center flex-shrink-0">
+                      <NaverIcon width={16} height={16} />
+                    </div>
+                  ) : myInfo?.userSocial === 'GOOGLE' ? (
+                    <div className="w-5 h-5 rounded-lg bg-white border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
+                      <GoogleIcon width={16} height={16} />
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>

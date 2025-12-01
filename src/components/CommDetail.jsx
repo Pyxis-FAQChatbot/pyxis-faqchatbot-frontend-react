@@ -19,12 +19,8 @@ export default function PostDetailView({
   const [commentText, setCommentText] = useState("");
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
-  const [deleteModal, setDeleteModal] = useState({
-    isOpen: false,
-    type: null, // 'post' or 'comment'
-    targetId: null,
-    title: ""
-  });
+  const [isDeletingPost, setIsDeletingPost] = useState(false);
+  const [deletingCommentId, setDeletingCommentId] = useState(null);
 
   const userInfo = JSON.parse(sessionStorage.getItem("userInfo") || "{}");
   const currentUserId = userInfo.id;
@@ -97,42 +93,43 @@ export default function PostDetailView({
   };
 
   const deleteComment = async (commentId, commentContent = "") => {
-    setDeleteModal({
-      isOpen: true,
-      type: 'comment',
-      targetId: commentId,
-      title: commentContent.substring(0, 50)
-    });
+    setDeletingCommentId(commentId);
   };
 
   const deletePost = async () => {
-    setDeleteModal({
-      isOpen: true,
-      type: 'post',
-      targetId: postId,
-      title: post.community.title
-    });
+    setIsDeletingPost(true);
   };
 
   const confirmDelete = async () => {
     try {
-      if (deleteModal.type === 'post') {
-        await api.postDeletePath(postId);
-        onBack();
-      } else if (deleteModal.type === 'comment') {
-        await api.cmtDeletePath(postId, deleteModal.targetId);
-        loadComments(0, PAGE_SIZE);
-        setCommentPage(0);
-      }
-      setDeleteModal({ isOpen: false, type: null, targetId: null, title: "" });
+      await api.postDeletePath(postId);
+      onBack();
     } catch (e) {
       console.error("삭제 실패:", e);
       alert("삭제에 실패했습니다.");
+    } finally {
+      setIsDeletingPost(false);
     }
   };
 
-  const cancelDelete = () => {
-    setDeleteModal({ isOpen: false, type: null, targetId: null, title: "" });
+  const confirmCommentDelete = async (commentId) => {
+    try {
+      await api.cmtDeletePath(postId, commentId);
+      loadComments(0, PAGE_SIZE);
+      setCommentPage(0);
+      setDeletingCommentId(null);
+    } catch (e) {
+      console.error("댓글 삭제 실패:", e);
+      alert("댓글 삭제에 실패했습니다.");
+    }
+  };
+
+  const cancelDeletePost = () => {
+    setIsDeletingPost(false);
+  };
+
+  const cancelCommentDelete = () => {
+    setDeletingCommentId(null);
   };
 
   const startEditing = (comment) => {
@@ -213,25 +210,18 @@ export default function PostDetailView({
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 transition-colors">
       {/* Delete Confirmation Modal */}
-      {deleteModal.isOpen && (
+      {isDeletingPost && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg p-6 max-w-sm mx-4 border border-slate-100 dark:border-slate-800 transition-colors">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-              {deleteModal.type === 'post' ? '게시글 삭제' : '댓글 삭제'}
+              게시글 삭제
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
               정말 삭제하시겠습니까?
             </p>
-            {deleteModal.title && (
-              <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 mb-4 border border-slate-100 dark:border-slate-700">
-                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
-                  {deleteModal.title}
-                </p>
-              </div>
-            )}
             <div className="flex gap-3 justify-end">
               <button
-                onClick={cancelDelete}
+                onClick={cancelDeletePost}
                 className="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
               >
                 취소
@@ -361,6 +351,14 @@ export default function PostDetailView({
                     <button onClick={cancelEditing} className="px-3 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">취소</button>
                   </div>
                 </div>
+              ) : deletingCommentId === c.commentId ? (
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">정말 삭제하시겠습니까?</p>
+                  <div className="flex gap-2">
+                    <button onClick={() => confirmCommentDelete(c.commentId)} className="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-colors">삭제</button>
+                    <button onClick={cancelCommentDelete} className="px-3 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">취소</button>
+                  </div>
+                </div>
               ) : (
                 <p className={`text-sm mb-3 break-all ${c.status === 'BLOCKED' || c.status === 'DELETED' ? 'text-slate-400 dark:text-slate-500 italic' :
                   'text-slate-700 dark:text-slate-300'
@@ -425,6 +423,14 @@ export default function PostDetailView({
                             />
                             <button onClick={() => updateComment(r.commentId)} className="px-2 py-1 bg-primary text-white text-[10px] rounded-lg hover:bg-primary/90 transition-colors">저장</button>
                             <button onClick={cancelEditing} className="px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">취소</button>
+                          </div>
+                        </div>
+                      ) : deletingCommentId === r.commentId ? (
+                        <div className="mb-2 flex items-center justify-between gap-2">
+                          <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">정말 삭제하시겠습니까?</p>
+                          <div className="flex gap-2">
+                            <button onClick={() => confirmCommentDelete(r.commentId)} className="px-2 py-1 bg-red-500 text-white text-[10px] rounded-lg hover:bg-red-600 transition-colors">삭제</button>
+                            <button onClick={cancelCommentDelete} className="px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">취소</button>
                           </div>
                         </div>
                       ) : (

@@ -5,6 +5,9 @@ import { myInfoPath } from "../api/authApi";
 import logo from "../assets/pyxis_logo.png";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import KakaoIcon from "../assets/icons/KakaoIcon";
+import NaverIcon from "../assets/icons/NaverIcon";
+import GoogleIcon from "../assets/icons/GoogleIcon";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -156,23 +159,11 @@ const Login = () => {
             <button
               className="w-12 h-12 rounded-xl bg-[#FEE500] hover:bg-[#FDD835] transition-colors flex items-center justify-center"
               onClick={() => {
-                // 백엔드 base URL (로컬/배포 자동 대응)
                 const backendUrl = import.meta.env.VITE_API_BASE_URL;
                 window.location.href = `${backendUrl}/login/kakao`;
               }}
             >
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M12 3C7.58 3 4 5.79 4 9.24C4 11.22 5.28 12.98 7.26 14.07L6.46 17.03C6.4 17.26 6.67 17.46 6.87 17.32L10.37 15.01C10.9 15.09 11.44 15.13 12 15.13C16.42 15.13 20 12.34 20 8.89C20 5.45 16.42 3 12 3Z"
-                  fill="#3C1E1E"
-                />
-              </svg>
+              <KakaoIcon width={32} height={32} />
             </button>
 
             {/* Naver */}
@@ -183,28 +174,12 @@ const Login = () => {
                 window.location.href = `${backendUrl}/login/naver`;
               }}
             >
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5 4H9.5L14.5 12.5V4H19V20H14.5L9.5 11.5V20H5V4Z"
-                  fill="white"
-                />
-              </svg>
+              <NaverIcon width={32} height={32} />
             </button>
 
             {/* Google */}
             <button className="w-12 h-12 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-colors flex items-center justify-center">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.35 10H12V14.12H17.92C17.66 15.52 16.88 16.71 15.71 17.5V20.31H19.27C21.35 18.39 22.56 15.57 22.56 12.25Z" fill="#4285F4" />
-                <path d="M12 23C14.97 23 17.46 22.01 19.28 20.34L15.71 17.53C14.73 18.19 13.47 18.58 12 18.58C9.13 18.58 6.71 16.64 5.84 14.03H2.17V16.88C3.98 20.47 7.7 22.95 12 23Z" fill="#34A853" />
-                <path d="M5.84 14.03C5.62 13.37 5.5 12.67 5.5 11.95C5.5 11.23 5.62 10.53 5.84 9.87V7.02H2.17C1.43 8.5 1 10.18 1 11.95C1 13.72 1.43 15.4 2.17 16.88L5.84 14.03Z" fill="#FBBC05" />
-                <path d="M12 5.38C13.62 5.38 15.06 5.94 16.21 7.02L19.36 3.87C17.45 2.09 14.97 1 12 1C7.7 1 3.98 3.47 2.17 7.02L5.84 9.87C6.71 7.26 9.13 5.38 12 5.38Z" fill="#EA4335" />
-              </svg>
+              <GoogleIcon width={32} height={32} />
             </button>
           </div>
         </div>

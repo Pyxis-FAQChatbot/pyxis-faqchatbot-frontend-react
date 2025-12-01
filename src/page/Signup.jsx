@@ -5,6 +5,9 @@ import { loginPath } from "../api/loginApi";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import { ChevronLeft } from "lucide-react";
+import KakaoIcon from "../assets/icons/KakaoIcon";
+import NaverIcon from "../assets/icons/NaverIcon";
+import GoogleIcon from "../assets/icons/GoogleIcon";
 
 const Signup = () => {
   const navigate = useNavigate();
