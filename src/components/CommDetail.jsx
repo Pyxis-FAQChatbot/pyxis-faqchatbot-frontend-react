@@ -93,6 +93,10 @@ export default function PostDetailView({
   };
 
   const deleteComment = async (commentId, commentContent = "") => {
+    // 수정 중인 상태라면 먼저 종료
+    if (editingCommentId !== null) {
+      cancelEditing();
+    }
     setDeletingCommentId(commentId);
   };
 
@@ -133,6 +137,10 @@ export default function PostDetailView({
   };
 
   const startEditing = (comment) => {
+    // 삭제 중인 상태라면 먼저 종료
+    if (deletingCommentId !== null) {
+      cancelCommentDelete();
+    }
     setEditingCommentId(comment.commentId);
     setEditContent(comment.content);
   };
