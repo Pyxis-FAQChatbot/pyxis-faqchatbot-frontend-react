@@ -17,6 +17,7 @@ export default function MainPage() {
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [isPostcodeOpen, setIsPostcodeOpen] = useState(false);
   const [address, setAddress] = useState("");
+  const [showAddressSuccess, setShowAddressSuccess] = useState(false);
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
 
@@ -44,12 +45,19 @@ export default function MainPage() {
     }
     try {
       await myEditApi.addressPath({ newAddress: address });
-      alert("주소가 저장되었습니다.");
+      setShowAddressSuccess(true);
       const updatedInfo = await myInfoPath();
       sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
       setUserInfo(updatedInfo);
-      setShowAddressForm(false);
-      setAddress("");
+      
+      // 1초 후 자동 닫기
+      const timer = setTimeout(() => {
+        setShowAddressForm(false);
+        setShowAddressSuccess(false);
+        setAddress("");
+      }, 1000);
+      
+      return () => clearTimeout(timer);
     } catch (err) {
       console.error(err);
       alert("주소 저장에 실패했습니다.");
@@ -91,14 +99,19 @@ export default function MainPage() {
           try {
             await storeApi.ViewPath();
           } catch (err) {
-            // First-time SNS user without store info
-            setShowStoreForm(true);
+            // First-time SNS user - only show address form
+            if (!res.addressMain) {
+              setShowAddressForm(true);
+            }
           }
-        }
-
-        // Check if addressMain is empty
-        if (!res.addressMain) {
-          setShowAddressForm(true);
+        } else {
+          // Non-SNS users: check for StoreForm and address
+          const justSignedUp = sessionStorage.getItem("showSignupPopup");
+          if (justSignedUp === "true") {
+            setShowStoreForm(true);
+          } else if (!res.addressMain) {
+            setShowAddressForm(true);
+          }
         }
       } catch (e) {
         console.error("Failed to fetch user info", e);
@@ -139,45 +152,78 @@ export default function MainPage() {
       {showAddressForm && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl p-6 border border-slate-100 dark:border-slate-800">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  주소 입력
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  원활한 사용을 위해 주소를 작성해주세요
-                </p>
-              </div>
-              <button
-                onClick={() => setShowAddressForm(false)}
-                className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
+            {showAddressSuccess ? (
+              <>
+                <div className="text-center py-8">
+                  <div className="flex justify-center mb-4">
+                    <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                    주소가 저장되었습니다
+                  </h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    1초 후 자동으로 닫힙니다
+                  </p>
+                </div>
 
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-300 ml-1">주소</label>
-                <Input
-                  name="address"
-                  value={address}
-                  placeholder="주소를 선택해주세요"
-                  readOnly
-                  onClick={() => setIsPostcodeOpen(true)}
-                  className="cursor-pointer"
-                />
-              </div>
+                <div className="pt-4">
+                  <Button 
+                    type="button" 
+                    onClick={() => {
+                      setShowAddressForm(false);
+                      setShowAddressSuccess(false);
+                      setAddress("");
+                    }} 
+                    className="w-full"
+                  >
+                    닫기
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                      주소 입력
+                    </h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      원활한 사용을 위해 주소를 작성해주세요
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowAddressForm(false)}
+                    className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
 
-              <div className="pt-4 flex gap-3">
-                <Button type="button" variant="secondary" onClick={() => setShowAddressForm(false)} className="w-full">
-                  나중에
-                </Button>
-                <Button type="button" onClick={handleAddressSubmit} className="w-full">
-                  저장
-                </Button>
-              </div>
-            </div>
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-300 ml-1">주소</label>
+                    <Input
+                      name="address"
+                      value={address}
+                      placeholder="주소를 선택해주세요"
+                      readOnly
+                      onClick={() => setIsPostcodeOpen(true)}
+                      className="cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="pt-4 flex gap-3">
+                    <Button type="button" onClick={handleAddressSubmit} className="w-full">
+                      저장
+                    </Button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>,
         document.body

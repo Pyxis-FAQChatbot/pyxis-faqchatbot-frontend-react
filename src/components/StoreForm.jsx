@@ -66,10 +66,8 @@ const StoreForm = ({ onClose }) => {
         try {
             if (isEditMode) {
                 await storeApi.EditPath(formData);
-                alert("수정이 완료되었습니다.");
             } else {
                 await storeApi.CreatePath(formData);
-                alert("등록이 완료되었습니다.");
             }
             onClose();
         } catch (error) {

@@ -23,6 +23,9 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
 
     const [nicknameMessage, setNicknameMessage] = useState("");
     const [nicknameStatus, setNicknameStatus] = useState(""); // 'success', 'error', 'info'
+    const [passwordMessage, setPasswordMessage] = useState("");
+    const [passwordStatus, setPasswordStatus] = useState(""); // 'error'
+    const [showSuccessMessage, setShowSuccessMessage] = useState(""); // 'nickname', 'address', 'password' or empty
 
     const addressStyle = {
         width: '100%',
@@ -90,12 +93,19 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
             if (type === 'nickname') {
                 if (profileForm.nickname === originalData.nickname) return;
                 await myEditApi.nickPath({ newNickname: profileForm.nickname });
-                alert("닉네임이 변경되었습니다.");
-                onClose(); // 닉네임 변경 성공 시 창 닫기
+                setShowSuccessMessage('nickname');
+                setTimeout(() => {
+                    setShowSuccessMessage("");
+                    onClose();
+                }, 1000);
             } else if (type === 'address') {
                 if (profileForm.addressMain === originalData.addressMain) return;
                 await myEditApi.addressPath({ newAddress: profileForm.addressMain });
-                alert("지역이 변경되었습니다.");
+                setShowSuccessMessage('address');
+                setTimeout(() => {
+                    setShowSuccessMessage("");
+                    onClose();
+                }, 1000);
             }
 
             // 변경 후 최신 정보 다시 로드
@@ -115,8 +125,12 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
 
     const submitPassword = async (e) => {
         e.preventDefault();
+        setPasswordMessage("");
+        setPasswordStatus("");
+        
         if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-            alert("새 비밀번호가 일치하지 않습니다.");
+            setPasswordMessage("새 비밀번호가 일치하지 않습니다.");
+            setPasswordStatus("error");
             return;
         }
         try {
@@ -124,13 +138,16 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
                 oldPassword: passwordForm.oldPassword,
                 newPassword: passwordForm.newPassword,
             });
-            alert("비밀번호가 변경되었습니다.");
+            setShowSuccessMessage('password');
             // 비밀번호 변경 후 최신 정보 로드
             const updatedInfo = await myInfoPath();
             sessionStorage.setItem("userInfo", JSON.stringify(updatedInfo));
             // 부모 컴포넌트에 알림
             if (onUpdated) onUpdated();
-            onClose();
+            setTimeout(() => {
+                setShowSuccessMessage("");
+                onClose();
+            }, 1000);
         } catch (err) {
             alert(err.message || "비밀번호 변경 실패");
             console.error("비밀번호 에러", err);
@@ -234,7 +251,7 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
                                     disabled={originalData?.addressMain === profileForm.addressMain}
                                     className="w-full"
                                 >
-                                    지역 변경
+                                    주소 변경
                                 </Button>
                             </form>
                         </div>
@@ -244,23 +261,42 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
                                 label="현재 비밀번호"
                                 type="password"
                                 value={passwordForm.oldPassword}
-                                onChange={(e) => setPasswordForm({ ...passwordForm, oldPassword: e.target.value })}
+                                onChange={(e) => {
+                                    setPasswordForm({ ...passwordForm, oldPassword: e.target.value });
+                                    setPasswordMessage("");
+                                    setPasswordStatus("");
+                                }}
                                 required
                             />
                             <Input
                                 label="새 비밀번호"
                                 type="password"
                                 value={passwordForm.newPassword}
-                                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                                onChange={(e) => {
+                                    setPasswordForm({ ...passwordForm, newPassword: e.target.value });
+                                    setPasswordMessage("");
+                                    setPasswordStatus("");
+                                }}
                                 required
                             />
-                            <Input
-                                label="비밀번호 확인"
-                                type="password"
-                                value={passwordForm.confirmPassword}
-                                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                                required
-                            />
+                            <div className="space-y-1.5">
+                                <Input
+                                    label="비밀번호 확인"
+                                    type="password"
+                                    value={passwordForm.confirmPassword}
+                                    onChange={(e) => {
+                                        setPasswordForm({ ...passwordForm, confirmPassword: e.target.value });
+                                        setPasswordMessage("");
+                                        setPasswordStatus("");
+                                    }}
+                                    required
+                                />
+                                {passwordMessage && (
+                                    <p className={`text-xs ml-1 ${passwordStatus === 'error' ? 'text-red-500' : 'text-slate-500'}`}>
+                                        {passwordMessage}
+                                    </p>
+                                )}
+                            </div>
 
                             <div className="pt-4 flex gap-3">
                                 <Button type="button" variant="secondary" onClick={onClose}>
@@ -274,6 +310,31 @@ export default function ProfileEditOverlay({ mode, onClose, onUpdated }) {
                     )}
                 </div>
             </div>
+
+            {showSuccessMessage && createPortal(
+                <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl p-6 border border-slate-100 dark:border-slate-800">
+                        <div className="text-center py-8">
+                            <div className="flex justify-center mb-4">
+                                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                                    <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                                {showSuccessMessage === 'nickname' && "닉네임이 변경되었습니다"}
+                                {showSuccessMessage === 'address' && "주소가 변경되었습니다"}
+                                {showSuccessMessage === 'password' && "비밀번호가 변경되었습니다"}
+                            </h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                1초 후 자동으로 닫힙니다
+                            </p>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
 
             {isPostcodeOpen && createPortal(
                 <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
