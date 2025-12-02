@@ -20,6 +20,7 @@ export default function ChatPage() {
   const [totalPages, setTotalPages] = useState(0);
   const chatContainerRef = useRef(null);
   const [chatTitle, setChatTitle] = useState("챗봇");
+  const [deleteConfirmation, setDeleteConfirmation] = useState({ isOpen: false, roomId: null });
   const PAGE_SIZE = 20;
   const firstMessage = new URLSearchParams(window.location.search).get("firstMessage");
 
@@ -133,9 +134,11 @@ export default function ChatPage() {
   };
 
   const handleDeleteRoom = async (roomId) => {
-    const confirmed = window.confirm("정말 삭제하시겠습니까?");
-    if (!confirmed) return;
+    setDeleteConfirmation({ isOpen: true, roomId });
+  };
 
+  const confirmDeleteRoom = async () => {
+    const roomId = deleteConfirmation.roomId;
     try {
       await chatApi.botDeletePath(roomId);
       if (String(roomId) === String(chatId)) {
@@ -146,7 +149,13 @@ export default function ChatPage() {
     } catch (err) {
       console.error("채팅방 삭제 실패:", err);
       alert(err.response?.data?.message || "삭제 중 오류가 발생했습니다.");
+    } finally {
+      setDeleteConfirmation({ isOpen: false, roomId: null });
     }
+  };
+
+  const cancelDeleteRoom = () => {
+    setDeleteConfirmation({ isOpen: false, roomId: null });
   };
 
   useEffect(() => {
@@ -297,6 +306,35 @@ export default function ChatPage() {
         }}
         onDeleteRoom={handleDeleteRoom}
       />
+
+      {deleteConfirmation.isOpen && (
+        <div className="fixed inset-0 z-[10001] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-[32px] shadow-2xl p-6 border border-slate-100 dark:border-slate-800">
+            <div className="text-center py-4">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                정말 삭제하시겠습니까?
+              </h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+                삭제된 채팅은 복구할 수 없습니다.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelDeleteRoom}
+                  className="flex-1 px-4 py-3 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={confirmDeleteRoom}
+                  className="flex-1 px-4 py-3 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
