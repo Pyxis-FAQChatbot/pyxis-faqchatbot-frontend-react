@@ -90,7 +90,7 @@ export default function MarketAnalysis({ location = '신사동' }) {
   const summaryStats = [
     { icon: "🕖", label: "방문 많은 시간", value: peakHourValue },
     { icon: "🧍‍♂️", label: "주요 소비층", value: `${topAgeGroup}(${topAgePercentage}%)` },
-    { icon: "🏆", label: "경쟁 치열 업종", value: "카페/베이커리" },
+    { icon: "🏆", label: "경쟁 치열 업종", value: topIndustries[0].name },
   ];
 
   const maxIndustry = Math.max(...industries.map(i => i.count));
@@ -124,6 +124,7 @@ export default function MarketAnalysis({ location = '신사동' }) {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: true,
+    cutout: '60%', // 도넛 형태로 변경 (60%는 도넛 중앙 비워지는 크기)
     layout: {
       padding: 60, // 라벨이 보이기 위한 충분한 패딩
     },

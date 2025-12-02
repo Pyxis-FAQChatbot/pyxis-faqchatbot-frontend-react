@@ -307,7 +307,7 @@ export default function MainPage() {
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/30 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
         </Card>
 
-        <MarketAnalysis location={userInfo?.addressMain?.split(' ')[2] || '신사동'} />
+        <MarketAnalysis location={(userInfo?.addressMain?.split(' ')[2] || '신사동').slice(0, -1)} />
       </main>
     </div>
   );
