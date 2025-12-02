@@ -14,7 +14,8 @@ export default defineConfig({
 // 개발용 백엔드포트, 배포시에는 뺄것
   server: {
     proxy: {
-      '/api': 'http://localhost:8081/'
+      '/api': 'http://localhost:8081/',
+      '/fastapi': 'http://localhost:8100/'
     }
   }
 })

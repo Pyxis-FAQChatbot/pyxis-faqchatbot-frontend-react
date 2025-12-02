@@ -32,6 +32,11 @@ const endpoints = {
   comment: {
     create: (id) => `/v1/community/${id}/comment`,
     handle: (id,commentId) => `/v1/community/${id}/comment/${commentId}`,
+  },
+  market:{
+    hour: "v1/flow/hourly",
+    age: "/v1/sales/age",
+    shop: "/v1/shop/count"
   }
 };
 

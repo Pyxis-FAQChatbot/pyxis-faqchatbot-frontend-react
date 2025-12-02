@@ -5,6 +5,7 @@ import StoreForm from "../components/StoreForm";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
+import MarketAnalysis from "../components/Market";
 import { MessageCircle, Users, User, ArrowRight, Sparkles, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DaumPostcode from 'react-daum-postcode';
@@ -305,6 +306,8 @@ export default function MainPage() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/30 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
         </Card>
+
+        <MarketAnalysis location={userInfo?.addressMain?.split(' ')[2] || '신사동'} />
       </main>
     </div>
   );
