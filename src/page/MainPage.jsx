@@ -21,6 +21,7 @@ export default function MainPage() {
   const [showAddressSuccess, setShowAddressSuccess] = useState(false);
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
+  const [marketKey, setMarketKey] = useState(0);
 
   const addressStyle = {
     width: '100%',
@@ -125,6 +126,11 @@ export default function MainPage() {
     };
     fetchUser();
   }, []);
+
+  // location 변경 감지 - Market 컴포넌트 재렌더링
+  useEffect(() => {
+    setMarketKey(prev => prev + 1);
+  }, [userInfo?.addressMain]);
 
   const QuickAction = ({ icon: Icon, label, desc, path, color }) => (
     <button
@@ -307,7 +313,7 @@ export default function MainPage() {
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/30 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
         </Card>
 
-        <MarketAnalysis location={(userInfo?.addressMain?.split(' ')[2] || '신사동').slice(0, -1)} />
+        <MarketAnalysis key={marketKey} location={(userInfo?.addressMain?.split(' ')[2] || '신사동').slice(0, -1)} />
       </main>
     </div>
   );

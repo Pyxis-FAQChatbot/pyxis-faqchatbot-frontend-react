@@ -120,3 +120,102 @@ export function getPeakHourFormatted(responseData) {
   const hour = peakHour.hour.split(":")[0];
   return `${hour}시`;
 }
+
+/**
+ * 날짜를 요일로 변환하는 함수
+ * @param {string} dateStr - 날짜 문자열 (예: "2025-10-13")
+ * @returns {string} 요일 (예: "월")
+ */
+function convertDateToDayOfWeek(dateStr) {
+  const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
+  const date = new Date(dateStr);
+  return daysOfWeek[date.getDay()];
+}
+
+/**
+ * 3시간씩 묶어서 유동인구 합계 반환 (날짜와 요일 정보 포함, 히트맵 최적화)
+ * @param {Object} responseData - API 응답 데이터
+ * @returns {Array} 날짜별 시간대 데이터 배열
+ *                  [
+ *                    { date: "2025-10-13", dayOfWeek: "MON", periods: [{ period: "09-11", total: 5367 }, ...] },
+ *                    { date: "2025-10-14", dayOfWeek: "TUE", periods: [{ period: "09-11", total: 4821 }, ...] },
+ *                    ...
+ *                  ]
+ *
+ * @example
+ * const response = {
+ *   dong: "신사동",
+ *   data: [
+ *     { hour: "2025-10-13 09:00", visitor_sum: 1532 },
+ *     { hour: "2025-10-13 10:00", visitor_sum: 1821 },
+ *     { hour: "2025-10-13 11:00", visitor_sum: 2014 }
+ *   ]
+ * };
+ * const threehourData = getThreeHourlyTotals(response);
+ * // Returns: [
+ * //   { date: "2025-10-13", dayOfWeek: "MON", periods: [{ period: "09-11", total: 5367 }, ...] },
+ * //   ...
+ * // ]
+ */
+export function getThreeHourlyTotals(responseData) {
+  if (!responseData?.data || responseData.data.length === 0) {
+    return [];
+  }
+
+  // 날짜별 시간대 데이터 저장
+  const dateData = {};
+
+  responseData.data.forEach((item) => {
+    if (!item.hour || item.visitor_sum === undefined) {
+      return;
+    }
+
+    // hour 필드에서 날짜와 시간 분리
+    // "2025-10-13 09:00" => datePart: "2025-10-13", timePart: "09:00"
+    const [datePart, timePart] = item.hour.split(" ");
+
+    if (timePart && datePart) {
+      const hour = parseInt(timePart.split(":")[0]);
+
+      // 3시간 단위의 시작 시간 계산
+      const periodStart = Math.floor(hour / 3) * 3;
+      const periodEnd = periodStart + 2;
+      const period = `${String(periodStart).padStart(2, "0")}~${String(periodEnd).padStart(2, "0")}`;
+
+      // 날짜별 데이터 초기화
+      if (!dateData[datePart]) {
+        dateData[datePart] = {};
+      }
+
+      // 기간별 데이터 초기화 및 누적
+      if (!dateData[datePart][period]) {
+        dateData[datePart][period] = 0;
+      }
+      dateData[datePart][period] += item.visitor_sum;
+    }
+  });
+
+  // 고유한 시간 기간 정렬
+  const allPeriods = new Set();
+  Object.values(dateData).forEach((periods) => {
+    Object.keys(periods).forEach((period) => allPeriods.add(period));
+  });
+  const sortedPeriods = Array.from(allPeriods).sort((a, b) => {
+    const aStart = parseInt(a.split("-")[0]);
+    const bStart = parseInt(b.split("-")[0]);
+    return aStart - bStart;
+  });
+
+  // 날짜 순서로 정렬
+  const sortedDates = Object.keys(dateData).sort();
+
+  // 최종 데이터 구성 (날짜별로 정렬된 기간 데이터 + 요일 정보)
+  return sortedDates.map((date) => ({
+    date,
+    dayOfWeek: convertDateToDayOfWeek(date),
+    periods: sortedPeriods.map((period) => ({
+      period,
+      total: dateData[date][period] || 0,
+    })),
+  }));
+}
