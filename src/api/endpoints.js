@@ -35,8 +35,8 @@ const endpoints = {
   },
   market:{
     hour: "v1/flow/hourly",
-    age: "/v1/sales/age",
-    shop: "/v1/shop/count"
+    age: "v1/sales/age",
+    shop: "v1/shop/count"
   }
 };
 

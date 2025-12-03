@@ -360,51 +360,25 @@ export default function MarketAnalysis({ location = '신사' }) {
   return (
     <section className="pb-20 space-y-6">
       {/* -------------------------------- */}
-      {/* 1) 연령대별 매출 비중 - 원그래프 */}
+      {/* 1) 상권 요약 카드 */}
       {/* -------------------------------- */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
-        <h3 className="text-lg font-semibold mb-6 text-slate-900 dark:text-white">연령대별 매출 비중</h3>
-
-        <div className="flex justify-center mb-6">
-          <div className="w-full max-w-2xl">
-            <Pie data={chartData} options={chartOptions} />
-          </div>
-        </div>
-
-        {/* 범례 */}
-        <div className="grid grid-cols-3 gap-3 text-center text-sm">
-          {ages.map((age, idx) => (
-            <div key={age.key} className="flex flex-col items-center">
-              <div
-                className="w-4 h-4 rounded-full mb-2"
-                style={{ backgroundColor: age.color }}
-              ></div>
-              <span className="text-slate-700 dark:text-slate-300 font-medium">{age.label}</span>
-              <span className="text-slate-500 dark:text-slate-400 text-xs">{age.value}%</span>
+      <div className="space-y-3">
+        {summaryStats.map((item, idx) => (
+          <div
+            key={idx}
+            className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800 flex items-start gap-3"
+          >
+            <span className="text-3xl">{item.icon}</span>
+            <div className="flex-1">
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{item.label}</p>
+              <p className="font-bold text-indigo-700 dark:text-indigo-400">{item.value}</p>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* -------------------------------- */}
-      {/* 2) 시간대별 유동인구 히트맵 */}
-      {/* -------------------------------- */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
-        <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-white">
-          시간대별 유동인구 히트맵
-        </h3>
-
-        {hourlyData && getThreeHourlyTotals(hourlyData).length > 0 ? (
-          <HourlyHeatmap data={getThreeHourlyTotals(hourlyData)} />
-        ) : (
-          <div className="text-center py-8 text-slate-500">
-            데이터를 로드하는 중입니다...
           </div>
-        )}
+        ))}
       </div>
 
       {/* -------------------------------- */}
-      {/* 3) 업종 TOP 5 */}
+      {/* 2) 업종 TOP 5 */}
       {/* -------------------------------- */}
       <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
         <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-white">{location}동 업종 TOP 5</h3>
@@ -431,21 +405,47 @@ export default function MarketAnalysis({ location = '신사' }) {
       </div>
 
       {/* -------------------------------- */}
-      {/* 4) 상권 요약 카드 */}
+      {/* 3) 연령대별 매출 비중 - 원그래프 */}
       {/* -------------------------------- */}
-      <div className="space-y-3">
-        {summaryStats.map((item, idx) => (
-          <div
-            key={idx}
-            className="bg-white dark:bg-slate-900 p-4 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800 flex items-start gap-3"
-          >
-            <span className="text-3xl">{item.icon}</span>
-            <div className="flex-1">
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{item.label}</p>
-              <p className="font-bold text-indigo-700 dark:text-indigo-400">{item.value}</p>
-            </div>
+      <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
+        <h3 className="text-lg font-semibold mb-6 text-slate-900 dark:text-white">연령대별 매출 비중</h3>
+
+        <div className="flex justify-center mb-6">
+          <div className="w-full max-w-2xl">
+            <Pie data={chartData} options={chartOptions} />
           </div>
-        ))}
+        </div>
+
+        {/* 범례 */}
+        <div className="grid grid-cols-3 gap-3 text-center text-sm">
+          {ages.map((age, idx) => (
+            <div key={age.key} className="flex flex-col items-center">
+              <div
+                className="w-4 h-4 rounded-full mb-2"
+                style={{ backgroundColor: age.color }}
+              ></div>
+              <span className="text-slate-700 dark:text-slate-300 font-medium">{age.label}</span>
+              <span className="text-slate-500 dark:text-slate-400 text-xs">{age.value}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* -------------------------------- */}
+      {/* 4) 시간대별 유동인구 히트맵 */}
+      {/* -------------------------------- */}
+      <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
+        <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-white">
+          시간대별 유동인구 히트맵
+        </h3>
+
+        {hourlyData && getThreeHourlyTotals(hourlyData).length > 0 ? (
+          <HourlyHeatmap data={getThreeHourlyTotals(hourlyData)} />
+        ) : (
+          <div className="text-center py-8 text-slate-500">
+            데이터를 로드하는 중입니다...
+          </div>
+        )}
       </div>
     </section>
   );
