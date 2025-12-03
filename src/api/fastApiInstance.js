@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const fastApiInstance = axios.create({
-  baseURL: "/fastapi", // 프록시로 로드
+  baseURL: "/fastapi/", // 프록시로 로드
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
