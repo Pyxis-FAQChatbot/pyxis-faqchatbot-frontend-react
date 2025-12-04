@@ -67,70 +67,64 @@ export default function MainPage() {
   };
 
   useEffect(() => {
-    const justSignedUp = sessionStorage.getItem("showSignupPopup");
-    if (justSignedUp === "true") {
-      setShowStoreForm(true);
-      sessionStorage.removeItem("showSignupPopup");
-    }
-
-    // if (!sessionStorage.getItem("userinfo")) {
-    //   const profile = await myInfoPath();
-    //   // 프론트세션에 저장\
-    //   console.log(profile);
-    //   sessionStorage.setItem(
-    //     "userInfo",
-    //     JSON.stringify({
-    //       userId: profile.id,
-    //       loginId: profile.loginId,
-    //       nickname: profile.nickname,
-    //       role: profile.role,
-    //     })
-    //   );
-    // }
-
+    let isMounted = true;
 
     const fetchUser = async () => {
       try {
         const res = await myInfoPath();
-        setUserInfo(res);
-        // Update session storage as well
-        sessionStorage.setItem("userInfo", JSON.stringify(res));
+        if (isMounted) {
+          setUserInfo(res);
+          sessionStorage.setItem("userInfo", JSON.stringify(res));
 
-        // SNS initial login detection
-        if (res.userSocial && res.userSocial !== 'NONE') {
-          try {
-            await storeApi.ViewPath();
-          } catch (err) {
-            // First-time SNS user - only show address form
-            if (!res.addressMain) {
+          // SNS initial login detection
+          if (res.userSocial && res.userSocial !== 'NONE') {
+            try {
+              await storeApi.ViewPath();
+            } catch (err) {
+              // First-time SNS user - only show address form
+              if (!res.addressMain) {
+                setShowAddressForm(true);
+              }
+            }
+          } else {
+            // Non-SNS users: check for StoreForm and address
+            const justSignedUp = sessionStorage.getItem("showSignupPopup");
+            if (justSignedUp === "true") {
+              setShowStoreForm(true);
+              sessionStorage.removeItem("showSignupPopup");
+            } else if (!res.addressMain) {
               setShowAddressForm(true);
             }
-          }
-        } else {
-          // Non-SNS users: check for StoreForm and address
-          const justSignedUp = sessionStorage.getItem("showSignupPopup");
-          if (justSignedUp === "true") {
-            setShowStoreForm(true);
-          } else if (!res.addressMain) {
-            setShowAddressForm(true);
           }
         }
       } catch (e) {
         console.error("Failed to fetch user info", e);
         // Fallback to session storage if API fails
-        const storedUser = sessionStorage.getItem("userInfo");
-        if (storedUser) {
-          setUserInfo(JSON.parse(storedUser));
+        if (isMounted) {
+          const storedUser = sessionStorage.getItem("userInfo");
+          if (storedUser) {
+            setUserInfo(JSON.parse(storedUser));
+          }
         }
       }
     };
+    
     fetchUser();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // location 변경 감지 - Market 컴포넌트 재렌더링
-  useEffect(() => {
-    setMarketKey(prev => prev + 1);
-  }, [userInfo?.addressMain]);
+  // location 계산
+  const getMarketLocation = () => {
+    if (!userInfo?.addressMain) return '신사';
+    const addressParts = userInfo.addressMain.split(' ');
+    if (addressParts[0] === '서울') {
+      return addressParts[2]?.slice(0, -1) || '신사';
+    }
+    return '신사';
+  };
 
   const QuickAction = ({ icon: Icon, label, desc, path, color }) => (
     <button
@@ -313,7 +307,7 @@ export default function MainPage() {
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/30 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
         </Card>
 
-        <MarketAnalysis key={marketKey} location={(userInfo?.addressMain?.split(' ')[2] || '신사동').slice(0, -1)} />
+        <MarketAnalysis key={marketKey} location={getMarketLocation()} />
       </main>
     </div>
   );

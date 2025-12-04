@@ -246,12 +246,25 @@ export default function MarketAnalysis({ location = '신사' }) {
   const [industryData, setIndustryData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [loadTimeout, setLoadTimeout] = useState(false);
 
   // API 데이터 조회
   useEffect(() => {
+    let isMounted = true;
+    let timeoutId = null;
+
     const fetchMarketData = async () => {
       setLoading(true);
       setError(null);
+      setLoadTimeout(false);
+      
+      // 3초 후에도 데이터가 안 오면 타임아웃 표시
+      timeoutId = setTimeout(() => {
+        if (isMounted) {
+          setLoadTimeout(true);
+        }
+      }, 3000);
+
       try {
         const [ageRes, hourRes, shopRes] = await Promise.all([
           marketApi.mkAgePath(location),
@@ -259,27 +272,42 @@ export default function MarketAnalysis({ location = '신사' }) {
           marketApi.mkShopPath(location),
         ]);
         
-        setAgeData(ageRes);
-        setHourlyData(hourRes);
-        setIndustryData(shopRes);
+        if (isMounted) {
+          setAgeData(ageRes);
+          setHourlyData(hourRes);
+          setIndustryData(shopRes);
+          setLoadTimeout(false);
+          clearTimeout(timeoutId);
+        }
       } catch (err) {
-        console.error('마켓 데이터 조회 실패:', err);
-        setError(err);
+        if (isMounted) {
+          console.error('마켓 데이터 조회 실패:', err);
+          setError(err);
+          setLoadTimeout(true);
+          clearTimeout(timeoutId);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     if (location) {
       fetchMarketData();
     }
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, [location]);
 
   // 연령대 데이터 처리
-  const rawAgeData = ageData ? calculateAgePercentage(ageData) : [18,17,17,16,16,16];
+  const rawAgeData = ageData ? calculateAgePercentage(ageData) : null;
 
   // 시간대 데이터 처리
-  const peakHourValue = hourlyData ? getPeakHourFormatted(hourlyData) : "19시";
+  const peakHourValue = hourlyData ? getPeakHourFormatted(hourlyData) : null;
 
   // 업종 데이터 처리
   const topIndustries = industryData ? getTopIndustries(industryData) : [
@@ -291,34 +319,34 @@ export default function MarketAnalysis({ location = '신사' }) {
   ];
 
   // 주요 소비층 찾기 (가장 높은 백분율)
-  const maxAgeIndex = rawAgeData.indexOf(Math.max(...rawAgeData));
-  const topAgeGroup = generateAgeLabel(maxAgeIndex);
-  const topAgePercentage = rawAgeData[maxAgeIndex];
+  const maxAgeIndex = rawAgeData ? rawAgeData.indexOf(Math.max(...rawAgeData)) : -1;
+  const topAgeGroup = rawAgeData ? generateAgeLabel(maxAgeIndex) : "조회없음";
+  const topAgePercentage = rawAgeData ? rawAgeData[maxAgeIndex] : "";
 
   const industries = topIndustries;
 
   const summaryStats = [
-    { icon: "🕖", label: "방문 많은 시간", value: peakHourValue },
-    { icon: "🧍‍♂️", label: "주요 소비층", value: `${topAgeGroup}(${topAgePercentage}%)` },
+    { icon: "🕖", label: "방문 많은 시간", value: peakHourValue || "조회없음" },
+    { icon: "🧍‍♂️", label: "주요 소비층", value: rawAgeData ? `${topAgeGroup}(${topAgePercentage}%)` : "조회없음" },
     { icon: "🏆", label: "경쟁 치열 업종", value: industries[0]?.name || "카페" },
   ];
 
   const maxIndustry = Math.max(...industries.map(i => i.count));
   
   // label과 color를 생성하며 변환
-  const ages = rawAgeData.map((value, index) => ({
+  const ages = rawAgeData ? rawAgeData.map((value, index) => ({
     key: `age_${index}`,
     label: generateAgeLabel(index),
     value: value,
     color: AGE_COLORS[index],
-  }));
+  })) : [];
 
   // 최대값 찾기 (범례 표시용)
-  const maxAgeValue = Math.max(...ages.map(a => a.value));
-  const maxAgeItem = ages.find(a => a.value === maxAgeValue);
+  const maxAgeValue = ages.length > 0 ? Math.max(...ages.map(a => a.value)) : 0;
+  const maxAgeItem = ages.length > 0 ? ages.find(a => a.value === maxAgeValue) : null;
 
   // Chart.js 데이터 설정
-  const chartData = {
+  const chartData = rawAgeData ? {
     labels: ages.map(a => a.label),
     datasets: [
       {
@@ -326,7 +354,17 @@ export default function MarketAnalysis({ location = '신사' }) {
         backgroundColor: ages.map(a => a.color),
         borderColor: "#FFFFFF",
         borderWidth: 2,
-        hoverOffset: 15, // 호버 시 섹션이 15px 바깥으로 이동 (커짐)
+        hoverOffset: 15,
+      },
+    ],
+  } : {
+    labels: [],
+    datasets: [
+      {
+        data: [],
+        backgroundColor: [],
+        borderColor: "#FFFFFF",
+        borderWidth: 2,
       },
     ],
   };
@@ -410,25 +448,56 @@ export default function MarketAnalysis({ location = '신사' }) {
       <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
         <h3 className="text-lg font-semibold mb-6 text-slate-900 dark:text-white">연령대별 매출 비중</h3>
 
-        <div className="flex justify-center mb-6">
-          <div className="w-full max-w-2xl">
-            <Pie data={chartData} options={chartOptions} />
-          </div>
-        </div>
-
-        {/* 범례 */}
-        <div className="grid grid-cols-3 gap-3 text-center text-sm">
-          {ages.map((age, idx) => (
-            <div key={age.key} className="flex flex-col items-center">
-              <div
-                className="w-4 h-4 rounded-full mb-2"
-                style={{ backgroundColor: age.color }}
-              ></div>
-              <span className="text-slate-700 dark:text-slate-300 font-medium">{age.label}</span>
-              <span className="text-slate-500 dark:text-slate-400 text-xs">{age.value}%</span>
+        {rawAgeData ? (
+          <>
+            <div className="flex justify-center mb-6">
+              <div className="w-full max-w-2xl">
+                <Pie data={chartData} options={chartOptions} />
+              </div>
             </div>
-          ))}
-        </div>
+
+            {/* 범례 */}
+            <div className="grid grid-cols-3 gap-3 text-center text-sm">
+              {ages.map((age, idx) => (
+                <div key={age.key} className="flex flex-col items-center">
+                  <div
+                    className="w-4 h-4 rounded-full mb-2"
+                    style={{ backgroundColor: age.color }}
+                  ></div>
+                  <span className="text-slate-700 dark:text-slate-300 font-medium">{age.label}</span>
+                  <span className="text-slate-500 dark:text-slate-400 text-xs">{age.value}%</span>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex justify-center mb-6">
+              <div className="w-full max-w-2xl h-96 flex items-center justify-center">
+                <div className="relative w-64 h-64">
+                  <svg viewBox="0 0 100 100" className="w-full h-full">
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      fill="none"
+                      stroke="#e2e8f0"
+                      strokeWidth="15"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-5xl font-bold text-slate-400 dark:text-slate-500">?</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 범례 대신 메시지 */}
+            <div className="text-center py-8">
+              <p className="text-slate-500 dark:text-slate-400">연령대별 정보가 없습니다.</p>
+            </div>
+          </>
+        )}
       </div>
 
       {/* -------------------------------- */}
@@ -439,7 +508,11 @@ export default function MarketAnalysis({ location = '신사' }) {
           시간대별 유동인구 히트맵
         </h3>
 
-        {hourlyData && getThreeHourlyTotals(hourlyData).length > 0 ? (
+        {loadTimeout ? (
+          <div className="text-center py-8 text-slate-500">
+            유동인구 정보가 없습니다
+          </div>
+        ) : hourlyData && getThreeHourlyTotals(hourlyData).length > 0 ? (
           <HourlyHeatmap data={getThreeHourlyTotals(hourlyData)} />
         ) : (
           <div className="text-center py-8 text-slate-500">
