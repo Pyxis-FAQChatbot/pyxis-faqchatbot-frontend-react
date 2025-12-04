@@ -257,7 +257,7 @@ export default function MyPage() {
           {recentChat ? (
             <div>
               <div className="flex justify-between items-center mb-1">
-                <span className="font-medium text-slate-800 dark:text-slate-200">{recentChat.title || "챗봇 상담"}</span>
+                <span className="font-medium text-slate-800 dark:text-slate-200 line-clamp-1">{recentChat.title || "챗봇 상담"}</span>
                 <span className="text-xs text-slate-400">{timeAgo(recentChat.lastMessageAt || recentChat.createdAt)}</span>
               </div>
               <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">{recentChat.lasMessage || "메시지가 없습니다."}</p>

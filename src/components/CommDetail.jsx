@@ -355,16 +355,16 @@ export default function PostDetailView({
                         }
                       }}
                     />
-                    <button onClick={() => updateComment(c.commentId)} className="px-3 py-1 bg-primary text-white text-xs rounded-lg hover:bg-primary/90 transition-colors">저장</button>
-                    <button onClick={cancelEditing} className="px-3 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">취소</button>
+                    <button onClick={() => updateComment(c.commentId)} className="px-3 py-1 bg-primary text-white text-xs rounded-lg hover:bg-primary/90 transition-colors h-8 flex items-center justify-center">저장</button>
+                    <button onClick={cancelEditing} className="px-3 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors h-8 flex items-center justify-center">취소</button>
                   </div>
                 </div>
               ) : deletingCommentId === c.commentId ? (
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">정말 삭제하시겠습니까?</p>
                   <div className="flex gap-2">
-                    <button onClick={() => confirmCommentDelete(c.commentId)} className="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-colors">삭제</button>
-                    <button onClick={cancelCommentDelete} className="px-3 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">취소</button>
+                    <button onClick={() => confirmCommentDelete(c.commentId)} className="px-3 py-1 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-colors h-8 flex items-center justify-center">삭제</button>
+                    <button onClick={cancelCommentDelete} className="px-3 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors h-8 flex items-center justify-center">취소</button>
                   </div>
                 </div>
               ) : (
@@ -416,10 +416,10 @@ export default function PostDetailView({
                       </div>
 
                       {editingCommentId === r.commentId ? (
-                        <div className="mb-2">
+                        <div>
                           <div className="flex gap-2">
                             <input
-                              className="flex-1 px-3 py-2 rounded-xl bg-white dark:bg-slate-600 border border-primary dark:border-primary text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
+                              className="flex-1 px-3 py-1 rounded-xl bg-white dark:bg-slate-600 border border-primary dark:border-primary text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
                               value={editContent}
                               onChange={(e) => setEditContent(e.target.value)}
                               autoFocus
@@ -429,16 +429,16 @@ export default function PostDetailView({
                                 }
                               }}
                             />
-                            <button onClick={() => updateComment(r.commentId)} className="px-2 py-1 bg-primary text-white text-[10px] rounded-lg hover:bg-primary/90 transition-colors">저장</button>
-                            <button onClick={cancelEditing} className="px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">취소</button>
+                            <button onClick={() => updateComment(r.commentId)} className="px-2 py-1 bg-primary text-white text-[10px] rounded-lg hover:bg-primary/90 transition-colors h-8 flex items-center justify-center">저장</button>
+                            <button onClick={cancelEditing} className="px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors h-8 flex items-center justify-center">취소</button>
                           </div>
                         </div>
                       ) : deletingCommentId === r.commentId ? (
-                        <div className="mb-2 flex items-center justify-between gap-2">
+                        <div className="flex items-center justify-between gap-2">
                           <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">정말 삭제하시겠습니까?</p>
                           <div className="flex gap-2">
-                            <button onClick={() => confirmCommentDelete(r.commentId)} className="px-2 py-1 bg-red-500 text-white text-[10px] rounded-lg hover:bg-red-600 transition-colors">삭제</button>
-                            <button onClick={cancelCommentDelete} className="px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">취소</button>
+                            <button onClick={() => confirmCommentDelete(r.commentId)} className="px-2 py-1 bg-red-500 text-white text-[10px] rounded-lg hover:bg-red-600 transition-colors h-8 flex items-center justify-center">삭제</button>
+                            <button onClick={cancelCommentDelete} className="px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors h-8 flex items-center justify-center">취소</button>
                           </div>
                         </div>
                       ) : (

@@ -226,6 +226,9 @@ function HourlyHeatmap({ data }) {
         },
       },
     },
+    scrollbar: {
+      enabled: false,
+    },
   };
 
   return (
