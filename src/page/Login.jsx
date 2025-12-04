@@ -159,8 +159,7 @@ const Login = () => {
             <button
               className="w-12 h-12 rounded-xl bg-[#FEE500] hover:bg-[#FDD835] transition-colors flex items-center justify-center"
               onClick={() => {
-                const backendUrl = import.meta.env.VITE_API_BASE_URL;
-                window.location.href = `${backendUrl}/login/kakao`;
+                window.location.href = `/login/kakao`;
               }}
             >
               <KakaoIcon width={32} height={32} />
@@ -170,8 +169,7 @@ const Login = () => {
             <button
               className="w-12 h-12 rounded-xl bg-[#03C75A] hover:bg-[#02B150] transition-colors flex items-center justify-center"
               onClick={() => {
-                const backendUrl = import.meta.env.VITE_API_BASE_URL;
-                window.location.href = `${backendUrl}/login/naver`;
+                window.location.href = `/login/naver`;
               }}
             >
               <NaverIcon width={32} height={32} />
