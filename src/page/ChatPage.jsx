@@ -213,6 +213,14 @@ export default function ChatPage() {
     handleSendMessage(question);
   };
 
+  // 마지막 봇 메시지가 새 메시지이고 타이핑이 완료되었는지 판정
+  const lastBotMessage = messages.length > 0 && messages[messages.length - 1]?.sender === "bot" 
+    ? messages[messages.length - 1] 
+    : null;
+  const isLastBotMessageNew = lastBotMessage?.isNew;
+  const shouldShowFollowUps = lastBotMessage?.followUpQuestions?.length > 0 && 
+    (!isLastBotMessageNew || isBotResponding === false); // isNew가 false이거나 봇 응답이 완료됨
+
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
       <Header
@@ -264,14 +272,14 @@ export default function ChatPage() {
         )}
 
         {/* Follow-up Questions at Bottom */}
-        {messages.length > 0 && messages[messages.length - 1]?.followUpQuestions?.length > 0 && (
+        {shouldShowFollowUps && (
           <div className="px-4 pb-4">
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1">
               <Sparkles size={12} className="text-primary" />
               추천 질문
             </p>
             <div className="flex flex-wrap gap-2">
-              {messages[messages.length - 1].followUpQuestions.map((question, i) => (
+              {lastBotMessage.followUpQuestions.map((question, i) => (
                 <button
                   key={i}
                   onClick={() => handleFollowUpClick(question)}

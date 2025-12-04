@@ -493,7 +493,7 @@ export default function MarketAnalysis({ location = '신사' }) {
             </div>
 
             {/* 범례 대신 메시지 */}
-            <div className="text-center py-8">
+            <div className="text-center">
               <p className="text-slate-500 dark:text-slate-400">연령대별 정보가 없습니다.</p>
             </div>
           </>
@@ -508,12 +508,16 @@ export default function MarketAnalysis({ location = '신사' }) {
           시간대별 유동인구 히트맵
         </h3>
 
-        {loadTimeout ? (
+        {hourlyData?.data && getThreeHourlyTotals(hourlyData).length > 0 ? (
+          <HourlyHeatmap data={getThreeHourlyTotals(hourlyData)} />
+        ) : hourlyData?.data && hourlyData.data.length === 0 ? (
           <div className="text-center py-8 text-slate-500">
             유동인구 정보가 없습니다
           </div>
-        ) : hourlyData && getThreeHourlyTotals(hourlyData).length > 0 ? (
-          <HourlyHeatmap data={getThreeHourlyTotals(hourlyData)} />
+        ) : loadTimeout ? (
+          <div className="text-center py-8 text-slate-500">
+            유동인구 정보를 불러올 수 없습니다
+          </div>
         ) : (
           <div className="text-center py-8 text-slate-500">
             데이터를 로드하는 중입니다...

@@ -12,6 +12,9 @@ export default function ChatBubble({ message, isBot, isLatest, scrollToBottom })
 
     // If not typing, use full text
     const finalDisplay = shouldType ? displayText : message.text;
+    
+    // 타이핑 완료 여부 판정
+    const isTypingComplete = !shouldType || (displayText.length === message.text.length);
 
     // Auto-scroll when text updates
     const cursorRef = React.useRef(null);
@@ -29,7 +32,7 @@ export default function ChatBubble({ message, isBot, isLatest, scrollToBottom })
                     : "bg-gradient-to-br from-primary to-secondary text-white shadow-glow"
                     }`}
             >
-                <div className="text-sm leading-relaxed whitespace-pre-wrap break-words markdown-body">
+                <div className={`text-sm leading-relaxed whitespace-pre-wrap break-words ${isBot ? "markdown-body" : ""}`}>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {finalDisplay}
                     </ReactMarkdown>
@@ -40,7 +43,7 @@ export default function ChatBubble({ message, isBot, isLatest, scrollToBottom })
                 )}
 
                 {/* Reference Materials */}
-                {isBot && message.sources?.length > 0 && (
+                {isBot && message.sources?.length > 0 && isTypingComplete && (
                     <div className="mt-3 pt-3 border-t border-slate-100/50 dark:border-slate-700/50">
                         <div className="flex items-center gap-1.5 mb-2">
                             <FileText size={11} className="text-primary/70" />

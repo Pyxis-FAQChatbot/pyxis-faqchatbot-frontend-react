@@ -5,7 +5,7 @@
 
 /* 문단 */
 .markdown-body p {
-  @apply mb-2 text-slate-800 dark:text-slate-100;
+  @apply text-slate-800 dark:text-slate-100;
 }
 
 /* 제목 */

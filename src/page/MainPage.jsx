@@ -22,6 +22,7 @@ export default function MainPage() {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [marketKey, setMarketKey] = useState(0);
+  const [showMarket, setShowMarket] = useState(false);
 
   const addressStyle = {
     width: '100%',
@@ -68,12 +69,14 @@ export default function MainPage() {
 
   useEffect(() => {
     let isMounted = true;
+    let timeoutId = null;
 
     const fetchUser = async () => {
       try {
         const res = await myInfoPath();
         if (isMounted) {
           setUserInfo(res);
+          setShowMarket(true);
           sessionStorage.setItem("userInfo", JSON.stringify(res));
 
           // SNS initial login detection
@@ -97,6 +100,7 @@ export default function MainPage() {
             }
           }
         }
+        if (timeoutId) clearTimeout(timeoutId);
       } catch (e) {
         console.error("Failed to fetch user info", e);
         // Fallback to session storage if API fails
@@ -109,10 +113,18 @@ export default function MainPage() {
       }
     };
     
+    // 2초 타임아웃: 2초 후에도 userInfo가 없으면 MarketAnalysis 표시
+    timeoutId = setTimeout(() => {
+      if (isMounted && !userInfo) {
+        setShowMarket(true);
+      }
+    }, 800);
+    
     fetchUser();
 
     return () => {
       isMounted = false;
+      clearTimeout(timeoutId);
     };
   }, []);
 
@@ -121,7 +133,16 @@ export default function MainPage() {
     if (!userInfo?.addressMain) return '신사';
     const addressParts = userInfo.addressMain.split(' ');
     if (addressParts[0] === '서울') {
-      return addressParts[2]?.slice(0, -1) || '신사';
+      let location = addressParts[2] || '신사동';
+      
+      // 맨 끝 글자가 '가'이면 뒤에서 3글자 제거, 아니면 1글자 제거
+      if (location.endsWith('가')) {
+        location = location.slice(0, -3);
+      } else {
+        location = location.slice(0, -1);
+      }
+      
+      return location || '신사';
     }
     return '신사';
   };
@@ -307,7 +328,7 @@ export default function MainPage() {
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/30 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
         </Card>
 
-        <MarketAnalysis key={marketKey} location={getMarketLocation()} />
+        {showMarket && <MarketAnalysis key={marketKey} location={getMarketLocation()} />}
       </main>
     </div>
   );
