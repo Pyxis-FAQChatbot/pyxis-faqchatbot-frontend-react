@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, Search, ArrowLeft, Sticker, LogOut } from "lucide-react";
+import { Menu, Search, ArrowLeft, Sticker, LogOut, Bell } from "lucide-react";
 import { logoutPath } from "../api/loginApi";
 
 export default function Header({ type = "main", title = "", onMenuClick }) {
@@ -53,14 +53,22 @@ export default function Header({ type = "main", title = "", onMenuClick }) {
           </div>
         )}
       </div>
-
-      <button
-        onClick={handleLogout}
-        className="p-2 -mr-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-        title="로그아웃"
-      >
-        <LogOut size={20} />
-      </button>
+      
+      <div className="flex items-center gap-2">
+        <button
+          className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+          title="알림"
+        >
+          <Bell size={20} />
+        </button>
+        <button
+          onClick={handleLogout}
+          className="p-2 -mr-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+          title="로그아웃"
+        >
+          <LogOut size={20} />
+        </button>
+      </div>
     </header>
   );
 }
