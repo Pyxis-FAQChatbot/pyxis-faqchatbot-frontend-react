@@ -249,32 +249,22 @@ export default function MarketAnalysis({ location = '신사' }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loadTimeout, setLoadTimeout] = useState(false);
-  const [llmLoadTimeout, setLlmLoadTimeout] = useState(false);
 
   // API 데이터 조회
   useEffect(() => {
     let isMounted = true;
     let timeoutId = null;
-    let llmTimeoutId = null;
 
     const fetchMarketData = async () => {
       setLoading(true);
       setError(null);
       setLoadTimeout(false);
-      setLlmLoadTimeout(false);
       setLlmMessage(null);
       
       // 3초 후에도 데이터가 안 오면 타임아웃 표시
       timeoutId = setTimeout(() => {
         if (isMounted) {
           setLoadTimeout(true);
-        }
-      }, 3000);
-
-      // LLM 메시지 3초 타임아웃
-      llmTimeoutId = setTimeout(() => {
-        if (isMounted) {
-          setLlmLoadTimeout(true);
         }
       }, 3000);
 
@@ -298,15 +288,9 @@ export default function MarketAnalysis({ location = '신사' }) {
           const insightRes = await marketApi.mkInsightPath(location);
           if (isMounted && insightRes?.insight) {
             setLlmMessage(insightRes.insight);
-            setLlmLoadTimeout(false);
-            clearTimeout(llmTimeoutId);
           }
         } catch (llmErr) {
           console.error('LLM 인사이트 조회 실패:', llmErr);
-          if (isMounted) {
-            setLlmLoadTimeout(true);
-            clearTimeout(llmTimeoutId);
-          }
         }
       } catch (err) {
         if (isMounted) {
@@ -329,7 +313,6 @@ export default function MarketAnalysis({ location = '신사' }) {
     return () => {
       isMounted = false;
       clearTimeout(timeoutId);
-      clearTimeout(llmTimeoutId);
     };
   }, [location]);
 
@@ -474,10 +457,6 @@ export default function MarketAnalysis({ location = '신사' }) {
                 </svg>
               </button>
             )}
-          </div>
-        ) : llmLoadTimeout ? (
-          <div className="text-center py-8 text-white">
-            정보를 불러올 수 없습니다
           </div>
         ) : (
           <div className="text-center py-8">
