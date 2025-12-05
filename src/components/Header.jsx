@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, Search, ArrowLeft, Sticker, LogOut, Bell } from "lucide-react";
 import { logoutPath } from "../api/loginApi";
@@ -6,6 +6,7 @@ import { logoutPath } from "../api/loginApi";
 export default function Header({ type = "main", title = "", onMenuClick }) {
   const navigate = useNavigate();
   const ICON_SIZE = 24;
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const handleLogout = async () => {
     try {
@@ -16,6 +17,15 @@ export default function Header({ type = "main", title = "", onMenuClick }) {
       console.error("로그아웃 실패:", error);
       alert("로그아웃 중 오류가 발생했습니다.");
     }
+  };
+
+  const handleNotificationClick = () => {
+    setNotificationCount((prev) => {
+      if (prev >= 5) {
+        return 0;
+      }
+      return prev + 1;
+    });
   };
 
   const IconSwitch = () => {
@@ -56,10 +66,16 @@ export default function Header({ type = "main", title = "", onMenuClick }) {
       
       <div className="flex items-center gap-2">
         <button
-          className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+          onClick={handleNotificationClick}
+          className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors relative"
           title="알림"
         >
           <Bell size={20} />
+          {notificationCount > 0 && notificationCount <= 5 && (
+            <div className="absolute bottom-0 right-0 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center leading-none">
+              <span className="text-white text-[10px] font-bold">{notificationCount}</span>
+            </div>
+          )}
         </button>
         <button
           onClick={handleLogout}
