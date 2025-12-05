@@ -7,6 +7,7 @@ import { marketApi } from "../api/marketApi";
 import { calculateAgePercentage } from "../utils/calculateAgePercentage";
 import { getPeakHourFormatted, getThreeHourlyTotals } from "../utils/calculatePeakHour";
 import { getTopIndustries } from "../utils/calculateTopIndustries";
+import PyxisLogoSimple from "../assets/pyxis_logo_simple.svg";
 
 // 도넛 중앙에 툴팁을 표시하는 커스텀 플러그인
 const centerTooltipPlugin = {
@@ -409,12 +410,11 @@ export default function MarketAnalysis({ location = '신사' }) {
       {/* -------------------------------- */}
       <div className="bg-gradient-to-br from-indigo-700 to-blue-500 via-indigo-650 rounded-3xl p-6 shadow-sm border border-blue-600 backdrop-blur-sm">
         <h3 className="text-lg font-semibold mb-4 text-amber-200 flex items-center gap-3">
-          <div
-            className="w-6 h-6 flex-shrink-0 bg-contain bg-no-repeat bg-center"
-            style={{
-              backgroundImage: "url('/src/assets/pyxis_logo.png')"
-            }}
-          ></div>
+          <img 
+            src={PyxisLogoSimple} 
+            alt="Pyxis Logo" 
+            className="w-6 h-6 flex-shrink-0"
+          />
           AI 추천 전략
         </h3>
 

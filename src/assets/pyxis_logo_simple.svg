@@ -1,0 +1,21 @@
+<svg width="32" height="32" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="128" cy="128" r="128" fill="#0D4D9C"/>
+
+  <!-- Enhanced 8-point Star -->
+  <g fill="#ffffff">
+
+    <!-- Vertical (Thicker & Longer) -->
+    <polygon points="128,20 142,128 128,236 114,128"/>
+
+    <!-- Horizontal (Thicker & Longer) -->
+    <polygon points="20,128 128,142 236,128 128,114"/>
+
+    <!-- Diagonal 1 -->
+    <polygon points="72,72 128,138 184,72 128,118"/>
+
+    <!-- Diagonal 2 -->
+    <polygon points="72,184 128,118 184,184 128,138"/>
+
+  </g>
+</svg>
