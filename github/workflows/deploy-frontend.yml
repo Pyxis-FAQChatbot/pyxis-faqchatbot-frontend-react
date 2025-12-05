@@ -1,0 +1,58 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Git checkout
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Set up Node.js for build
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      # 3. Create .env file for Vite from GitHub Secrets
+      - name: Create .env
+        run: |
+          echo "VITE_API_URL=${{ secrets.FRONT_VITE_API_URL }}" >> .env
+          echo "VITE_ANOTHER_KEY=${{ secrets.FRONT_VITE_ANOTHER_KEY }}" >> .env
+
+      # 4. Install & Build React
+      - name: Install & Build
+        run: |
+          npm install
+          npm run build
+
+      # 5. Prepare SSH key
+      - name: Configure SSH key
+        run: |
+          echo "${{ secrets.FRONT_SSH_KEY }}" > key.pem
+          chmod 600 key.pem
+
+      # 6. Ensure directory exists on server
+      - name: Ensure deploy directory exists
+        run: |
+          ssh -o StrictHostKeyChecking=no -i key.pem root@49.50.136.181 "
+            mkdir -p /var/www/pyxis-front
+          "
+
+      # 7. Deploy build (dist) to server
+      - name: Deploy files
+        run: |
+          rsync -avz -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
+            ./dist/ root@49.50.136.181:/var/www/pyxis-front/
+
+      # 8. Restart nginx
+      - name: Restart Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no -i key.pem root@49.50.136.181 "
+            sudo systemctl restart nginx
+          "
