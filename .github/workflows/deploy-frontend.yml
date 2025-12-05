@@ -41,14 +41,14 @@ jobs:
       - name: Ensure deploy directory exists
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem root@49.50.136.181 "
-            mkdir -p /var/www/pyxis-front
+            mkdir -p /var/www/pyxis
           "
 
       # 7. Deploy build (dist) to server
       - name: Deploy files
         run: |
           rsync -avz --delete -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
-            ./dist/ root@49.50.136.181:/var/www/pyxis-front/
+            ./dist/ root@49.50.136.181:/var/www/pyxis/
 
 
       # 8. Restart nginx
