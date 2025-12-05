@@ -19,9 +19,15 @@ const mkShopPath = async (dong) => {
   });
   return response.data; 
 };
-
+const mkInsightPath = async (dong) => {
+  const response = await fastApiInstance.get(endpoints.market.insight, {
+    params: { dong: dong },
+  });
+  return response.data; 
+}
 export const marketApi = {
     mkHourPath,
     mkAgePath,
-    mkShopPath
+    mkShopPath,
+    mkInsightPath
 };

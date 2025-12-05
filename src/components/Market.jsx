@@ -244,24 +244,37 @@ export default function MarketAnalysis({ location = '신사' }) {
   const [ageData, setAgeData] = useState(null);
   const [hourlyData, setHourlyData] = useState(null);
   const [industryData, setIndustryData] = useState(null);
+  const [llmMessage, setLlmMessage] = useState(null);
+  const [llmExpanded, setLlmExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loadTimeout, setLoadTimeout] = useState(false);
+  const [llmLoadTimeout, setLlmLoadTimeout] = useState(false);
 
   // API 데이터 조회
   useEffect(() => {
     let isMounted = true;
     let timeoutId = null;
+    let llmTimeoutId = null;
 
     const fetchMarketData = async () => {
       setLoading(true);
       setError(null);
       setLoadTimeout(false);
+      setLlmLoadTimeout(false);
+      setLlmMessage(null);
       
       // 3초 후에도 데이터가 안 오면 타임아웃 표시
       timeoutId = setTimeout(() => {
         if (isMounted) {
           setLoadTimeout(true);
+        }
+      }, 3000);
+
+      // LLM 메시지 3초 타임아웃
+      llmTimeoutId = setTimeout(() => {
+        if (isMounted) {
+          setLlmLoadTimeout(true);
         }
       }, 3000);
 
@@ -278,6 +291,22 @@ export default function MarketAnalysis({ location = '신사' }) {
           setIndustryData(shopRes);
           setLoadTimeout(false);
           clearTimeout(timeoutId);
+        }
+
+        // LLM 인사이트 조회
+        try {
+          const insightRes = await marketApi.mkInsightPath(location);
+          if (isMounted && insightRes?.insight) {
+            setLlmMessage(insightRes.insight);
+            setLlmLoadTimeout(false);
+            clearTimeout(llmTimeoutId);
+          }
+        } catch (llmErr) {
+          console.error('LLM 인사이트 조회 실패:', llmErr);
+          if (isMounted) {
+            setLlmLoadTimeout(true);
+            clearTimeout(llmTimeoutId);
+          }
         }
       } catch (err) {
         if (isMounted) {
@@ -300,6 +329,7 @@ export default function MarketAnalysis({ location = '신사' }) {
     return () => {
       isMounted = false;
       clearTimeout(timeoutId);
+      clearTimeout(llmTimeoutId);
     };
   }, [location]);
 
@@ -391,6 +421,74 @@ export default function MarketAnalysis({ location = '신사' }) {
 
   return (
     <section className="pb-20 space-y-6">
+      {/* -------------------------------- */}
+      {/* 0) LLM 메시지 */}
+      {/* -------------------------------- */}
+      <div className="bg-gradient-to-br from-indigo-700 to-blue-500 via-indigo-650 rounded-3xl p-6 shadow-sm border border-blue-600 backdrop-blur-sm">
+        <h3 className="text-lg font-semibold mb-4 text-amber-200 flex items-center gap-3">
+          <div
+            className="w-6 h-6 flex-shrink-0 bg-contain bg-no-repeat bg-center"
+            style={{
+              backgroundImage: "url('/src/assets/pyxis_logo.png')"
+            }}
+          ></div>
+          AI 추천 전략
+        </h3>
+
+        {llmMessage ? (
+          <div>
+            <div
+              ref={(el) => {
+                if (el && !llmExpanded) {
+                  const lineHeight = parseInt(window.getComputedStyle(el).lineHeight);
+                  const height = el.offsetHeight;
+                  const lines = Math.ceil(height / lineHeight);
+                  if (lines > 3 && !llmMessage?.split?.('\\n')?.some?.(line => line.length > 80)) {
+                    // 실제 높이로 계산한 줄 수가 3을 초과하면 더보기 표시
+                  }
+                }
+              }}
+              className={`prose max-w-none text-sm text-white transition-all duration-300 overflow-hidden break-words ${!llmExpanded ? 'line-clamp-3' : ''}`}
+            >
+              {llmMessage}
+            </div>
+            {llmMessage && llmExpanded === false && (
+              <button
+                onClick={() => setLlmExpanded(true)}
+                className="mt-3 flex items-center gap-1 text-white hover:text-slate-200 text-sm font-medium transition-colors"
+              >
+                <span>더보기</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </button>
+            )}
+            {llmMessage && llmExpanded === true && (
+              <button
+                onClick={() => setLlmExpanded(false)}
+                className="mt-3 flex items-center gap-1 text-white hover:text-slate-200 text-sm font-medium transition-colors"
+              >
+                <span>접기</span>
+                <svg className="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </button>
+            )}
+          </div>
+        ) : llmLoadTimeout ? (
+          <div className="text-center py-8 text-white">
+            정보를 불러올 수 없습니다
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <div className="inline-block">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+            <p className="text-white mt-3">분석 중입니다...</p>
+          </div>
+        )}
+      </div>
+
       {/* -------------------------------- */}
       {/* 1) 상권 요약 카드 */}
       {/* -------------------------------- */}

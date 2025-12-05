@@ -309,6 +309,7 @@ export default function MainPage() {
         </div>
 
         {/* Recent Activity / Banner */}
+        {/*
         <Card className="!bg-gradient-to-br !from-slate-900 !to-slate-800 !text-white !border-none overflow-hidden relative">
           <div className="relative z-10">
             <h3 className="text-lg font-bold mb-2">내 정보 관리</h3>
@@ -323,10 +324,11 @@ export default function MainPage() {
             </button>
           </div>
 
-          {/* Decorative Circles */}
+          {/* Decorative Circles
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary/30 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
         </Card>
+        */}
 
         {showMarket && <MarketAnalysis key={marketKey} location={getMarketLocation()} />}
       </main>
