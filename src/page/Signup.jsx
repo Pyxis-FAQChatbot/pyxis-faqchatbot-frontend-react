@@ -77,6 +77,8 @@ const Signup = () => {
 
     if (!formData.password.trim()) {
       newErrors.password = "비밀번호를 입력해주세요.";
+    } else if (formData.password.length < 4 || formData.password.length > 20) {
+      newErrors.password = "비밀번호는 4자 이상, 20자 이하 이어야 합니다.";
     }
 
     if (formData.password !== formData.checkPassword) {
@@ -85,7 +87,7 @@ const Signup = () => {
 
     if (!formData.nickname.trim()) {
       newErrors.nickname = "닉네임을 입력해주세요.";
-    } else if (formData.nickname.length < 2 && formData.nickname.length > 21) {
+    } else if (formData.nickname.length < 2 || formData.nickname.length > 20) {
       newErrors.nickname = "닉네임은 2자 이상, 20자 이하 이어야 합니다.";
     }
 
@@ -234,12 +236,6 @@ const Signup = () => {
       </div>
 
       <form className="space-y-4 pb-8" onSubmit={handleSubmit}>
-        {errors.general && (
-          <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800/50 text-red-500 dark:text-red-400 text-xs text-center font-medium transition-colors">
-            {errors.general}
-          </div>
-        )}
-
         {/* 아이디 */}
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-slate-600 dark:text-slate-300 ml-1">아이디</label>
@@ -254,9 +250,7 @@ const Signup = () => {
                   setIdCheckStatus("");
                 }}
                 placeholder="아이디 입력"
-                required
                 disabled={isLoading}
-                error={errors.userId}
                 className="!mt-0"
               />
             </div>
@@ -270,6 +264,11 @@ const Signup = () => {
               중복확인
             </Button>
           </div>
+          {errors.userId && (
+            <p className="text-xs ml-1 mt-1 text-red-500 dark:text-red-400">
+              {errors.userId}
+            </p>
+          )}
           {idCheckMessage && (
             <p className={`text-xs ml-1 mt-1 ${idCheckStatus === "success" ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"
               }`}>
@@ -287,7 +286,6 @@ const Signup = () => {
             value={formData.password}
             onChange={handleChange}
             placeholder="비밀번호 입력"
-            required
             disabled={isLoading}
             error={errors.password}
             className="!mt-0"
@@ -303,7 +301,6 @@ const Signup = () => {
             value={formData.checkPassword}
             onChange={handleChange}
             placeholder="비밀번호 재입력"
-            required
             disabled={isLoading}
             error={errors.checkPassword}
             className="!mt-0"
@@ -324,9 +321,7 @@ const Signup = () => {
                   setNicknameCheckStatus("");
                 }}
                 placeholder="닉네임 입력"
-                required
                 disabled={isLoading}
-                error={errors.nickname}
                 className="!mt-0"
               />
             </div>
@@ -340,6 +335,11 @@ const Signup = () => {
               중복확인
             </Button>
           </div>
+          {errors.nickname && (
+            <p className="text-xs ml-1 mt-1 text-red-500 dark:text-red-400">
+              {errors.nickname}
+            </p>
+          )}
           {nicknameCheckMessage && (
             <p className={`text-xs ml-1 mt-1 ${nicknameCheckStatus === "success" ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"
               }`}>
@@ -357,7 +357,6 @@ const Signup = () => {
               value={formData.birthYear}
               onChange={handleChange}
               disabled={isLoading}
-              required
               className={selectClassName}
             >
               <option value="">년도</option>
@@ -370,7 +369,6 @@ const Signup = () => {
               value={formData.birthMonth}
               onChange={handleChange}
               disabled={isLoading}
-              required
               className={selectClassName}
             >
               <option value="">월</option>
@@ -383,7 +381,6 @@ const Signup = () => {
               value={formData.birthDay}
               onChange={handleChange}
               disabled={isLoading}
-              required
               className={selectClassName}
             >
               <option value="">일</option>
@@ -451,6 +448,12 @@ const Signup = () => {
           </div>
           {errors.gender && <p className="text-[10px] text-red-500 dark:text-red-400 ml-1 mt-0.5">{errors.gender}</p>}
         </div>
+
+        {errors.general && (
+          <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800/50 text-red-500 dark:text-red-400 text-xs text-center font-medium transition-colors">
+            {errors.general}
+          </div>
+        )}
 
         <Button type="submit" disabled={isLoading} className="mt-6 shadow-lg shadow-primary/30">
           {isLoading ? "가입 중..." : "회원가입 완료"}

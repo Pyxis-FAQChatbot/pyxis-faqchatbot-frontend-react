@@ -443,12 +443,12 @@ export default function MarketAnalysis({ location = '신사' }) {
       </div>
 
       {/* -------------------------------- */}
-      {/* 3) 연령대별 매출 비중 - 원그래프 */}
+      {/* 3) 연령대별 매출 비중 - 도넛그래프 */}
       {/* -------------------------------- */}
       <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
         <h3 className="text-lg font-semibold mb-6 text-slate-900 dark:text-white">연령대별 매출 비중</h3>
 
-        {rawAgeData ? (
+        {ageData?.data && ageData.data.length > 0 ? (
           <>
             <div className="flex justify-center mb-6">
               <div className="w-full max-w-2xl">
