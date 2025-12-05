@@ -47,8 +47,9 @@ jobs:
       # 7. Deploy build (dist) to server
       - name: Deploy files
         run: |
-          rsync -avz -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
+          rsync -avz --delete -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
             ./dist/ root@49.50.136.181:/var/www/pyxis-front/
+
 
       # 8. Restart nginx
       - name: Restart Nginx
