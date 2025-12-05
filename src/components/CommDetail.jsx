@@ -107,7 +107,7 @@ export default function PostDetailView({
   const confirmDelete = async () => {
     try {
       await api.postDeletePath(postId);
-      onBack();
+      onBack({ refresh: true });
     } catch (e) {
       console.error("삭제 실패:", e);
       alert("삭제에 실패했습니다.");

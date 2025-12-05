@@ -141,7 +141,13 @@ export default function CommunityPage() {
         <CommDetail
           postId={selectedPostId}
           api={communityApi}
-          onBack={() => navigate("/community")}
+          onBack={(options = {}) => {
+            if (options.refresh) {
+              navigate("/community", { state: { refresh: true } });
+            } else {
+              navigate("/community");
+            }
+          }}
           onPostLoaded={(post) => setCurrentPost(post)}
         />
       );
