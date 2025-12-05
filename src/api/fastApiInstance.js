@@ -10,24 +10,24 @@ const fastApiInstance = axios.create({
 
 // 요청 인터셉터
 fastApiInstance.interceptors.request.use((config) => {
-  const fullUrl = config.baseURL + config.url;
-  console.log("[FastAPI 요청]", config.method.toUpperCase(), fullUrl, {
-    params: config.params,
-    data: config.data,
-  });
+  // const fullUrl = config.baseURL + config.url;
+  // console.log("[FastAPI 요청]", config.method.toUpperCase(), fullUrl, {
+  //   params: config.params,
+  //   data: config.data,
+  // });
   return config;
 });
 
 // 요청/응답 공통 처리 
 fastApiInstance.interceptors.response.use(
   (response) => {
-    const fullUrl = response.config.baseURL + response.config.url;
-    console.log("[FastAPI 응답]", fullUrl, response.status, response.data);
+    // const fullUrl = response.config.baseURL + response.config.url;
+    // console.log("[FastAPI 응답]", fullUrl, response.status, response.data);
     return response;
   },
   (error) => {
     const fullUrl = error.config?.baseURL + error.config?.url;
-    console.error("[FastAPI 에러]", fullUrl, error.response?.status, error.response?.data || error.message);
+    // console.error("[FastAPI 에러]", fullUrl, error.response?.status, error.response?.data || error.message);
     // 서버에서 응답 객체가 내려온 경우
     if (error.response && error.response.data) {
       return Promise.reject(error.response.data); 

@@ -304,19 +304,13 @@ export default function MarketAnalysis({ location = '신사' }) {
   }, [location]);
 
   // 연령대 데이터 처리
-  const rawAgeData = ageData ? calculateAgePercentage(ageData) : null;
+  const rawAgeData = ageData?.data ? calculateAgePercentage(ageData) : null;
 
   // 시간대 데이터 처리
   const peakHourValue = hourlyData ? getPeakHourFormatted(hourlyData) : null;
 
   // 업종 데이터 처리
-  const topIndustries = industryData ? getTopIndustries(industryData) : [
-    { name: "카페", count: 421 },
-    { name: "한식", count: 312 },
-    { name: "미용", count: 228 },
-    { name: "의류", count: 150 },
-    { name: "제과제빵", count: 84 },
-  ];
+  const topIndustries = industryData ? getTopIndustries(industryData) : null;
 
   // 주요 소비층 찾기 (가장 높은 백분율)
   const maxAgeIndex = rawAgeData ? rawAgeData.indexOf(Math.max(...rawAgeData)) : -1;
@@ -327,11 +321,11 @@ export default function MarketAnalysis({ location = '신사' }) {
 
   const summaryStats = [
     { icon: "🕖", label: "방문 많은 시간", value: peakHourValue || "조회없음" },
-    { icon: "🧍‍♂️", label: "주요 소비층", value: rawAgeData ? `${topAgeGroup}(${topAgePercentage}%)` : "조회없음" },
-    { icon: "🏆", label: "경쟁 치열 업종", value: industries[0]?.name || "카페" },
+    { icon: "🧍‍♂️", label: "주요 소비층", value: ageData?.data && ageData.data.length > 0 ? `${topAgeGroup}(${topAgePercentage}%)` : "조회없음" },
+    { icon: "🏆", label: "경쟁 치열 업종", value: topIndustries && topIndustries.length > 0 ? topIndustries[0]?.name : "조회없음" },
   ];
 
-  const maxIndustry = Math.max(...industries.map(i => i.count));
+  const maxIndustry = topIndustries && topIndustries.length > 0 ? Math.max(...industries.map(i => i.count)) : 0;
   
   // label과 color를 생성하며 변환
   const ages = rawAgeData ? rawAgeData.map((value, index) => ({
@@ -421,25 +415,31 @@ export default function MarketAnalysis({ location = '신사' }) {
       <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-100 dark:border-slate-800">
         <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-white">{location}동 업종 TOP 5</h3>
 
-        <div className="space-y-4">
-          {industries.map(item => (
-            <div key={item.name}>
-              <div className="flex justify-between mb-2 text-sm">
-                <span className="font-medium text-slate-900 dark:text-white">{item.name}</span>
-                <span className="text-slate-600 dark:text-slate-400">{item.count}개</span>
-              </div>
+        {industries && industries.length > 0 && industries.some(i => i.count > 0) ? (
+          <div className="space-y-4">
+            {industries.map(item => (
+              <div key={item.name}>
+                <div className="flex justify-between mb-2 text-sm">
+                  <span className="font-medium text-slate-900 dark:text-white">{item.name}</span>
+                  <span className="text-slate-600 dark:text-slate-400">{item.count}개</span>
+                </div>
 
-              <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full">
-                <div
-                  className="h-2 rounded-full bg-indigo-500"
-                  style={{
-                    width: `${(item.count / maxIndustry) * 100}%`,
-                  }}
-                />
+                <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full">
+                  <div
+                    className="h-2 rounded-full bg-indigo-500"
+                    style={{
+                      width: `${(item.count / maxIndustry) * 100}%`,
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="h-60 flex items-center justify-center">
+            <p className="text-slate-500 dark:text-slate-400">업종정보가 없습니다</p>
+          </div>
+        )}
       </div>
 
       {/* -------------------------------- */}
@@ -472,8 +472,8 @@ export default function MarketAnalysis({ location = '신사' }) {
           </>
         ) : (
           <>
-            <div className="flex justify-center mb-6">
-              <div className="w-full max-w-2xl h-96 flex items-center justify-center">
+            <div className="flex justify-center">
+              <div className="w-full max-w-2xl h-80 flex items-center justify-center">
                 <div className="relative w-64 h-64">
                   <svg viewBox="0 0 100 100" className="w-full h-full">
                     <circle
@@ -493,7 +493,7 @@ export default function MarketAnalysis({ location = '신사' }) {
             </div>
 
             {/* 범례 대신 메시지 */}
-            <div className="text-center">
+            <div className="text-center mb-6">
               <p className="text-slate-500 dark:text-slate-400">연령대별 정보가 없습니다.</p>
             </div>
           </>
