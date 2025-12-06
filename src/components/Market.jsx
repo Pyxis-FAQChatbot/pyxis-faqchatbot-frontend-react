@@ -3,6 +3,8 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { Pie } from "react-chartjs-2";
 import Chart from "react-apexcharts";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { marketApi } from "../api/marketApi";
 import { calculateAgePercentage } from "../utils/calculateAgePercentage";
 import { getPeakHourFormatted, getThreeHourlyTotals } from "../utils/calculatePeakHour";
@@ -183,12 +185,7 @@ function HourlyHeatmap({ data }) {
         show: false,
       },
       tooltip: {
-        enabled: true,
-        style: {
-          fontWeight: 600,
-          backgroundColor: "#60a5fa",
-          color: "#f1f5f9",
-        },
+        enabled: false
       },
     },
     yaxis: {
@@ -232,9 +229,8 @@ function HourlyHeatmap({ data }) {
       hover: {
         filter: {
           type: "darken",
-          value: 0.15,
-        },
-        scale: 1.1,
+          value: 0.10,
+        }
       },
     },
   };
@@ -441,9 +437,11 @@ export default function MarketAnalysis({ location = '신사' }) {
                   }
                 }
               }}
-              className={`prose max-w-none text-sm text-white transition-all duration-300 overflow-hidden break-words ${!llmExpanded ? 'line-clamp-3' : ''}`}
+              className={`markdown-body max-w-none text-sm text-white transition-all duration-300 overflow-hidden break-words ${!llmExpanded ? 'line-clamp-3' : ''}`}
             >
-              {llmMessage}
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {llmMessage}
+              </ReactMarkdown>
             </div>
             {llmMessage && llmExpanded === false && (
               <button
