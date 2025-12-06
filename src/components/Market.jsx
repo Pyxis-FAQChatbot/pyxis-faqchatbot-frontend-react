@@ -437,7 +437,7 @@ export default function MarketAnalysis({ location = '신사' }) {
                   }
                 }
               }}
-              className={`markdown-body max-w-none text-sm text-white transition-all duration-300 overflow-hidden break-words ${!llmExpanded ? 'line-clamp-3' : ''}`}
+              className={`markdown-body max-w-none text-sm text-white transition-all duration-300 overflow-hidden break-words [&_*]:text-white [&_a]:text-green-300 [&_a]:hover:text-green-200 [&_code]:text-white [&_pre]:bg-transparent ${!llmExpanded ? 'line-clamp-3' : ''}`}
             >
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {llmMessage}
