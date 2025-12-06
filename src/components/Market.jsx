@@ -182,6 +182,14 @@ function HourlyHeatmap({ data }) {
       crosshairs: {
         show: false,
       },
+      tooltip: {
+        enabled: true,
+        style: {
+          fontWeight: 600,
+          backgroundColor: "#60a5fa",
+          color: "#f1f5f9",
+        },
+      },
     },
     yaxis: {
       labels: {
@@ -195,9 +203,9 @@ function HourlyHeatmap({ data }) {
       enabled: true,
       theme: "light",
       fixed: {
-        enabled: true,
-        position: "topLeft",
+        enabled: false,
       },
+      followCursor: true,
       y: {
         formatter: (value) => `${value.toLocaleString()} 명`,
       },
@@ -223,8 +231,10 @@ function HourlyHeatmap({ data }) {
     states: {
       hover: {
         filter: {
-          type: "none",
+          type: "darken",
+          value: 0.15,
         },
+        scale: 1.1,
       },
     },
   };
