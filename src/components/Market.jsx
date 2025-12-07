@@ -437,11 +437,13 @@ export default function MarketAnalysis({ location = '신사' }) {
                   }
                 }
               }}
-              className={`markdown-body max-w-none text-sm text-white transition-all duration-300 overflow-hidden break-words [&_p]:text-white [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_li]:text-white ${!llmExpanded ? 'line-clamp-3' : ''}`}
+              className={`text-sm text-white transition-all duration-300 overflow-hidden break-words ${!llmExpanded ? 'line-clamp-3' : ''}`}
             >
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {llmMessage}
-              </ReactMarkdown>
+              <div className="markdown-body max-w-none [&_p]:text-white [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_li]:text-white [&_ul]:text-white [&_ol]:text-white [&_li_p]:text-white [&_blockquote]:text-white [&_strong]:text-white [&_em]:text-white">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {llmMessage}
+                </ReactMarkdown>
+              </div>
             </div>
             {llmMessage && llmExpanded === false && (
               <button
