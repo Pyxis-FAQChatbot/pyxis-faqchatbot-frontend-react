@@ -247,6 +247,19 @@ function HourlyHeatmap({ data }) {
   );
 }
 
+// Market.jsx의 상단에 추가할 함수
+const normalizeMarkdownNewlines = (text) => {
+  if (!text) return '';
+  // 연속된 줄바꿈(빈 줄)은 유지하되, 단일 줄바꿈은 공백으로 변환
+  return text
+    .split('\n\n')           // 빈 줄로 분할
+    .map(paragraph => 
+      paragraph.replace(/\n/g, ' ').trim()  // 각 문단 내 단일 \n을 공백으로
+    )
+    .filter(p => p.length > 0) // 빈 문단 제거
+    .join('\n\n');            // 빈 줄로 재결합
+};
+
 export default function MarketAnalysis({ location = '신사' }) {
   const [ageData, setAgeData] = useState(null);
   const [hourlyData, setHourlyData] = useState(null);
@@ -439,9 +452,9 @@ export default function MarketAnalysis({ location = '신사' }) {
               }}
               className={`text-sm text-white transition-all duration-300 overflow-hidden break-words ${!llmExpanded ? 'line-clamp-3' : ''}`}
             >
-              <div className="markdown-body max-w-none [&_p]:text-white [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_li]:text-white [&_ul]:text-white [&_ol]:text-white [&_li_p]:text-white [&_blockquote]:text-white [&_strong]:text-white [&_em]:text-white">
+              <div className="markdown-strategy max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {llmMessage}
+                  {normalizeMarkdownNewlines(llmMessage)}
                 </ReactMarkdown>
               </div>
             </div>
