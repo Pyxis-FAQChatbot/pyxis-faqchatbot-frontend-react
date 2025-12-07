@@ -21,6 +21,7 @@ export default function ChatPage() {
   const chatContainerRef = useRef(null);
   const [chatTitle, setChatTitle] = useState("챗봇");
   const [deleteConfirmation, setDeleteConfirmation] = useState({ isOpen: false, roomId: null });
+  const [isLastBotMessageTypingComplete, setIsLastBotMessageTypingComplete] = useState(false);
   const PAGE_SIZE = 20;
   const firstMessage = new URLSearchParams(window.location.search).get("firstMessage");
 
@@ -202,6 +203,7 @@ export default function ChatPage() {
   // Auto-scroll to bottom when new messages are added (if not loading history)
   useEffect(() => {
     if (page <= 1 && !isLoading) {
+      setIsLastBotMessageTypingComplete(false);
       const container = chatContainerRef.current;
       if (container) {
         container.scrollTop = container.scrollHeight;
@@ -219,7 +221,7 @@ export default function ChatPage() {
     : null;
   const isLastBotMessageNew = lastBotMessage?.isNew;
   const shouldShowFollowUps = lastBotMessage?.followUpQuestions?.length > 0 && 
-    (!isLastBotMessageNew || isBotResponding === false); // isNew가 false이거나 봇 응답이 완료됨
+    (!isLastBotMessageNew || isLastBotMessageTypingComplete);
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
@@ -256,6 +258,11 @@ export default function ChatPage() {
                     if (isNearBottom) {
                       container.scrollTop = container.scrollHeight;
                     }
+                  }
+                }}
+                onTypingComplete={() => {
+                  if (index === messages.length - 1) {
+                    setIsLastBotMessageTypingComplete(true);
                   }
                 }}
               />

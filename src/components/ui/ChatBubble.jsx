@@ -4,7 +4,7 @@ import { useTypingEffect } from '../../hooks/useTypingEffect';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export default function ChatBubble({ message, isBot, isLatest, scrollToBottom }) {
+export default function ChatBubble({ message, isBot, isLatest, scrollToBottom, onTypingComplete }) {
     // Apply typing effect only to bot messages AND if it's a NEW message (not history)
     const shouldType = isBot && message.isNew;
     // 25ms per character typing speed
@@ -15,6 +15,13 @@ export default function ChatBubble({ message, isBot, isLatest, scrollToBottom })
     
     // 타이핑 완료 여부 판정
     const isTypingComplete = !shouldType || (displayText.length === message.text.length);
+
+    // Notify parent when typing is complete
+    React.useEffect(() => {
+        if (isTypingComplete && onTypingComplete) {
+            onTypingComplete();
+        }
+    }, [isTypingComplete, onTypingComplete]);
 
     // Auto-scroll when text updates
     const cursorRef = React.useRef(null);

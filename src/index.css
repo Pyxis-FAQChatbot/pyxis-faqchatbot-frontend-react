@@ -30,3 +30,16 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-slate-400;
 }
+
+/* Hide scrollbar for textarea while keeping scroll functionality */
+textarea::-webkit-scrollbar {
+  width: 0;
+}
+
+textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background: transparent;
+}

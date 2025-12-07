@@ -3,11 +3,15 @@ import { Send, Sparkles } from "lucide-react";
 
 export default function ChatInput({ onSendMessage, disabled, showPrompts = false }) {
   const [inputValue, setInputValue] = useState("");
+  const textareaRef = React.useRef(null);
 
   const handleSend = () => {
     if (inputValue.trim() && onSendMessage) {
       onSendMessage(inputValue);
       setInputValue("");
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     }
   };
 
@@ -15,6 +19,17 @@ export default function ChatInput({ onSendMessage, disabled, showPrompts = false
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+    // 텍스트 높이에 맞춰 textarea 높이 조정
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      const borderHeight = 2; // border-top + border-bottom (1px + 1px)
+      textareaRef.current.style.height = Math.min(Math.ceil(scrollHeight) + borderHeight, 140) + 'px';
     }
   };
 
@@ -40,25 +55,26 @@ export default function ChatInput({ onSendMessage, disabled, showPrompts = false
       )}
 
       <div className="p-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 transition-colors">
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            placeholder="메시지를 입력하세요..."
-            className="w-full pl-5 pr-12 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white dark:focus:bg-slate-700 transition-all"
+        <div className="relative flex items-end gap-2.5">
+          <textarea
+            placeholder="메시지를 입력하세요."
+            className="flex-1 pl-4 pr-2 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:bg-white dark:focus:bg-slate-700 transition-all resize-none min-h-[40px] overflow-y-scroll scrollbar-hide"
+            ref={textareaRef}
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             disabled={disabled}
+            rows={1}
           />
           <button
-            className={`absolute right-2 p-2 rounded-xl transition-all ${inputValue.trim()
+            className={`p-3 rounded-xl transition-all flex-shrink-0 ${inputValue.trim()
               ? 'bg-primary text-white shadow-glow hover:scale-105'
               : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             onClick={handleSend}
             disabled={!inputValue.trim() || disabled}
           >
-            <Send size={18} />
+            <Send size={20} />
           </button>
         </div>
       </div>
