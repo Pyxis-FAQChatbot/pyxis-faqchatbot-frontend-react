@@ -455,7 +455,8 @@ export default function MarketAnalysis({ location = '신사' }) {
             >
               <div className="markdown-strategy max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {normalizeMarkdownNewlines(llmMessage)}
+                  {/*normalizeMarkdownNewlines(llmMessage)*/}
+                  {llmMessage}
                 </ReactMarkdown>
               </div>
             </div>
