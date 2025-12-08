@@ -27,7 +27,7 @@
   @apply list-decimal pl-5 my-2;
 }
 .markdown-body li {
-  @apply mb-1 text-slate-700 dark:text-slate-200;
+  @apply mb-5 text-slate-700 dark:text-slate-200;
 }
 
 /* 인라인 코드 */

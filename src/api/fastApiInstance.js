@@ -10,19 +10,23 @@ const fastApiInstance = axios.create({
 
 // 요청 인터셉터
 fastApiInstance.interceptors.request.use((config) => {
+  /*
   const fullUrl = config.baseURL + config.url;
   console.log("[FastAPI 요청]", config.method.toUpperCase(), fullUrl, {
     params: config.params,
     data: config.data,
   });
+  */
   return config;
 });
 
 // 요청/응답 공통 처리 
 fastApiInstance.interceptors.response.use(
   (response) => {
+    /*
     const fullUrl = response.config.baseURL + response.config.url;
     console.log("[FastAPI 응답]", fullUrl, response.status, response.data);
+    */
     return response;
   },
   (error) => {
